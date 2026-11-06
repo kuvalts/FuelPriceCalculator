@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Degvielas & Maršruta Kalkulators</title>
+    <title>FuelPro-09 — Degvielas & Maršruta Kalkulators</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,10 +36,10 @@
             overflow-x: hidden;
         }
         .glass-panel {
-            background: rgba(17, 24, 39, 0.86);
+            background: rgba(17, 24, 39, 0.88);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
         input[type="range"] {
@@ -51,7 +51,7 @@
         }
         input[type="range"]::-webkit-slider-runnable-track {
             background: #1E293B;
-            height: 6px;
+            height: 8px;
             border-radius: 999px;
         }
         input[type="range"]::-webkit-slider-thumb {
@@ -59,8 +59,8 @@
             appearance: none;
             margin-top: -6px;
             background-color: #10B981;
-            height: 18px;
-            width: 18px;
+            height: 20px;
+            width: 20px;
             border-radius: 50%;
             border: 2px solid #090D16;
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
@@ -76,7 +76,7 @@
             backdrop-filter: blur(6px);
         }
         .safe-bottom-padding {
-            padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px));
+            padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -84,10 +84,9 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950">
 
-    <!-- COMPACT TOP NAVIGATION BAR -->
-    <header class="sticky top-0 z-30 h-14 border-b border-slate-800/80 bg-[#090D16]/90 backdrop-blur-xl px-3 sm:px-6">
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-30 h-14 border-b border-slate-800/80 bg-[#090D16]/95 backdrop-blur-xl px-3 sm:px-6">
         <div class="max-w-6xl mx-auto h-full flex items-center justify-between gap-2">
-            <!-- Left: Saved Routes & Garage Drawers -->
             <div class="flex items-center gap-2">
                 <button onclick="toggleDrawer('routes')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700/70 text-xs font-medium text-slate-200 transition active:scale-95">
                     <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-400"></i>
@@ -102,10 +101,12 @@
                 </button>
             </div>
 
-            <!-- Right: Language Switcher -->
-            <div class="flex items-center bg-slate-900 p-0.5 rounded-xl border border-slate-800">
-                <button id="langLvBtn" onclick="setLanguage('lv')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-emerald-500 text-slate-950">LV</button>
-                <button id="langEnBtn" onclick="setLanguage('en')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">EN</button>
+            <div class="flex items-center gap-2">
+                <span class="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">FuelPro-09</span>
+                <div class="flex items-center bg-slate-900 p-0.5 rounded-xl border border-slate-800">
+                    <button id="langLvBtn" onclick="setLanguage('lv')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-emerald-500 text-slate-950">LV</button>
+                    <button id="langEnBtn" onclick="setLanguage('en')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">EN</button>
+                </div>
             </div>
         </div>
     </header>
@@ -117,103 +118,99 @@
             <!-- LEFT COLUMN: INPUT CARDS (7 cols) -->
             <div class="lg:col-span-7 space-y-3.5">
 
-                <!-- 1. LATVIAN DUS FUEL PRICE CARD (CLEAN MOBILE LAYOUT + WORKFLOW STATUS) -->
+                <!-- 1. FUEL PRICE CARD (CLEAN LAYOUT + ALWAYS-ACTIVE MANUAL SLIDER AT BOTTOM) -->
                 <section class="glass-panel rounded-2xl p-4">
-                    <!-- Row 1: Title & Manual Stepper -->
-                    <div class="flex items-center justify-between gap-2 mb-2.5">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                    <!-- Top Row: Title & Live Status Pill -->
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
                                 <i data-lucide="fuel" class="w-4 h-4"></i>
                             </div>
-                            <div class="min-w-0">
-                                <h2 class="text-sm font-display font-bold text-white leading-tight truncate" data-i18n="fuel_price_title">Degvielas Cena</h2>
-                                <p class="text-[11px] text-slate-400 truncate" data-i18n="fuel_price_subtitle">Tiešsaistes DUS dati vai manuāla ievade</p>
+                            <div>
+                                <h2 class="text-sm font-display font-bold text-white leading-tight" data-i18n="fuel_price_title">Degvielas Cena</h2>
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    <span id="workflowDot" class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                                    <span id="workflowTimestampText" class="text-[11px] font-mono text-slate-400">Pārbauda ./prices.json...</span>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Manual Price Stepper -->
-                        <div class="flex items-center gap-1 shrink-0">
-                            <button onclick="stepValue('price', -0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">-</button>
-                            <div class="relative">
-                                <input id="priceInput" type="number" min="0.10" max="5.00" step="0.01" value="" placeholder="--.--" oninput="syncInput('price', this.value)" class="w-20 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-1.5 pr-7 text-right font-mono font-bold text-sm text-amber-400 placeholder:text-slate-600 focus:outline-none focus:border-amber-500">
-                                <span class="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-400">€/L</span>
-                            </div>
-                            <button onclick="stepValue('price', 0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">+</button>
-                        </div>
-                    </div>
-
-                    <!-- Row 2: GitHub Workflow Last Updated Bar -->
-                    <div class="flex items-center justify-between gap-2 px-3 py-1.5 mb-3 rounded-xl bg-slate-900/90 border border-slate-800/90 text-[11px]">
-                        <div class="flex items-center gap-1.5 min-w-0">
-                            <span id="workflowDot" class="w-2 h-2 rounded-full bg-sky-400 animate-pulse shrink-0"></span>
-                            <span class="text-slate-400 truncate" data-i18n="workflow_label">GitHub Workflow:</span>
-                            <span id="priceUpdatedBadge" class="font-mono font-semibold text-slate-200 truncate">Pārbauda...</span>
-                        </div>
-                        <button id="syncStatusBtn" onclick="fetchPricesJson(true)" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] font-mono text-slate-300 shrink-0 transition">
-                            <i id="syncIcon" data-lucide="refresh-cw" class="w-2.5 h-2.5"></i>
-                            <span data-i18n="refresh_short">Atjaunot</span>
+                        <button onclick="fetchPricesJson(true)" class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition active:scale-95 shrink-0">
+                            <i id="syncIcon" data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            <span data-i18n="btn_refresh">Atjaunot</span>
                         </button>
                     </div>
 
-                    <!-- INITIAL LOADING STATE (4s max timeout, full width) -->
-                    <div id="livePricesLoadingBox" class="mb-3 p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2 text-xs text-sky-300 font-medium">
-                            <i data-lucide="loader-2" class="w-4 h-4 text-sky-400 animate-spin shrink-0"></i>
-                            <span data-i18n="prices_loading_msg">Ielādē ./prices.json...</span>
+                    <!-- Dynamic Live Data Section: Loading / Error / Loaded Stations -->
+                    <div id="fuelLoadingState" class="mb-3 px-3 py-2.5 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 text-xs text-sky-300">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin shrink-0"></i>
+                            <span data-i18n="loading_prices_msg">Ielādē DUS cenas... (Tikmēr varat lietot slīdni zemāk)</span>
                         </div>
-                        <span class="text-[10px] font-mono text-sky-400/80 shrink-0">GET ./prices.json</span>
                     </div>
 
-                    <!-- STRICT ERROR STATE: Shown when ./prices.json is missing or invalid -->
-                    <div id="livePricesErrorBox" class="hidden mb-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2 text-xs text-rose-300 font-medium">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0"></i>
-                            <span id="livePricesErrorText" data-i18n="prices_load_failed">Failed to load data, please add manually</span>
+                    <div id="fuelErrorState" class="hidden mb-3 px-3 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 text-xs text-rose-300">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 text-rose-400"></i>
+                            <span data-i18n="failed_load_msg">Failed to load data, please add manually below</span>
                         </div>
-                        <button onclick="fetchPricesJson(true)" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-[11px] font-semibold shrink-0 transition" data-i18n="retry_btn">
-                            Retry
-                        </button>
                     </div>
 
-                    <!-- LIVE STATION CONTAINER: Shown when ./prices.json loads -->
-                    <div id="livePricesContent" class="hidden">
-                        <!-- Station Selector Tabs -->
-                        <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800 mb-2.5">
+                    <div id="fuelLiveStationsWrap" class="hidden space-y-2.5 mb-3">
+                        <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800">
                             <button onclick="selectStation('Virši')" id="stationBtn_Virši" class="py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500 text-slate-950">Virši</button>
                             <button onclick="selectStation('Circle K')" id="stationBtn_Circle K" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Circle K</button>
                             <button onclick="selectStation('Neste')" id="stationBtn_Neste" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Neste</button>
                             <button onclick="selectStation('Viada')" id="stationBtn_Viada" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Viada</button>
                         </div>
 
-                        <!-- Fuel Type Pills -->
-                        <div class="grid grid-cols-4 gap-1.5 mb-2.5">
+                        <div class="grid grid-cols-4 gap-1.5">
                             <button onclick="selectFuelType('95E')" id="fuelBtn_95E" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-slate-900/80 border-slate-800 text-slate-400">
                                 <span>95E</span>
-                                <span id="priceLabel_95E" class="text-[10px] opacity-80">--</span>
+                                <span id="priceLabel_95E" class="text-[10px] opacity-80">-- €</span>
                             </button>
                             <button onclick="selectFuelType('98E')" id="fuelBtn_98E" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-slate-900/80 border-slate-800 text-slate-400">
                                 <span>98E</span>
-                                <span id="priceLabel_98E" class="text-[10px] opacity-80">--</span>
+                                <span id="priceLabel_98E" class="text-[10px] opacity-80">-- €</span>
                             </button>
                             <button onclick="selectFuelType('Diesel')" id="fuelBtn_Diesel" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-emerald-500/15 border-emerald-500/50 text-emerald-300">
                                 <span data-i18n="diesel_short">Dīzelis</span>
-                                <span id="priceLabel_Diesel" class="text-[10px] opacity-80">--</span>
+                                <span id="priceLabel_Diesel" class="text-[10px] opacity-80">-- €</span>
                             </button>
                             <button onclick="selectFuelType('LPG')" id="fuelBtn_LPG" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-slate-900/80 border-slate-800 text-slate-400">
                                 <span>LPG</span>
-                                <span id="priceLabel_LPG" class="text-[10px] opacity-80">--</span>
+                                <span id="priceLabel_LPG" class="text-[10px] opacity-80">-- €</span>
                             </button>
                         </div>
                     </div>
 
-                    <input id="priceSlider" type="range" min="0.50" max="3.00" step="0.01" value="1.50" oninput="syncInput('price', this.value)">
+                    <!-- ALWAYS-USABLE MANUAL PRICE CONTROL & SLIDER AT BOTTOM OF CARD -->
+                    <div class="pt-3 border-t border-slate-800/90">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="text-xs font-medium text-slate-300" data-i18n="manual_price_label">Manuālā cena (slīdnis):</span>
+                            <div class="flex items-center gap-1">
+                                <button onclick="stepValue('price', -0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">-</button>
+                                <div class="relative">
+                                    <input id="priceInput" type="number" min="0.50" max="3.50" step="0.01" placeholder="--.--" oninput="syncInput('price', this.value)" class="w-24 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-2 pr-8 text-right font-mono font-bold text-sm text-amber-400 placeholder-slate-500 focus:outline-none focus:border-amber-500">
+                                    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400">€/L</span>
+                                </div>
+                                <button onclick="stepValue('price', 0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">+</button>
+                            </div>
+                        </div>
+                        <input id="priceSlider" type="range" min="0.80" max="2.80" step="0.01" value="1.75" oninput="syncInput('price', this.value)">
+                        <div class="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                            <span>0.80 €/L</span>
+                            <span>1.80 €/L</span>
+                            <span>2.80 €/L</span>
+                        </div>
+                    </div>
                 </section>
 
                 <!-- 2. ROUTE PLANNER & DISTANCE -->
                 <section class="glass-panel rounded-2xl p-4">
                     <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
                                 <i data-lucide="route" class="w-4 h-4"></i>
                             </div>
                             <div>
@@ -222,7 +219,7 @@
                             </div>
                         </div>
                         <button onclick="swapLocations()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition active:scale-95">
-                            <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
+                            <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
                         </button>
                     </div>
 
@@ -253,7 +250,6 @@
                         <span id="routeDurationBadge" class="font-mono text-emerald-400 font-semibold">~2h 40m</span>
                     </div>
 
-                    <!-- Quick City Chips -->
                     <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-2 mb-2.5 border-b border-slate-800/80">
                         <span class="text-[11px] text-slate-400 shrink-0" data-i18n="popular_dest">Ātrā izvēle:</span>
                         <button onclick="quickDestination('Jūrmala')" class="px-2 py-1 rounded-lg bg-slate-800/70 hover:bg-slate-800 text-[11px] text-slate-300 shrink-0 border border-slate-700/50">Jūrmala</button>
@@ -286,8 +282,8 @@
                 <!-- 3. VEHICLE CONSUMPTION CARD -->
                 <section class="glass-panel rounded-2xl p-4">
                     <div class="flex items-center justify-between gap-2 mb-3">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <div class="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0">
                                 <i data-lucide="gauge" class="w-4 h-4"></i>
                             </div>
                             <div class="truncate">
@@ -331,7 +327,7 @@
                     <div class="mb-4">
                         <div class="text-xs text-slate-400 mb-0.5" data-i18n="total_cost_label">Kopējās degvielas izmaksas</div>
                         <div class="flex items-baseline gap-2">
-                            <span id="totalCostDisplay" class="text-4xl sm:text-5xl font-mono font-bold text-white tracking-tight">18.15</span>
+                            <span id="totalCostDisplay" class="text-4xl sm:text-5xl font-mono font-bold text-white tracking-tight">--.--</span>
                             <span class="text-xl font-mono font-semibold text-emerald-400">€</span>
                         </div>
                     </div>
@@ -347,7 +343,7 @@
                         <div class="bg-slate-900/90 border border-slate-800/90 rounded-xl p-3">
                             <div class="text-[11px] text-slate-400 mb-0.5" data-i18n="cost_per_km_label">Izmaksas uz 1 km</div>
                             <div class="flex items-baseline gap-1">
-                                <span id="costPerKmDisplay" class="text-xl font-mono font-bold text-amber-400">0.083</span>
+                                <span id="costPerKmDisplay" class="text-xl font-mono font-bold text-amber-400">--.--</span>
                                 <span class="text-xs font-mono text-slate-400">€/km</span>
                             </div>
                         </div>
@@ -363,7 +359,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3">
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3 mb-3">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="users" class="w-3.5 h-3.5 text-slate-400"></i>
@@ -377,38 +373,30 @@
                         </div>
                         <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
                             <span class="text-xs text-slate-400" data-i18n="per_person_label">No katra pasažiera:</span>
-                            <span class="font-mono font-bold text-base text-emerald-400"><span id="costPerPersonDisplay">0.00</span> €</span>
+                            <span class="font-mono font-bold text-base text-emerald-400"><span id="costPerPersonDisplay">--.--</span> €</span>
                         </div>
                     </div>
 
-                    <!-- COPY TRIP SUMMARY BUTTON -->
-                    <button onclick="copyTripSummary()" class="mt-3.5 w-full py-2.5 px-4 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-100 font-semibold text-xs flex items-center justify-center gap-2 transition active:scale-95">
+                    <!-- COPY TRIP DATA BUTTON -->
+                    <button onclick="copyTripSummary()" class="w-full py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-2 transition active:scale-95">
                         <i data-lucide="copy" class="w-3.5 h-3.5 text-emerald-400"></i>
-                        <span data-i18n="copy_summary_btn">Kopēt brauciena datus</span>
+                        <span data-i18n="btn_copy_summary">Kopēt brauciena datus</span>
                     </button>
                 </section>
             </div>
         </div>
 
-        <!-- SYSTEM DIAGNOSTIC LOG & VERSION CONSOLE (FuelPro-08) -->
-        <section class="mt-5 glass-panel rounded-2xl p-4 border border-slate-800/90">
-            <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-800/80">
+        <!-- DIAGNOSTIC LOG & VERSION FOOTER (FuelPro-09) -->
+        <section class="mt-6 glass-panel rounded-2xl p-4 border border-slate-800/90">
+            <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span id="diagStatusDot" class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
-                    <h3 class="text-xs font-mono font-bold text-slate-200 uppercase tracking-wider">System Diagnostic Log</h3>
-                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-400">Version: FuelPro-08</span>
+                    <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+                    <span class="text-xs font-mono font-bold text-white">System Diagnostic Log</span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-300">Version: FuelPro-09</span>
                 </div>
-                <div class="flex items-center gap-1.5">
-                    <button onclick="fetchPricesJson(true)" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300 border border-slate-700 transition">
-                        Test ./prices.json
-                    </button>
-                    <button onclick="clearSystemLog()" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-400 hover:text-white border border-slate-700 transition">
-                        Clear
-                    </button>
-                </div>
+                <button onclick="clearDiagLog()" class="text-[11px] font-mono text-slate-400 hover:text-white">Clear</button>
             </div>
-            <div id="systemLogOutput" class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3 font-mono text-[11px] leading-relaxed text-slate-300 max-h-48 overflow-y-auto space-y-1">
-            </div>
+            <div id="diagLogBox" class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3 font-mono text-[11px] text-slate-300 max-h-40 overflow-y-auto space-y-1"></div>
         </section>
     </main>
 
@@ -443,7 +431,7 @@
         </div>
     </div>
 
-    <!-- DRAWER 2: GARAGE & 45,000+ LIVE VEHICLE API DATABASE -->
+    <!-- DRAWER 2: GARAGE & CAR DATABASE -->
     <div id="garageDrawer" class="fixed inset-0 z-50 hidden">
         <div onclick="toggleDrawer('garage')" class="drawer-backdrop absolute inset-0"></div>
         <div class="absolute right-0 top-0 bottom-0 w-full max-w-lg bg-[#0D1320] border-l border-slate-800 flex flex-col shadow-2xl">
@@ -486,26 +474,25 @@
                 <div id="savedCarsList" class="space-y-2"></div>
             </div>
 
-            <!-- TAB 2: LIVE 45,000+ API + EUROPEAN CATALOG -->
+            <!-- TAB 2: CAR DATABASE -->
             <div id="garageTabDb" class="hidden flex-1 overflow-y-auto p-4 space-y-3.5">
-                <!-- Disclaimer -->
                 <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-200/90 leading-relaxed">
-                    <span data-i18n="db_disclaimer">⚠️ Uzmanību: Šie dati ir informatīvi un ņemti no tehniskajām datubāzēm. Reālais degvielas patēriņš dzīvē var atšķirties atkarībā no braukšanas stila, ceļa apstākļiem un auto tehniskā stāvokļa.</span>
+                    <span data-i18n="db_disclaimer">⚠️ Uzmanību: Šie dati ir informatīvi un ņemti no tehniskajām datubāzēm. Reālais degvielas patēriņš var atšķirties.</span>
                 </div>
 
-                <!-- LIVE GLOBAL API LOOKUP (1984-2026, 45,000+ VEHICLES) -->
+                <!-- LIVE API LOOKUP -->
                 <div class="p-3.5 rounded-xl bg-slate-900 border border-sky-500/30 space-y-2.5">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
                             <i data-lucide="globe" class="w-3.5 h-3.5"></i>
                             <span data-i18n="live_api_title">Globālā Auto API Meklēšana (1984–2026)</span>
                         </span>
-                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-300">LIVE REST API</span>
+                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-300">LIVE API</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <select id="apiYearSelect" onchange="loadApiMakes()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
-                            <option value="">1. Izvēlies gadu...</option>
+                            <option value="">1. Gads...</option>
                         </select>
                         <select id="apiMakeSelect" onchange="loadApiModels()" disabled class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-sky-500 disabled:opacity-40">
                             <option value="">2. Marka...</option>
@@ -516,13 +503,8 @@
                             <option value="">3. Modelis...</option>
                         </select>
                         <select id="apiOptionSelect" onchange="fetchApiVehicleSpecs()" disabled class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-sky-500 disabled:opacity-40">
-                            <option value="">4. Dzinējs / Kārba...</option>
+                            <option value="">4. Dzinējs...</option>
                         </select>
-                    </div>
-
-                    <!-- API Error Banner if fueleconomy.gov fails -->
-                    <div id="apiCarErrorBox" class="hidden p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[11px] text-rose-300" data-i18n="prices_load_failed">
-                        Failed to load data, please add manually
                     </div>
 
                     <div id="apiVehicleResult" class="hidden pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
@@ -530,18 +512,16 @@
                             <div id="apiResultTitle" class="text-xs font-bold text-white"></div>
                             <div id="apiResultSpecs" class="text-[11px] font-mono text-sky-400 mt-0.5"></div>
                         </div>
-                        <button onclick="saveApiVehicle()" class="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs shrink-0">
-                            + <span data-i18n="add_from_db_btn">Pievienot</span>
-                        </button>
+                        <button onclick="saveApiVehicle()" class="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs shrink-0">+ Pievienot</button>
                     </div>
                 </div>
 
-                <!-- EUROPEAN / BALTIC DIESEL & PETROL QUICK CATALOG -->
+                <!-- EUROPEAN CATALOG -->
                 <div class="space-y-2">
-                    <div class="text-xs font-semibold text-slate-300" data-i18n="eu_catalog_title">Eiropas & Latvijas Populāro Auto Katalogs (TDI / TSI / D5 / d)</div>
+                    <div class="text-xs font-semibold text-slate-300" data-i18n="eu_catalog_title">Eiropas & Latvijas Populāro Auto Katalogs</div>
                     <div class="relative">
                         <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                        <input id="dbSearchInput" type="text" oninput="renderCarDatabase()" placeholder="Meklēt (piem., 1.9 TDI, 320d, XC60, Octavia, Passat, RAV4)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+                        <input id="dbSearchInput" type="text" oninput="renderCarDatabase()" placeholder="Meklēt (piem., 1.9 TDI, 320d, XC60, Octavia, Passat)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
                     </div>
                     <div id="dbResultsList" class="space-y-2 pt-1"></div>
                 </div>
@@ -553,19 +533,17 @@
     <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-semibold text-xs shadow-xl"></div>
 
     <script>
-        const APP_VERSION = "FuelPro-08";
+        const APP_VERSION = "FuelPro-09";
 
         const i18n = {
             lv: {
                 nav_routes: "Maršruti",
                 nav_garage: "Garāža",
                 fuel_price_title: "Degvielas Cena",
-                fuel_price_subtitle: "Tiešsaistes DUS dati vai manuāla ievade",
-                workflow_label: "GitHub Workflow:",
-                refresh_short: "Atjaunot",
-                prices_loading_msg: "Ielādē ./prices.json...",
-                prices_load_failed: "Neizdevās ielādēt datus, lūdzu ievadiet manuāli (Failed to load data, please add manually)",
-                retry_btn: "Mēģināt vēlreiz",
+                btn_refresh: "Atjaunot",
+                loading_prices_msg: "Ielādē DUS cenas... (Tikmēr varat lietot slīdni zemāk)",
+                failed_load_msg: "Failed to load data, please add manually below",
+                manual_price_label: "Manuālā cena (slīdnis):",
                 diesel_short: "Dīzelis",
                 route_title: "Maršruta Plānotājs & Distance",
                 route_subtitle: "Aprēķiniet ceļa attālumu starp pilsētām vai ievadiet km",
@@ -586,7 +564,7 @@
                 tank_usage_label: "Bākas patēriņš",
                 split_label: "Dalīt izmaksas (cilvēki)",
                 per_person_label: "No katra pasažiera:",
-                copy_summary_btn: "Kopēt brauciena datus",
+                btn_copy_summary: "Kopēt brauciena datus",
                 btn_save_car: "Saglabāt Auto",
                 btn_save_route: "Saglabāt Maršrutu",
                 drawer_routes_title: "Saglabātie Maršruti",
@@ -595,29 +573,25 @@
                 tab_db_search: "Meklēt Datubāzē (45,000+)",
                 add_custom_car_title: "Pievienot savu auto manuāli",
                 save_to_garage_btn: "Saglabāt garāžā",
-                db_disclaimer: "⚠️ Uzmanību: Šie dati ir informatīvi un ņemti no tehniskajām datubāzēm. Reālais degvielas patēriņš dzīvē var atšķirties atkarībā no braukšanas stila, ceļa apstākļiem un auto tehniskā stāvokļa.",
+                db_disclaimer: "⚠️ Uzmanību: Šie dati ir informatīvi un ņemti no tehniskajām datubāzēm. Reālais degvielas patēriņš var atšķirties.",
                 live_api_title: "Globālā Auto API Meklēšana (1984–2026)",
-                eu_catalog_title: "Eiropas & Latvijas Populāro Auto Katalogs (TDI / TSI / D5 / d)",
+                eu_catalog_title: "Eiropas & Latvijas Populāro Auto Katalogs",
                 use_car_btn: "Izvēlēties",
                 add_from_db_btn: "Pievienot",
                 no_routes: "Nav saglabātu maršrutu.",
                 toast_route_saved: "Maršruts saglabāts!",
                 toast_car_saved: "Auto pievienots garāžai!",
                 toast_car_selected: "Auto izvēlēts!",
-                toast_prices_synced: "Tiešsaistes DUS cenas ielādētas!",
-                toast_prices_failed: "Neizdevās ielādēt ./prices.json!",
                 toast_copied: "Brauciena dati nokopēti!"
             },
             en: {
                 nav_routes: "Routes",
                 nav_garage: "Garage",
                 fuel_price_title: "Fuel Price",
-                fuel_price_subtitle: "Live station data or manual entry",
-                workflow_label: "GitHub Workflow:",
-                refresh_short: "Refresh",
-                prices_loading_msg: "Loading ./prices.json...",
-                prices_load_failed: "Failed to load data, please add manually",
-                retry_btn: "Retry",
+                btn_refresh: "Refresh",
+                loading_prices_msg: "Loading station prices... (Use manual slider below anytime)",
+                failed_load_msg: "Failed to load data, please add manually below",
+                manual_price_label: "Manual price (slider):",
                 diesel_short: "Diesel",
                 route_title: "Route Planner & Distance",
                 route_subtitle: "Calculate driving distance between cities or enter km",
@@ -638,17 +612,56 @@
                 tank_usage_label: "Tank Usage",
                 split_label: "Split Cost (Passengers)",
                 per_person_label: "Cost per person:",
-                copy_summary_btn: "Copy trip summary",
+                btn_copy_summary: "Copy trip summary",
                 btn_save_car: "Save Car",
-            { make: "Subaru", model: "Outback 2.5i AWD", year: "2015–2024", fuel: "95E", cons: 7.3, tank: 60 },
-            { make: "Lexus", model: "RX 450h AWD", year: "2015–2023", fuel: "95E", cons: 6.2, tank: 65 }
+                btn_save_route: "Save Route",
+                drawer_routes_title: "Saved Routes",
+                drawer_garage_title: "My Garage & Car Database",
+                tab_my_cars: "My Cars",
+                tab_db_search: "Search Database (45,000+)",
+                add_custom_car_title: "Add Custom Vehicle",
+                save_to_garage_btn: "Save to Garage",
+                db_disclaimer: "⚠️ Note: This data is for informational purposes derived from technical databases. Real-world fuel consumption may vary.",
+                live_api_title: "Global Vehicle API Lookup (1984–2026)",
+                eu_catalog_title: "European & Baltic Popular Car Catalog",
+                use_car_btn: "Select",
+                add_from_db_btn: "Add Car",
+                no_routes: "No saved routes yet.",
+                toast_route_saved: "Route saved!",
+                toast_car_saved: "Car saved to garage!",
+                toast_car_selected: "Vehicle selected!",
+                toast_copied: "Trip summary copied!"
+            }
+        };
+
+        const EU_CAR_CATALOG = [
+            { make: "Volkswagen", model: "Golf IV 1.9 TDI", year: "1998–2005", fuel: "Diesel", cons: 5.0, tank: 55 },
+            { make: "Volkswagen", model: "Golf VII 1.6 TDI", year: "2013–2020", fuel: "Diesel", cons: 4.2, tank: 50 },
+            { make: "Volkswagen", model: "Golf VII 2.0 TDI", year: "2013–2020", fuel: "Diesel", cons: 4.5, tank: 50 },
+            { make: "Volkswagen", model: "Passat B6 / B7 2.0 TDI", year: "2005–2014", fuel: "Diesel", cons: 5.4, tank: 70 },
+            { make: "Volkswagen", model: "Passat B8 2.0 TDI", year: "2015–2023", fuel: "Diesel", cons: 4.9, tank: 66 },
+            { make: "Volkswagen", model: "Tiguan 2.0 TDI 4Motion", year: "2016–2024", fuel: "Diesel", cons: 6.1, tank: 60 },
+            { make: "Audi", model: "A4 B8 2.0 TDI", year: "2008–2015", fuel: "Diesel", cons: 5.1, tank: 63 },
+            { make: "Audi", model: "A4 B9 2.0 TDI", year: "2015–2023", fuel: "Diesel", cons: 4.8, tank: 54 },
+            { make: "Audi", model: "A6 C7 3.0 TDI Quattro", year: "2011–2018", fuel: "Diesel", cons: 6.0, tank: 65 },
+            { make: "BMW", model: "320d (E90 / F30 / G20)", year: "2008–2023", fuel: "Diesel", cons: 4.8, tank: 59 },
+            { make: "BMW", model: "530d xDrive (F10 / G30)", year: "2011–2023", fuel: "Diesel", cons: 5.9, tank: 68 },
+            { make: "BMW", model: "X5 xDrive30d", year: "2010–2023", fuel: "Diesel", cons: 7.4, tank: 85 },
+            { make: "Volvo", model: "V70 / XC70 2.4 D5", year: "2007–2016", fuel: "Diesel", cons: 6.4, tank: 70 },
+            { make: "Volvo", model: "XC60 D4 / B4 AWD", year: "2015–2024", fuel: "Diesel", cons: 6.0, tank: 71 },
+            { make: "Škoda", model: "Octavia III/IV 2.0 TDI", year: "2013–2024", fuel: "Diesel", cons: 4.4, tank: 50 },
+            { make: "Škoda", model: "Superb 2.0 TDI", year: "2015–2024", fuel: "Diesel", cons: 4.9, tank: 66 },
+            { make: "Toyota", model: "Corolla 1.8 Hybrid", year: "2019–2025", fuel: "95E", cons: 4.5, tank: 43 },
+            { make: "Toyota", model: "RAV4 2.5 Hybrid AWD", year: "2019–2025", fuel: "95E", cons: 5.6, tank: 55 },
+            { make: "Seat", model: "Arosa 1.0 MPI", year: "1997–2004", fuel: "95E", cons: 5.8, tank: 34 },
+            { make: "Mercedes-Benz", model: "E 220d (W212 / W213)", year: "2010–2023", fuel: "Diesel", cons: 5.1, tank: 66 },
+            { make: "Opel", model: "Insignia 2.0 CDTI", year: "2009–2020", fuel: "Diesel", cons: 5.4, tank: 62 }
         ];
 
         const LV_CITIES = {
             "rīga": { lat: 56.9496, lon: 24.1052 },
             "riga": { lat: 56.9496, lon: 24.1052 },
             "jūrmala": { lat: 56.9680, lon: 23.7704 },
-            "jurmala": { lat: 56.9680, lon: 23.7704 },
             "jelgava": { lat: 56.6511, lon: 23.7214 },
             "sigulda": { lat: 57.1537, lon: 24.8595 },
             "ventspils": { lat: 57.3937, lon: 21.5647 },
@@ -658,20 +671,16 @@
             "valmiera": { lat: 57.5385, lon: 25.4264 },
             "cēsis": { lat: 57.3119, lon: 25.2746 },
             "kandava": { lat: 57.0406, lon: 22.7747 },
-            "talsi": { lat: 57.2456, lon: 22.5814 },
-            "rēzekne": { lat: 56.5099, lon: 27.3331 },
-            "jēkabpils": { lat: 56.4975, lon: 25.8662 },
-            "ogre": { lat: 56.8149, lon: 24.6045 }
+            "talsi": { lat: 57.2456, lon: 22.5814 }
         };
 
-        // NO PRE-PRICES! Price starts at 0 (unloaded) until ./prices.json is fetched or user types a price manually.
         let state = {
             lang: 'lv',
             station: 'Virši',
             fuelType: 'Diesel',
-            stationPrices: null, // Strictly null unless ./prices.json loads!
+            stationPrices: null,
             liveDataLoaded: false,
-            price: 0, // No pre-price on initial load!
+            price: null, // Starts unpopulated until ./prices.json loads or user moves manual slider
             distance: 218,
             isRoundTrip: false,
             consumption: 4.5,
@@ -681,172 +690,146 @@
             pendingApiCar: null,
             savedCars: JSON.parse(localStorage.getItem('fp_saved_cars')) || [
                 { id: 1, name: "VW Golf VII 2.0 TDI", cons: 4.5, fuel: "Diesel", tank: 50 },
-                { id: 2, name: "BMW 320d (F30)", cons: 4.8, fuel: "Diesel", tank: 59 },
+                { id: 2, name: "BMW 320d", cons: 4.8, fuel: "Diesel", tank: 59 },
                 { id: 3, name: "Toyota RAV4 Hybrid", cons: 5.6, fuel: "95E", tank: 55 }
             ],
             savedRoutes: JSON.parse(localStorage.getItem('fp_saved_routes')) || []
         };
 
         // --- DIAGNOSTIC LOGGER ---
-        function logDiagnostic(message, level = 'INFO') {
-            const out = document.getElementById('systemLogOutput');
-            if (!out) return;
-            const now = new Date().toLocaleTimeString('lv-LV', { hour12: false });
-            let colorClass = 'text-slate-300';
-            if (level === 'OK') colorClass = 'text-emerald-400 font-semibold';
-            if (level === 'WARN') colorClass = 'text-amber-400';
-            if (level === 'ERROR') colorClass = 'text-rose-400 font-semibold';
-
+        function logDiag(msg, level = 'INFO') {
+            const box = document.getElementById('diagLogBox');
+            if (!box) return;
+            const time = new Date().toLocaleTimeString('lv-LV', { hour12: false });
+            const color = level === 'ERROR' ? 'text-rose-400' : (level === 'OK' ? 'text-emerald-400' : 'text-sky-300');
             const line = document.createElement('div');
-            line.className = `${colorClass} break-all`;
-            line.textContent = `[${now}] [${APP_VERSION}] [${level}] ${message}`;
-            out.appendChild(line);
-            out.scrollTop = out.scrollHeight;
+            line.innerHTML = `<span class="text-slate-500">[${time}]</span> <span class="${color} font-bold">[${level}]</span> ${msg}`;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
         }
 
-        function clearSystemLog() {
-            const out = document.getElementById('systemLogOutput');
-            if (out) out.innerHTML = '';
-            logDiagnostic(`Log cleared. Running ${APP_VERSION}`, 'INFO');
-        // --- STRICT ./prices.json LOADER (NO PRE-PRICES, 4s TIMEOUT, SHOWS WORKFLOW TIMESTAMP) ---
-        async function fetchPricesJson(showNotification = false) {
+        function clearDiagLog() {
+            document.getElementById('diagLogBox').innerHTML = '';
+            logDiag(`Log cleared. Running ${APP_VERSION}`, 'INFO');
+        }
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            logDiag(`Booting ${APP_VERSION}...`, 'INFO');
+            initApiYearsDropdown();
+            renderSavedCars();
+            renderSavedRoutes();
+            renderCarDatabase();
+            calculateAll();
+            fetchPricesJson(false);
+        });
+
+        // --- STRICT ./prices.json FETCHER WITH 4-SECOND TIMEOUT ---
+        async function fetchPricesJson(manualTrigger = false) {
             const icon = document.getElementById('syncIcon');
-            const badge = document.getElementById('priceUpdatedBadge');
-            const workflowDot = document.getElementById('workflowDot');
-            const loadingBox = document.getElementById('livePricesLoadingBox');
-            const errorBox = document.getElementById('livePricesErrorBox');
-            const liveContent = document.getElementById('livePricesContent');
-            const diagDot = document.getElementById('diagStatusDot');
+            const dot = document.getElementById('workflowDot');
+            const wfText = document.getElementById('workflowTimestampText');
+            const loadingEl = document.getElementById('fuelLoadingState');
+            const errorEl = document.getElementById('fuelErrorState');
+            const stationsEl = document.getElementById('fuelLiveStationsWrap');
 
             if (icon) icon.classList.add('animate-spin');
-            if (loadingBox) loadingBox.classList.remove('hidden');
-            if (errorBox) errorBox.classList.add('hidden');
-            if (liveContent) liveContent.classList.add('hidden');
-            if (badge) {
-                badge.textContent = state.lang === 'lv' ? 'Ielādē...' : 'Loading...';
-                badge.className = "font-mono font-semibold text-sky-400 truncate";
-            }
-            if (workflowDot) workflowDot.className = "w-2 h-2 rounded-full bg-sky-400 animate-pulse shrink-0";
+            loadingEl.classList.remove('hidden');
+            errorEl.classList.add('hidden');
+            stationsEl.classList.add('hidden');
 
-            const url = `./prices.json?t=${Date.now()}`;
-            logDiagnostic(`Fetching live fuel prices from: ${url}`, 'INFO');
+            dot.className = "w-2 h-2 rounded-full bg-sky-400 animate-pulse";
+            wfText.textContent = "GET ./prices.json...";
+            logDiag(`Fetching ./prices.json (cache-busted)...`, 'INFO');
 
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4500);
+            const timer = setTimeout(() => controller.abort(), 4000);
 
             try {
-                const res = await fetch(url, { cache: "no-store", signal: controller.signal });
-                clearTimeout(timeoutId);
-                logDiagnostic(`HTTP response status: ${res.status} ${res.statusText}`, res.ok ? 'INFO' : 'ERROR');
+                const res = await fetch(`./prices.json?t=${Date.now()}`, {
+                    cache: "no-store",
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+                logDiag(`HTTP Response: ${res.status} ${res.statusText}`, res.ok ? 'OK' : 'ERROR');
 
-                if (!res.ok) throw new Error(`HTTP ${res.status} (${res.statusText} - check if prices.json exists in repo root)`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-                const rawText = await res.text();
-                let data;
-                try {
-                    data = JSON.parse(rawText);
-                } catch (jsonErr) {
-                    logDiagnostic(`JSON parse error: response is not valid JSON (${rawText.slice(0, 60)}...)`, 'ERROR');
-                    throw new Error("Invalid JSON format in ./prices.json");
-                }
-
-                // Verify that the JSON actually contains valid station objects
-                const foundStations = ['Virši', 'Circle K', 'Neste', 'Viada'].filter(s => data && typeof data[s] === 'object');
-                if (foundStations.length === 0) {
-                    logDiagnostic(`JSON structure invalid: missing station keys (Virši, Circle K, Neste, Viada)`, 'ERROR');
-                    throw new Error("Missing station keys in ./prices.json");
+                const data = await res.json();
+                if (!data || (!data['Virši'] && !data['Circle K'])) {
+                    throw new Error("Invalid JSON structure in prices.json");
                 }
 
                 state.stationPrices = data;
                 state.liveDataLoaded = true;
 
-                if (loadingBox) loadingBox.classList.add('hidden');
-                if (errorBox) errorBox.classList.add('hidden');
-                if (liveContent) liveContent.classList.remove('hidden');
+                loadingEl.classList.add('hidden');
+                errorEl.classList.add('hidden');
+                stationsEl.classList.remove('hidden');
 
-                const lastUpdatedStr = data.updated ? data.updated : (state.lang === 'lv' ? 'Aktīvs (nav laika zīmoga)' : 'Active (no timestamp)');
-                if (badge) {
-                    badge.textContent = `${lastUpdatedStr}`;
-                    badge.className = "font-mono font-semibold text-emerald-400 truncate";
-                }
-                if (workflowDot) workflowDot.className = "w-2 h-2 rounded-full bg-emerald-400 shrink-0";
-                if (diagDot) diagDot.className = "w-2 h-2 rounded-full bg-emerald-400";
-
-                logDiagnostic(`SUCCESS! GitHub Workflow updated timestamp: "${lastUpdatedStr}" | Stations: ${foundStations.join(', ')}`, 'OK');
-                if (data['Virši']) {
-                    logDiagnostic(`Virši rates -> 95E: ${data['Virši']['95E']}€, 98E: ${data['Virši']['98E']}€, Diesel: ${data['Virši']['Diesel']}€, LPG: ${data['Virši']['LPG']}€`, 'OK');
-                }
+                const updatedStr = data.updated || "Unknown";
+                dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+                wfText.textContent = `GitHub: ${updatedStr}`;
+                logDiag(`Loaded ./prices.json! Workflow updated: "${updatedStr}"`, 'OK');
 
                 applyStationAndFuelUI();
-                if (showNotification) showToast(i18n[state.lang].toast_prices_synced);
+                if (manualTrigger) showToast("DUS cenas atjaunotas!");
             } catch (err) {
-                clearTimeout(timeoutId);
-                state.stationPrices = null;
+                clearTimeout(timer);
                 state.liveDataLoaded = false;
+                loadingEl.classList.add('hidden');
+                stationsEl.classList.add('hidden');
+                errorEl.classList.remove('hidden');
 
-                if (loadingBox) loadingBox.classList.add('hidden');
-                if (liveContent) liveContent.classList.add('hidden');
-                if (errorBox) errorBox.classList.remove('hidden');
-
-                if (badge) {
-                    badge.textContent = `FAILED (${err.message.slice(0, 28)})`;
-                    badge.className = "font-mono font-semibold text-rose-400 truncate";
-                }
-                if (workflowDot) workflowDot.className = "w-2 h-2 rounded-full bg-rose-500 shrink-0";
-                if (diagDot) diagDot.className = "w-2 h-2 rounded-full bg-rose-500";
-
-                logDiagnostic(`FAILED to load ./prices.json -> ${err.message}. Waiting for manual price input.`, 'ERROR');
-                calculateAll();
-                if (showNotification) showToast(i18n[state.lang].toast_prices_failed);
+                dot.className = "w-2 h-2 rounded-full bg-rose-500";
+                wfText.textContent = "Offline / Nav ./prices.json";
+                logDiag(`Failed to load ./prices.json (${err.message}). Please use manual slider.`, 'ERROR');
+                lucide.createIcons();
             } finally {
                 if (icon) icon.classList.remove('animate-spin');
-                lucide.createIcons();
             }
         }
 
-        function selectStation(stationName) {
-            if (!state.liveDataLoaded || !state.stationPrices) return;
-            state.station = stationName;
-            logDiagnostic(`Selected station: ${stationName}`, 'INFO');
+        function selectStation(st) {
+            if (!state.liveDataLoaded) return;
+            state.station = st;
+            logDiag(`Selected station: ${st}`, 'INFO');
             applyStationAndFuelUI();
         }
 
-        function selectFuelType(type) {
-            state.fuelType = type;
-            logDiagnostic(`Selected fuel grade: ${type}`, 'INFO');
-            if (state.liveDataLoaded && state.stationPrices) {
+        function selectFuelType(ft) {
+            state.fuelType = ft;
+            if (state.liveDataLoaded) {
                 applyStationAndFuelUI();
             }
         }
 
         function applyStationAndFuelUI() {
             if (!state.liveDataLoaded || !state.stationPrices) return;
+            const stObj = state.stationPrices[state.station] || {};
+            const p = parseFloat(stObj[state.fuelType]);
 
-            const stPrices = state.stationPrices[state.station];
-            if (stPrices && typeof stPrices[state.fuelType] === 'number') {
-                state.price = stPrices[state.fuelType];
-                document.getElementById('priceInput').value = state.price.toFixed(2);
-                document.getElementById('priceSlider').value = Math.min(3.0, state.price);
+            if (!isNaN(p) && p > 0) {
+                state.price = p;
+                document.getElementById('priceInput').value = p.toFixed(2);
+                document.getElementById('priceSlider').value = Math.min(2.8, Math.max(0.8, p));
             }
 
-            // Highlight active station tab
             ['Virši', 'Circle K', 'Neste', 'Viada'].forEach(st => {
                 const btn = document.getElementById(`stationBtn_${st}`);
-                if (!btn) return;
-                btn.className = st === state.station
-                    ? "py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500 text-slate-950"
-                    : "py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white";
+                if (btn) {
+                    btn.className = st === state.station
+                        ? "py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500 text-slate-950"
+                        : "py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white";
+                }
             });
 
-            // Update fuel type labels & active highlight
             ['95E', '98E', 'Diesel', 'LPG'].forEach(ft => {
                 const lbl = document.getElementById(`priceLabel_${ft}`);
                 const btn = document.getElementById(`fuelBtn_${ft}`);
-                if (lbl) {
-                    lbl.textContent = (stPrices && typeof stPrices[ft] === 'number')
-                        ? `${stPrices[ft].toFixed(2)} €`
-                        : '--';
-                }
+                const val = parseFloat(stObj[ft]);
+                if (lbl) lbl.textContent = !isNaN(val) ? `${val.toFixed(2)} €` : `-- €`;
                 if (btn) {
                     btn.className = ft === state.fuelType
                         ? "py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
@@ -861,21 +844,28 @@
         function calculateAll() {
             const effectiveDistance = state.isRoundTrip ? state.distance * 2 : state.distance;
             const totalLiters = (effectiveDistance / 100) * state.consumption;
-            const validPrice = state.price > 0 ? state.price : 0;
-            const totalCost = totalLiters * validPrice;
-            const costPerKm = (effectiveDistance > 0 && validPrice > 0) ? totalCost / effectiveDistance : 0;
-            const costPerPerson = totalCost / state.passengers;
             const tankPercent = Math.min(100, Math.round((totalLiters / state.tankSize) * 100));
 
             document.getElementById('totalDistanceBadge').textContent = `${effectiveDistance} km`;
-            document.getElementById('totalCostDisplay').textContent = validPrice > 0 ? totalCost.toFixed(2) : "--.--";
             document.getElementById('totalLitersDisplay').textContent = totalLiters.toFixed(2);
-            document.getElementById('costPerKmDisplay').textContent = validPrice > 0 ? costPerKm.toFixed(3) : "--";
-            document.getElementById('costPerPersonDisplay').textContent = validPrice > 0 ? costPerPerson.toFixed(2) : "--.--";
             document.getElementById('tankSizeLabel').textContent = state.tankSize;
             document.getElementById('tankPercentDisplay').textContent = `${tankPercent}%`;
             document.getElementById('tankProgressBar').style.width = `${tankPercent}%`;
             document.getElementById('activeCarPill').textContent = state.activeCarName;
+
+            if (state.price !== null && !isNaN(state.price) && state.price > 0) {
+                const totalCost = totalLiters * state.price;
+                const costPerKm = effectiveDistance > 0 ? totalCost / effectiveDistance : 0;
+                const costPerPerson = totalCost / state.passengers;
+
+                document.getElementById('totalCostDisplay').textContent = totalCost.toFixed(2);
+                document.getElementById('costPerKmDisplay').textContent = costPerKm.toFixed(3);
+                document.getElementById('costPerPersonDisplay').textContent = costPerPerson.toFixed(2);
+            } else {
+                document.getElementById('totalCostDisplay').textContent = "--.--";
+                document.getElementById('costPerKmDisplay').textContent = "--.--";
+                document.getElementById('costPerPersonDisplay').textContent = "--.--";
+            }
         }
 
         function syncInput(type, val) {
@@ -889,8 +879,7 @@
             } else if (type === 'price') {
                 state.price = Math.round(num * 100) / 100;
                 document.getElementById('priceInput').value = state.price.toFixed(2);
-                document.getElementById('priceSlider').value = Math.min(3.0, state.price);
-                logDiagnostic(`Manual fuel price set to: ${state.price.toFixed(2)} €/L`, 'INFO');
+                document.getElementById('priceSlider').value = Math.min(2.8, Math.max(0.8, state.price));
             } else if (type === 'consumption') {
                 state.consumption = Math.round(num * 10) / 10;
                 document.getElementById('consumptionInput').value = state.consumption.toFixed(1);
@@ -902,38 +891,10 @@
         function stepValue(type, delta) {
             if (type === 'distance') syncInput('distance', Math.max(1, state.distance + delta));
             if (type === 'price') {
-                const basePrice = state.price > 0 ? state.price : 1.75;
-                syncInput('price', Math.max(0.1, basePrice + delta));
+                const base = (state.price !== null && !isNaN(state.price)) ? state.price : 1.75;
+                syncInput('price', Math.max(0.5, base + delta));
             }
             if (type === 'consumption') syncInput('consumption', Math.max(1.0, state.consumption + delta));
-        }
-
-        // --- COPY TRIP SUMMARY ---
-        function copyTripSummary() {
-            const from = document.getElementById('originInput').value.trim() || 'Start';
-            const to = document.getElementById('destInput').value.trim() || 'Galamērķis';
-            const effectiveDistance = state.isRoundTrip ? state.distance * 2 : state.distance;
-            const totalLiters = ((effectiveDistance / 100) * state.consumption).toFixed(2);
-            const totalCost = state.price > 0 ? (totalLiters * state.price).toFixed(2) : '--.--';
-            const perPerson = state.price > 0 ? ((totalLiters * state.price) / state.passengers).toFixed(2) : '--.--';
-            const tripType = state.isRoundTrip ? (state.lang === 'lv' ? 'Turp-Atpakaļ (2x)' : 'Round-trip (2x)') : (state.lang === 'lv' ? 'Vienā virzienā (1x)' : 'One-way (1x)');
-
-            const text = state.lang === 'lv'
-                ? `🚗 Brauciena aprēķins (${APP_VERSION}):\n• Maršruts: ${from} → ${to} (${effectiveDistance} km, ${tripType})\n• Auto: ${state.activeCarName} (${state.consumption.toFixed(1)} L/100km, ${state.fuelType})\n• Degvielas cena: ${state.price > 0 ? state.price.toFixed(2) + ' €/L' : 'Nav norādīta'}\n• Nepieciešamā degviela: ${totalLiters} L\n• Kopējās izmaksas: ${totalCost} €${state.passengers > 1 ? `\n• No katra pasažiera (${state.passengers}): ${perPerson} €` : ''}`
-                : `🚗 Trip Estimate (${APP_VERSION}):\n• Route: ${from} → ${to} (${effectiveDistance} km, ${tripType})\n• Vehicle: ${state.activeCarName} (${state.consumption.toFixed(1)} L/100km, ${state.fuelType})\n• Fuel price: ${state.price > 0 ? state.price.toFixed(2) + ' €/L' : 'Not set'}\n• Fuel needed: ${totalLiters} L\n• Total cost: ${totalCost} €${state.passengers > 1 ? `\n• Per person (${state.passengers}): ${perPerson} €` : ''}`;
-
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                document.execCommand('copy');
-                logDiagnostic(`Trip summary copied to clipboard (${from} -> ${to}, ${effectiveDistance} km)`, 'OK');
-                showToast(i18n[state.lang].toast_copied);
-            } catch (err) {
-                logDiagnostic(`Clipboard copy failed: ${err.message}`, 'ERROR');
-            }
-            document.body.removeChild(ta);
         }
 
         function toggleRoundTrip() {
@@ -953,7 +914,34 @@
             calculateAll();
         }
 
-        // --- ROUTING ENGINE (OSRM + NOMINATIM) ---
+        // --- COPY TRIP SUMMARY ---
+        function copyTripSummary() {
+            const from = document.getElementById('originInput').value.trim() || 'Start';
+            const to = document.getElementById('destInput').value.trim() || 'Galamērķis';
+            const dist = state.isRoundTrip ? state.distance * 2 : state.distance;
+            const liters = document.getElementById('totalLitersDisplay').textContent;
+            const cost = document.getElementById('totalCostDisplay').textContent;
+            const perPerson = document.getElementById('costPerPersonDisplay').textContent;
+            const priceStr = state.price ? `${state.price.toFixed(2)} €/L` : 'N/A';
+
+            const summary = `🚗 Brauciens: ${from} → ${to} (${dist} km)\n` +
+                            `🚘 Auto: ${state.activeCarName} (${state.consumption} L/100km)\n` +
+                            `⛽ Degviela: ${liters} L (${priceStr})\n` +
+                            `💶 Kopā: ${cost} €` +
+                            (state.passengers > 1 ? ` (${perPerson} € no cilvēka, ${state.passengers} pasažieri)` : '');
+
+            const ta = document.createElement('textarea');
+            ta.value = summary;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+
+            logDiag(`Copied trip summary to clipboard.`, 'OK');
+            showToast(i18n[state.lang].toast_copied);
+        }
+
+        // --- ROUTING ENGINE ---
         function swapLocations() {
             const o = document.getElementById('originInput');
             const d = document.getElementById('destInput');
@@ -974,7 +962,7 @@
             const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name)}&limit=1`);
             const data = await res.json();
             if (data && data.length > 0) return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-            throw new Error("City not found");
+            throw new Error(`City not found: ${name}`);
         }
 
         async function calculateRouteDistance() {
@@ -985,13 +973,14 @@
             const btn = document.getElementById('calcRouteBtn');
             btn.disabled = true;
             btn.style.opacity = '0.6';
-            logDiagnostic(`Calculating route distance: ${origin} -> ${dest}...`, 'INFO');
+            logDiag(`Routing: ${origin} -> ${dest}...`, 'INFO');
 
             try {
                 const [c1, c2] = await Promise.all([geocodePlace(origin), geocodePlace(dest)]);
                 const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${c1.lon},${c1.lat};${c2.lon},${c2.lat}?overview=false`);
                 const osrmData = await osrmRes.json();
-                if (!osrmData.routes || osrmData.routes.length === 0) throw new Error("No route returned by OSRM");
+
+                if (!osrmData.routes || osrmData.routes.length === 0) throw new Error("No OSRM route");
 
                 const km = Math.round(osrmData.routes[0].distance / 1000);
                 const mins = Math.round(osrmData.routes[0].duration / 60);
@@ -1002,20 +991,17 @@
                 document.getElementById('routeStatusText').textContent = `${origin} → ${dest} (${km} km)`;
                 const h = Math.floor(mins / 60), m = mins % 60;
                 document.getElementById('routeDurationBadge').textContent = h > 0 ? `~${h}h ${m}m` : `~${m} min`;
-                logDiagnostic(`Route calculated via OSRM: ${origin} -> ${dest} = ${km} km (~${mins} min)`, 'OK');
+                logDiag(`Route calculated: ${km} km (~${h}h ${m}m)`, 'OK');
             } catch (err) {
-                const banner = document.getElementById('routeStatusBanner');
-                banner.classList.remove('hidden');
-                document.getElementById('routeStatusText').textContent = i18n[state.lang].prices_load_failed;
-                document.getElementById('routeDurationBadge').textContent = "";
-                logDiagnostic(`Routing API failed for ${origin} -> ${dest}: ${err.message}`, 'ERROR');
+                logDiag(`Route calculation failed: ${err.message}`, 'ERROR');
+                showToast("Failed to load route, please enter km manually");
             } finally {
                 btn.disabled = false;
                 btn.style.opacity = '1';
             }
         }
 
-        // --- LIVE 45,000+ VEHICLE REST API (fueleconomy.gov) ---
+        // --- LIVE VEHICLE API ---
         function initApiYearsDropdown() {
             const sel = document.getElementById('apiYearSelect');
             for (let y = 2026; y >= 1984; y--) {
@@ -1036,9 +1022,7 @@
             const makeSel = document.getElementById('apiMakeSelect');
             const modelSel = document.getElementById('apiModelSelect');
             const optSel = document.getElementById('apiOptionSelect');
-            const errBox = document.getElementById('apiCarErrorBox');
 
-            errBox.classList.add('hidden');
             makeSel.innerHTML = `<option value="">2. Marka...</option>`;
             modelSel.innerHTML = `<option value="">3. Modelis...</option>`;
             optSel.innerHTML = `<option value="">4. Dzinējs...</option>`;
@@ -1048,7 +1032,6 @@
 
             try {
                 const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=${year}`, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) throw new Error("API error");
                 const items = normalizeMenuItems(await res.json());
                 items.forEach(i => {
                     const o = document.createElement('option');
@@ -1058,7 +1041,7 @@
                 });
                 makeSel.disabled = false;
             } catch (e) {
-                errBox.classList.remove('hidden');
+                logDiag(`Car API Makes error: ${e.message}`, 'ERROR');
             }
         }
 
@@ -1067,18 +1050,14 @@
             const make = document.getElementById('apiMakeSelect').value;
             const modelSel = document.getElementById('apiModelSelect');
             const optSel = document.getElementById('apiOptionSelect');
-            const errBox = document.getElementById('apiCarErrorBox');
 
-            errBox.classList.add('hidden');
             modelSel.innerHTML = `<option value="">3. Modelis...</option>`;
             optSel.innerHTML = `<option value="">4. Dzinējs...</option>`;
             modelSel.disabled = optSel.disabled = true;
-            document.getElementById('apiVehicleResult').classList.add('hidden');
             if (!make) return;
 
             try {
                 const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=${year}&make=${encodeURIComponent(make)}`, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) throw new Error("API error");
                 const items = normalizeMenuItems(await res.json());
                 items.forEach(i => {
                     const o = document.createElement('option');
@@ -1088,7 +1067,7 @@
                 });
                 modelSel.disabled = false;
             } catch (e) {
-                errBox.classList.remove('hidden');
+                logDiag(`Car API Models error: ${e.message}`, 'ERROR');
             }
         }
 
@@ -1097,17 +1076,13 @@
             const make = document.getElementById('apiMakeSelect').value;
             const model = document.getElementById('apiModelSelect').value;
             const optSel = document.getElementById('apiOptionSelect');
-            const errBox = document.getElementById('apiCarErrorBox');
 
-            errBox.classList.add('hidden');
-            optSel.innerHTML = `<option value="">4. Dzinējs / Kārba...</option>`;
+            optSel.innerHTML = `<option value="">4. Dzinējs...</option>`;
             optSel.disabled = true;
-            document.getElementById('apiVehicleResult').classList.add('hidden');
             if (!model) return;
 
             try {
                 const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) throw new Error("API error");
                 const items = normalizeMenuItems(await res.json());
                 items.forEach(i => {
                     const o = document.createElement('option');
@@ -1117,23 +1092,19 @@
                 });
                 optSel.disabled = false;
             } catch (e) {
-                errBox.classList.remove('hidden');
+                logDiag(`Car API Options error: ${e.message}`, 'ERROR');
             }
         }
 
         async function fetchApiVehicleSpecs() {
             const id = document.getElementById('apiOptionSelect').value;
-            const errBox = document.getElementById('apiCarErrorBox');
-            errBox.classList.add('hidden');
             if (!id) return;
 
             try {
                 const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/${id}`, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) throw new Error("API error");
                 const v = await res.json();
                 const mpg = parseFloat(v.comb08);
-                if (!mpg) throw new Error("No MPG data");
-
+                if (isNaN(mpg) || mpg <= 0) throw new Error("Invalid MPG");
                 const l100 = Math.round((235.215 / mpg) * 10) / 10;
                 const fuelStr = (v.fuelType1 || '').toLowerCase();
                 const fuel = fuelStr.includes('diesel') ? 'Diesel' : (fuelStr.includes('premium') ? '98E' : '95E');
@@ -1150,7 +1121,7 @@
                 document.getElementById('apiResultSpecs').textContent = `${l100} L/100km • ${fuel}`;
                 document.getElementById('apiVehicleResult').classList.remove('hidden');
             } catch (e) {
-                errBox.classList.remove('hidden');
+                logDiag(`Car API Specs error: ${e.message}`, 'ERROR');
             }
         }
 
@@ -1164,12 +1135,11 @@
             showToast(i18n[state.lang].toast_car_saved);
         }
 
-        // --- EUROPEAN CATALOG & GARAGE ---
+        // --- GARAGE & CATALOG ---
         function renderCarDatabase() {
             const q = document.getElementById('dbSearchInput').value.trim().toLowerCase();
             const container = document.getElementById('dbResultsList');
             const t = i18n[state.lang];
-
             const filtered = EU_CAR_CATALOG.filter(c => !q || `${c.make} ${c.model} ${c.year} ${c.fuel}`.toLowerCase().includes(q));
 
             container.innerHTML = filtered.map((car, idx) => `
@@ -1267,7 +1237,7 @@
             const from = document.getElementById('originInput').value.trim() || 'Start';
             const to = document.getElementById('destInput').value.trim() || 'Galamērķis';
             const km = state.isRoundTrip ? state.distance * 2 : state.distance;
-            const cost = parseFloat(document.getElementById('totalCostDisplay').textContent);
+            const cost = parseFloat(document.getElementById('totalCostDisplay').textContent) || 0;
 
             state.savedRoutes.unshift({ id: Date.now(), from, to, km, cost });
             localStorage.setItem('fp_saved_routes', JSON.stringify(state.savedRoutes));
@@ -1311,7 +1281,7 @@
             renderSavedRoutes();
         }
 
-        // --- DRAWERS & LANGUAGE ---
+        // --- UI HELPERS ---
         function toggleDrawer(name) {
             const el = document.getElementById(name === 'routes' ? 'routesDrawer' : 'garageDrawer');
             el.classList.toggle('hidden');
