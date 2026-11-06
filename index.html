@@ -127,24 +127,24 @@
                             <div class="truncate">
                                 <div class="flex items-center gap-2">
                                     <h2 class="text-sm font-display font-bold text-white truncate" data-i18n="fuel_price_title">Degvielas Cena</h2>
-                                    <button id="syncStatusBtn" onclick="fetchPricesJson(true)" title="Refresh" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 hover:bg-slate-700 transition">
-                                        <i id="syncIcon" data-lucide="refresh-cw" class="w-2.5 h-2.5"></i>
-                                        <span id="priceUpdatedBadge">...</span>
-                                    </button>
-                                </div>
-                                <p class="text-[11px] text-slate-400 truncate" data-i18n="fuel_price_subtitle">Tiešsaistes DUS dati vai manuāla ievade</p>
-                            </div>
-                        </div>
-
-                        <!-- Manual Price Stepper (Always works) -->
+                        <!-- Manual Price Stepper (Starts empty until ./prices.json loads or user enters manually) -->
                         <div class="flex items-center gap-1 shrink-0">
                             <button onclick="stepValue('price', -0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">-</button>
                             <div class="relative">
-                                <input id="priceInput" type="number" min="0.10" max="5.00" step="0.01" value="1.85" oninput="syncInput('price', this.value)" class="w-20 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-1.5 pr-7 text-right font-mono font-bold text-sm text-amber-400 focus:outline-none focus:border-amber-500">
+                                <input id="priceInput" type="number" min="0.10" max="5.00" step="0.01" value="" placeholder="--.--" oninput="syncInput('price', this.value)" class="w-20 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-1.5 pr-7 text-right font-mono font-bold text-sm text-amber-400 placeholder:text-slate-600 focus:outline-none focus:border-amber-500">
                                 <span class="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-400">€/L</span>
                             </div>
                             <button onclick="stepValue('price', 0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">+</button>
                         </div>
+                    </div>
+
+                    <!-- INITIAL LOADING STATE: Shown immediately on page open while fetching ./prices.json -->
+                    <div id="livePricesLoadingBox" class="mb-3 p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5 text-xs text-sky-300 font-medium">
+                            <i data-lucide="loader-2" class="w-4 h-4 text-sky-400 animate-spin shrink-0"></i>
+                            <span data-i18n="prices_loading_msg">Ielādē tiešsaistes DUS cenas no ./prices.json...</span>
+                        </div>
+                        <span class="text-[10px] font-mono text-sky-400/80 uppercase">GET ./prices.json</span>
                     </div>
 
                     <!-- STRICT ERROR STATE: Shown when ./prices.json fails to load -->
@@ -189,7 +189,7 @@
                         </div>
                     </div>
 
-                    <input id="priceSlider" type="range" min="0.50" max="3.00" step="0.01" value="1.85" oninput="syncInput('price', this.value)">
+                    <input id="priceSlider" type="range" min="0.50" max="3.00" step="0.01" value="1.50" oninput="syncInput('price', this.value)">
                 </section>
 
                 <!-- 2. ROUTE PLANNER & DISTANCE -->
@@ -360,12 +360,39 @@
                         </div>
                         <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
                             <span class="text-xs text-slate-400" data-i18n="per_person_label">No katra pasažiera:</span>
-                            <span class="font-mono font-bold text-base text-emerald-400"><span id="costPerPersonDisplay">18.15</span> €</span>
+                            <span class="font-mono font-bold text-base text-emerald-400"><span id="costPerPersonDisplay">0.00</span> €</span>
                         </div>
                     </div>
+
+                    <!-- COPY TRIP SUMMARY BUTTON -->
+                    <button onclick="copyTripSummary()" class="mt-3.5 w-full py-2.5 px-4 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-100 font-semibold text-xs flex items-center justify-center gap-2 transition active:scale-95">
+                        <i data-lucide="copy" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span data-i18n="copy_summary_btn">Kopēt brauciena datus</span>
+                    </button>
                 </section>
             </div>
         </div>
+
+        <!-- SYSTEM DIAGNOSTIC LOG & VERSION CONSOLE (FuelPro-07) -->
+        <section class="mt-5 glass-panel rounded-2xl p-4 border border-slate-800/90">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-800/80">
+                <div class="flex items-center gap-2">
+                    <span id="diagStatusDot" class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                    <h3 class="text-xs font-mono font-bold text-slate-200 uppercase tracking-wider">System Diagnostic Log</h3>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-400">Version: FuelPro-07</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button onclick="fetchPricesJson(true)" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300 border border-slate-700 transition">
+                        Test ./prices.json
+                    </button>
+                    <button onclick="clearSystemLog()" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-400 hover:text-white border border-slate-700 transition">
+                        Clear
+                    </button>
+                </div>
+            </div>
+            <div id="systemLogOutput" class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3 font-mono text-[11px] leading-relaxed text-slate-300 max-h-48 overflow-y-auto space-y-1">
+            </div>
+        </section>
     </main>
 
     <!-- STICKY BOTTOM ACTION BAR -->
@@ -509,12 +536,15 @@
     <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-semibold text-xs shadow-xl"></div>
 
     <script>
+        const APP_VERSION = "FuelPro-07";
+
         const i18n = {
             lv: {
                 nav_routes: "Maršruti",
                 nav_garage: "Garāža",
                 fuel_price_title: "Degvielas Cena",
                 fuel_price_subtitle: "Tiešsaistes DUS dati vai manuāla ievade",
+                prices_loading_msg: "Ielādē tiešsaistes DUS cenas no ./prices.json...",
                 prices_load_failed: "Neizdevās ielādēt datus, lūdzu ievadiet manuāli (Failed to load data, please add manually)",
                 retry_btn: "Mēģināt vēlreiz",
                 diesel_short: "Dīzelis",
@@ -537,6 +567,7 @@
                 tank_usage_label: "Bākas patēriņš",
                 split_label: "Dalīt izmaksas (cilvēki)",
                 per_person_label: "No katra pasažiera:",
+                copy_summary_btn: "Kopēt brauciena datus",
                 btn_save_car: "Saglabāt Auto",
                 btn_save_route: "Saglabāt Maršrutu",
                 drawer_routes_title: "Saglabātie Maršruti",
@@ -555,13 +586,15 @@
                 toast_car_saved: "Auto pievienots garāžai!",
                 toast_car_selected: "Auto izvēlēts!",
                 toast_prices_synced: "Tiešsaistes DUS cenas ielādētas!",
-                toast_prices_failed: "Neizdevās ielādēt ./prices.json!"
+                toast_prices_failed: "Neizdevās ielādēt ./prices.json!",
+                toast_copied: "Brauciena dati nokopēti!"
             },
             en: {
                 nav_routes: "Routes",
                 nav_garage: "Garage",
                 fuel_price_title: "Fuel Price",
                 fuel_price_subtitle: "Live station data or manual entry",
+                prices_loading_msg: "Loading live station prices from ./prices.json...",
                 prices_load_failed: "Failed to load data, please add manually",
                 retry_btn: "Retry",
                 diesel_short: "Diesel",
@@ -584,6 +617,7 @@
                 tank_usage_label: "Tank Usage",
                 split_label: "Split Cost (Passengers)",
                 per_person_label: "Cost per person:",
+                copy_summary_btn: "Copy trip summary",
                 btn_save_car: "Save Car",
                 btn_save_route: "Save Route",
                 drawer_routes_title: "Saved Routes",
@@ -602,72 +636,20 @@
                 toast_car_saved: "Car saved to garage!",
                 toast_car_selected: "Vehicle selected!",
                 toast_prices_synced: "Live station prices loaded!",
-                toast_prices_failed: "Failed to load ./prices.json!"
+                toast_prices_failed: "Failed to load ./prices.json!",
+                toast_copied: "Trip summary copied!"
             }
         };
 
         // --- EUROPEAN & LATVIAN VEHICLE CATALOG ---
-        const EU_CAR_CATALOG = [
-            { make: "Volkswagen", model: "Golf IV / Bora 1.9 TDI", year: "1998–2005", fuel: "Diesel", cons: 5.0, tank: 55 },
-            { make: "Volkswagen", model: "Golf VII 1.6 TDI", year: "2013–2020", fuel: "Diesel", cons: 4.2, tank: 50 },
-            { make: "Volkswagen", model: "Golf VII 2.0 TDI", year: "2013–2020", fuel: "Diesel", cons: 4.5, tank: 50 },
-            { make: "Volkswagen", model: "Golf VII 1.4 TSI", year: "2013–2020", fuel: "95E", cons: 5.3, tank: 50 },
-            { make: "Volkswagen", model: "Passat B5.5 1.9 TDI", year: "2000–2005", fuel: "Diesel", cons: 5.6, tank: 62 },
-            { make: "Volkswagen", model: "Passat B6 / B7 2.0 TDI", year: "2005–2014", fuel: "Diesel", cons: 5.4, tank: 70 },
-            { make: "Volkswagen", model: "Passat B8 2.0 TDI", year: "2015–2023", fuel: "Diesel", cons: 4.9, tank: 66 },
-            { make: "Volkswagen", model: "Tiguan 2.0 TDI 4Motion", year: "2016–2024", fuel: "Diesel", cons: 6.1, tank: 60 },
-            { make: "Audi", model: "A4 B8 2.0 TDI", year: "2008–2015", fuel: "Diesel", cons: 5.1, tank: 63 },
-            { make: "Audi", model: "A4 B9 2.0 TDI", year: "2015–2023", fuel: "Diesel", cons: 4.8, tank: 54 },
-            { make: "Audi", model: "A6 C6 3.0 TDI Quattro", year: "2004–2011", fuel: "Diesel", cons: 7.9, tank: 80 },
-            { make: "Audi", model: "A6 C7 3.0 TDI Quattro", year: "2011–2018", fuel: "Diesel", cons: 6.0, tank: 65 },
-            { make: "BMW", model: "320d (E90 / E91)", year: "2005–2012", fuel: "Diesel", cons: 5.4, tank: 61 },
-            { make: "BMW", model: "320d (F30 / G20)", year: "2012–2023", fuel: "Diesel", cons: 4.8, tank: 59 },
-            { make: "BMW", model: "530d xDrive (F10 / G30)", year: "2011–2023", fuel: "Diesel", cons: 5.9, tank: 68 },
-            { make: "BMW", model: "X5 xDrive30d", year: "2007–2023", fuel: "Diesel", cons: 7.4, tank: 85 },
-            { make: "Volvo", model: "V70 / XC70 2.4 D5", year: "2007–2016", fuel: "Diesel", cons: 6.4, tank: 70 },
-            { make: "Volvo", model: "XC60 D4 / B4 AWD", year: "2014–2024", fuel: "Diesel", cons: 6.0, tank: 71 },
-            { make: "Volvo", model: "XC90 D5 AWD", year: "2015–2023", fuel: "Diesel", cons: 6.6, tank: 71 },
-            { make: "Škoda", model: "Octavia II 1.9 TDI", year: "2004–2013", fuel: "Diesel", cons: 5.0, tank: 55 },
-            { make: "Škoda", model: "Octavia III/IV 2.0 TDI", year: "2013–2024", fuel: "Diesel", cons: 4.4, tank: 50 },
-            { make: "Škoda", model: "Superb 2.0 TDI", year: "2015–2024", fuel: "Diesel", cons: 4.9, tank: 66 },
-            { make: "Toyota", model: "Corolla 1.8 Hybrid", year: "2019–2025", fuel: "95E", cons: 4.5, tank: 43 },
-            { make: "Toyota", model: "RAV4 2.5 Hybrid AWD", year: "2019–2025", fuel: "95E", cons: 5.6, tank: 55 },
-            { make: "Seat", model: "Arosa 1.0 MPI", year: "1997–2004", fuel: "95E", cons: 5.8, tank: 34 },
-            { make: "Seat", model: "Leon 2.0 TDI", year: "2013–2022", fuel: "Diesel", cons: 4.6, tank: 50 },
-            { make: "Mercedes-Benz", model: "E 220d (W212 / W213)", year: "2009–2023", fuel: "Diesel", cons: 5.1, tank: 66 },
-            { make: "Opel", model: "Insignia 2.0 CDTI", year: "2009–2020", fuel: "Diesel", cons: 5.4, tank: 62 },
-            { make: "Ford", model: "Focus 1.6 / 1.5 TDCi", year: "2011–2022", fuel: "Diesel", cons: 4.5, tank: 52 },
-            { make: "Dacia", model: "Duster 1.5 dCi / 1.0 ECO-G", year: "2015–2024", fuel: "LPG", cons: 6.9, tank: 50 }
-        ];
-
-        const LV_CITIES = {
-            "rīga": { lat: 56.9496, lon: 24.1052 },
-            "riga": { lat: 56.9496, lon: 24.1052 },
-            "jūrmala": { lat: 56.9680, lon: 23.7704 },
-            "jurmala": { lat: 56.9680, lon: 23.7704 },
-            "jelgava": { lat: 56.6511, lon: 23.7214 },
-            "sigulda": { lat: 57.1537, lon: 24.8595 },
-            "ventspils": { lat: 57.3937, lon: 21.5647 },
-            "liepāja": { lat: 56.5047, lon: 21.0108 },
-            "liepaja": { lat: 56.5047, lon: 21.0108 },
-            "daugavpils": { lat: 55.8747, lon: 26.5362 },
-            "valmiera": { lat: 57.5385, lon: 25.4264 },
-            "cēsis": { lat: 57.3119, lon: 25.2746 },
-            "kandava": { lat: 57.0406, lon: 22.7747 },
-            "talsi": { lat: 57.2456, lon: 22.5814 },
-            "rēzekne": { lat: 56.5099, lon: 27.3331 },
-            "jēkabpils": { lat: 56.4975, lon: 25.8662 },
-            "ogre": { lat: 56.8149, lon: 24.6045 }
-        };
-
-        // NO FAKE FALLBACK STATION PRICES! Starts completely null until ./prices.json is verified.
+        // NO PRE-PRICES! Price starts at 0 (unloaded) until ./prices.json is fetched or user types a price manually.
         let state = {
             lang: 'lv',
             station: 'Virši',
             fuelType: 'Diesel',
             stationPrices: null, // Strictly null unless ./prices.json loads!
             liveDataLoaded: false,
-            price: 1.85,
+            price: 0, // No pre-price on initial load!
             distance: 218,
             isRoundTrip: false,
             consumption: 4.5,
@@ -680,13 +662,36 @@
                 { id: 2, name: "BMW 320d (F30)", cons: 4.8, fuel: "Diesel", tank: 59 },
                 { id: 3, name: "Toyota RAV4 Hybrid", cons: 5.6, fuel: "95E", tank: 55 }
             ],
-            savedRoutes: JSON.parse(localStorage.getItem('fp_saved_routes')) || [
-                { id: 101, from: "Rīga", to: "Liepāja", km: 218, cost: 18.15 }
-            ]
+            savedRoutes: JSON.parse(localStorage.getItem('fp_saved_routes')) || []
         };
+
+        // --- DIAGNOSTIC LOGGER ---
+        function logDiagnostic(message, level = 'INFO') {
+            const out = document.getElementById('systemLogOutput');
+            if (!out) return;
+            const now = new Date().toLocaleTimeString('lv-LV', { hour12: false });
+            let colorClass = 'text-slate-300';
+            if (level === 'OK') colorClass = 'text-emerald-400 font-semibold';
+            if (level === 'WARN') colorClass = 'text-amber-400';
+            if (level === 'ERROR') colorClass = 'text-rose-400 font-semibold';
+
+            const line = document.createElement('div');
+            line.className = `${colorClass} break-all`;
+            line.textContent = `[${now}] [${APP_VERSION}] [${level}] ${message}`;
+            out.appendChild(line);
+            out.scrollTop = out.scrollHeight;
+        }
+
+        function clearSystemLog() {
+            const out = document.getElementById('systemLogOutput');
+            if (out) out.innerHTML = '';
+            logDiagnostic(`Log cleared. Running ${APP_VERSION}`, 'INFO');
+        }
 
         // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', () => {
+            logDiagnostic(`Booting application (${APP_VERSION})...`, 'INFO');
+            logDiagnostic(`Initial fuel price state: UNSET (waiting for ./prices.json or manual input)`, 'INFO');
             initApiYearsDropdown();
             renderSavedCars();
             renderSavedRoutes();
@@ -696,50 +701,80 @@
             lucide.createIcons();
         });
 
-        // --- STRICT ./prices.json LOADER (NO FAKE FALLBACKS) ---
+        // --- STRICT ./prices.json LOADER (NO PRE-PRICES, LOADING INDICATOR -> LIVE OR ERROR) ---
         async function fetchPricesJson(showNotification = false) {
             const icon = document.getElementById('syncIcon');
             const badge = document.getElementById('priceUpdatedBadge');
             const statusBtn = document.getElementById('syncStatusBtn');
+            const loadingBox = document.getElementById('livePricesLoadingBox');
             const errorBox = document.getElementById('livePricesErrorBox');
             const liveContent = document.getElementById('livePricesContent');
+            const diagDot = document.getElementById('diagStatusDot');
 
             if (icon) icon.classList.add('animate-spin');
+            loadingBox.classList.remove('hidden');
+            errorBox.classList.add('hidden');
+            liveContent.classList.add('hidden');
+            badge.textContent = 'LOADING...';
+
+            const url = `./prices.json?t=${Date.now()}`;
+            logDiagnostic(`Fetching live fuel prices from: ${url}`, 'INFO');
 
             try {
-                const res = await fetch(`./prices.json?t=${Date.now()}`, { cache: "no-store" });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const res = await fetch(url, { cache: "no-store" });
+                logDiagnostic(`HTTP response status: ${res.status} ${res.statusText}`, res.ok ? 'INFO' : 'ERROR');
 
-                const data = await res.json();
+                if (!res.ok) throw new Error(`HTTP ${res.status} (${res.statusText})`);
+
+                const rawText = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (jsonErr) {
+                    logDiagnostic(`JSON parse error: response is not valid JSON (${rawText.slice(0, 60)}...)`, 'ERROR');
+                    throw new Error("Invalid JSON format in ./prices.json");
+                }
 
                 // Verify that the JSON actually contains valid station objects
-                if (!data || (!data['Virši'] && !data['Circle K'] && !data['Neste'] && !data['Viada'])) {
-                    throw new Error("Invalid prices.json structure");
+                const foundStations = ['Virši', 'Circle K', 'Neste', 'Viada'].filter(s => data && typeof data[s] === 'object');
+                if (foundStations.length === 0) {
+                    logDiagnostic(`JSON structure invalid: missing station keys (Virši, Circle K, Neste, Viada)`, 'ERROR');
+                    throw new Error("Missing station keys in ./prices.json");
                 }
 
                 state.stationPrices = data;
                 state.liveDataLoaded = true;
 
-                // Show live stations UI & hide error message
+                loadingBox.classList.add('hidden');
                 errorBox.classList.add('hidden');
                 liveContent.classList.remove('hidden');
 
-                badge.textContent = data.updated ? data.updated.split(' ')[0] : 'LIVE';
+                badge.textContent = data.updated ? `LIVE (${data.updated})` : 'LIVE';
                 statusBtn.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono text-emerald-400 hover:bg-emerald-500/20 transition";
+                if (diagDot) diagDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+
+                logDiagnostic(`SUCCESS! Loaded stations: ${foundStations.join(', ')} | Updated timestamp: "${data.updated || 'N/A'}"`, 'OK');
+                if (data['Virši']) {
+                    logDiagnostic(`Virši rates -> 95E: ${data['Virši']['95E']}€, 98E: ${data['Virši']['98E']}€, Diesel: ${data['Virši']['Diesel']}€, LPG: ${data['Virši']['LPG']}€`, 'OK');
+                }
 
                 applyStationAndFuelUI();
                 if (showNotification) showToast(i18n[state.lang].toast_prices_synced);
             } catch (err) {
-                // FAILED TO READ DATA: Hide all station buttons/prices and show the error message
+                // FAILED TO READ DATA: Hide loading & station buttons, show strict error message, leave price unset unless user typed one
                 state.stationPrices = null;
                 state.liveDataLoaded = false;
 
+                loadingBox.classList.add('hidden');
                 liveContent.classList.add('hidden');
                 errorBox.classList.remove('hidden');
 
-                badge.textContent = 'OFFLINE';
+                badge.textContent = 'FAILED';
                 statusBtn.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-rose-500/15 border border-rose-500/30 text-[10px] font-mono text-rose-400 hover:bg-rose-500/25 transition";
+                if (diagDot) diagDot.className = "w-2 h-2 rounded-full bg-rose-500";
 
+                logDiagnostic(`FAILED to load ./prices.json -> ${err.message}. Waiting for manual price input.`, 'ERROR');
+                calculateAll();
                 if (showNotification) showToast(i18n[state.lang].toast_prices_failed);
             } finally {
                 if (icon) icon.classList.remove('animate-spin');
@@ -750,11 +785,13 @@
         function selectStation(stationName) {
             if (!state.liveDataLoaded || !state.stationPrices) return;
             state.station = stationName;
+            logDiagnostic(`Selected station: ${stationName}`, 'INFO');
             applyStationAndFuelUI();
         }
 
         function selectFuelType(type) {
             state.fuelType = type;
+            logDiagnostic(`Selected fuel grade: ${type}`, 'INFO');
             if (state.liveDataLoaded && state.stationPrices) {
                 applyStationAndFuelUI();
             }
@@ -802,16 +839,17 @@
         function calculateAll() {
             const effectiveDistance = state.isRoundTrip ? state.distance * 2 : state.distance;
             const totalLiters = (effectiveDistance / 100) * state.consumption;
-            const totalCost = totalLiters * state.price;
-            const costPerKm = effectiveDistance > 0 ? totalCost / effectiveDistance : 0;
+            const validPrice = state.price > 0 ? state.price : 0;
+            const totalCost = totalLiters * validPrice;
+            const costPerKm = (effectiveDistance > 0 && validPrice > 0) ? totalCost / effectiveDistance : 0;
             const costPerPerson = totalCost / state.passengers;
             const tankPercent = Math.min(100, Math.round((totalLiters / state.tankSize) * 100));
 
             document.getElementById('totalDistanceBadge').textContent = `${effectiveDistance} km`;
-            document.getElementById('totalCostDisplay').textContent = totalCost.toFixed(2);
+            document.getElementById('totalCostDisplay').textContent = validPrice > 0 ? totalCost.toFixed(2) : "--.--";
             document.getElementById('totalLitersDisplay').textContent = totalLiters.toFixed(2);
-            document.getElementById('costPerKmDisplay').textContent = costPerKm.toFixed(3);
-            document.getElementById('costPerPersonDisplay').textContent = costPerPerson.toFixed(2);
+            document.getElementById('costPerKmDisplay').textContent = validPrice > 0 ? costPerKm.toFixed(3) : "--";
+            document.getElementById('costPerPersonDisplay').textContent = validPrice > 0 ? costPerPerson.toFixed(2) : "--.--";
             document.getElementById('tankSizeLabel').textContent = state.tankSize;
             document.getElementById('tankPercentDisplay').textContent = `${tankPercent}%`;
             document.getElementById('tankProgressBar').style.width = `${tankPercent}%`;
@@ -830,6 +868,7 @@
                 state.price = Math.round(num * 100) / 100;
                 document.getElementById('priceInput').value = state.price.toFixed(2);
                 document.getElementById('priceSlider').value = Math.min(3.0, state.price);
+                logDiagnostic(`Manual fuel price set to: ${state.price.toFixed(2)} €/L`, 'INFO');
             } else if (type === 'consumption') {
                 state.consumption = Math.round(num * 10) / 10;
                 document.getElementById('consumptionInput').value = state.consumption.toFixed(1);
@@ -840,8 +879,39 @@
 
         function stepValue(type, delta) {
             if (type === 'distance') syncInput('distance', Math.max(1, state.distance + delta));
-            if (type === 'price') syncInput('price', Math.max(0.1, state.price + delta));
+            if (type === 'price') {
+                const basePrice = state.price > 0 ? state.price : 1.75;
+                syncInput('price', Math.max(0.1, basePrice + delta));
+            }
             if (type === 'consumption') syncInput('consumption', Math.max(1.0, state.consumption + delta));
+        }
+
+        // --- COPY TRIP SUMMARY ---
+        function copyTripSummary() {
+            const from = document.getElementById('originInput').value.trim() || 'Start';
+            const to = document.getElementById('destInput').value.trim() || 'Galamērķis';
+            const effectiveDistance = state.isRoundTrip ? state.distance * 2 : state.distance;
+            const totalLiters = ((effectiveDistance / 100) * state.consumption).toFixed(2);
+            const totalCost = state.price > 0 ? (totalLiters * state.price).toFixed(2) : '--.--';
+            const perPerson = state.price > 0 ? ((totalLiters * state.price) / state.passengers).toFixed(2) : '--.--';
+            const tripType = state.isRoundTrip ? (state.lang === 'lv' ? 'Turp-Atpakaļ (2x)' : 'Round-trip (2x)') : (state.lang === 'lv' ? 'Vienā virzienā (1x)' : 'One-way (1x)');
+
+            const text = state.lang === 'lv'
+                ? `🚗 Brauciena aprēķins (${APP_VERSION}):\n• Maršruts: ${from} → ${to} (${effectiveDistance} km, ${tripType})\n• Auto: ${state.activeCarName} (${state.consumption.toFixed(1)} L/100km, ${state.fuelType})\n• Degvielas cena: ${state.price > 0 ? state.price.toFixed(2) + ' €/L' : 'Nav norādīta'}\n• Nepieciešamā degviela: ${totalLiters} L\n• Kopējās izmaksas: ${totalCost} €${state.passengers > 1 ? `\n• No katra pasažiera (${state.passengers}): ${perPerson} €` : ''}`
+                : `🚗 Trip Estimate (${APP_VERSION}):\n• Route: ${from} → ${to} (${effectiveDistance} km, ${tripType})\n• Vehicle: ${state.activeCarName} (${state.consumption.toFixed(1)} L/100km, ${state.fuelType})\n• Fuel price: ${state.price > 0 ? state.price.toFixed(2) + ' €/L' : 'Not set'}\n• Fuel needed: ${totalLiters} L\n• Total cost: ${totalCost} €${state.passengers > 1 ? `\n• Per person (${state.passengers}): ${perPerson} €` : ''}`;
+
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                logDiagnostic(`Trip summary copied to clipboard (${from} -> ${to}, ${effectiveDistance} km)`, 'OK');
+                showToast(i18n[state.lang].toast_copied);
+            } catch (err) {
+                logDiagnostic(`Clipboard copy failed: ${err.message}`, 'ERROR');
+            }
+            document.body.removeChild(ta);
         }
 
         function toggleRoundTrip() {
@@ -893,12 +963,13 @@
             const btn = document.getElementById('calcRouteBtn');
             btn.disabled = true;
             btn.style.opacity = '0.6';
+            logDiagnostic(`Calculating route distance: ${origin} -> ${dest}...`, 'INFO');
 
             try {
                 const [c1, c2] = await Promise.all([geocodePlace(origin), geocodePlace(dest)]);
                 const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${c1.lon},${c1.lat};${c2.lon},${c2.lat}?overview=false`);
                 const osrmData = await osrmRes.json();
-                if (!osrmData.routes || osrmData.routes.length === 0) throw new Error("No route");
+                if (!osrmData.routes || osrmData.routes.length === 0) throw new Error("No route returned by OSRM");
 
                 const km = Math.round(osrmData.routes[0].distance / 1000);
                 const mins = Math.round(osrmData.routes[0].duration / 60);
@@ -909,11 +980,13 @@
                 document.getElementById('routeStatusText').textContent = `${origin} → ${dest} (${km} km)`;
                 const h = Math.floor(mins / 60), m = mins % 60;
                 document.getElementById('routeDurationBadge').textContent = h > 0 ? `~${h}h ${m}m` : `~${m} min`;
+                logDiagnostic(`Route calculated via OSRM: ${origin} -> ${dest} = ${km} km (~${mins} min)`, 'OK');
             } catch (err) {
                 const banner = document.getElementById('routeStatusBanner');
                 banner.classList.remove('hidden');
                 document.getElementById('routeStatusText').textContent = i18n[state.lang].prices_load_failed;
                 document.getElementById('routeDurationBadge').textContent = "";
+                logDiagnostic(`Routing API failed for ${origin} -> ${dest}: ${err.message}`, 'ERROR');
             } finally {
                 btn.disabled = false;
                 btn.style.opacity = '1';
