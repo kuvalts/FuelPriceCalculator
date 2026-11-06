@@ -117,7 +117,7 @@
             <!-- LEFT COLUMN: INPUT CARDS (7 cols) -->
             <div class="lg:col-span-7 space-y-3.5">
 
-                <!-- 1. LATVIAN DUS FUEL PRICE CARD (AUTO-SYNCED FROM ./prices.json) -->
+                <!-- 1. LATVIAN DUS FUEL PRICE CARD (STRICTLY LIVE FROM ./prices.json OR ERROR STATE) -->
                 <section class="glass-panel rounded-2xl p-4">
                     <div class="flex items-center justify-between gap-2 mb-3">
                         <div class="flex items-center gap-2 min-w-0">
@@ -127,55 +127,69 @@
                             <div class="truncate">
                                 <div class="flex items-center gap-2">
                                     <h2 class="text-sm font-display font-bold text-white truncate" data-i18n="fuel_price_title">Degvielas Cena</h2>
-                                    <button onclick="fetchPricesJson(true)" title="Refresh" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono text-emerald-400 hover:bg-emerald-500/20">
+                                    <button id="syncStatusBtn" onclick="fetchPricesJson(true)" title="Refresh" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 hover:bg-slate-700 transition">
                                         <i id="syncIcon" data-lucide="refresh-cw" class="w-2.5 h-2.5"></i>
-                                        <span id="priceUpdatedBadge">LIVE</span>
+                                        <span id="priceUpdatedBadge">...</span>
                                     </button>
                                 </div>
-                                <p class="text-[11px] text-slate-400 truncate" data-i18n="fuel_price_subtitle">Latvijas DUS cenas vai manuāla ievade</p>
+                                <p class="text-[11px] text-slate-400 truncate" data-i18n="fuel_price_subtitle">Tiešsaistes DUS dati vai manuāla ievade</p>
                             </div>
                         </div>
 
-                        <!-- Price Stepper -->
+                        <!-- Manual Price Stepper (Always works) -->
                         <div class="flex items-center gap-1 shrink-0">
                             <button onclick="stepValue('price', -0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">-</button>
                             <div class="relative">
-                                <input id="priceInput" type="number" min="0.10" max="5.00" step="0.01" value="2.07" oninput="syncInput('price', this.value)" class="w-20 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-1.5 pr-7 text-right font-mono font-bold text-sm text-amber-400 focus:outline-none focus:border-amber-500">
+                                <input id="priceInput" type="number" min="0.10" max="5.00" step="0.01" value="1.85" oninput="syncInput('price', this.value)" class="w-20 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-1.5 pr-7 text-right font-mono font-bold text-sm text-amber-400 focus:outline-none focus:border-amber-500">
                                 <span class="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-400">€/L</span>
                             </div>
                             <button onclick="stepValue('price', 0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">+</button>
                         </div>
                     </div>
 
-                    <!-- Station Selector Tabs -->
-                    <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800 mb-3">
-                        <button onclick="selectStation('Virši')" id="stationBtn_Virši" class="py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500 text-slate-950">Virši</button>
-                        <button onclick="selectStation('Circle K')" id="stationBtn_Circle K" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Circle K</button>
-                        <button onclick="selectStation('Neste')" id="stationBtn_Neste" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Neste</button>
-                        <button onclick="selectStation('Viada')" id="stationBtn_Viada" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Viada</button>
-                    </div>
-
-                    <!-- Fuel Type Pills -->
-                    <div class="grid grid-cols-4 gap-1.5 mb-2.5">
-                        <button onclick="selectFuelType('95E')" id="fuelBtn_95E" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-slate-900/80 border-slate-800 text-slate-400">
-                            <span>95E</span>
-                            <span id="priceLabel_95E" class="text-[10px] opacity-80">1.82 €</span>
-                        </button>
-                        <button onclick="selectFuelType('98E')" id="fuelBtn_98E" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-slate-900/80 border-slate-800 text-slate-400">
-                            <span>98E</span>
-                            <span id="priceLabel_98E" class="text-[10px] opacity-80">1.89 €</span>
-                        </button>
-                        <button onclick="selectFuelType('Diesel')" id="fuelBtn_Diesel" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-emerald-500/15 border-emerald-500/50 text-emerald-300">
-                            <span data-i18n="diesel_short">Dīzelis</span>
-                            <span id="priceLabel_Diesel" class="text-[10px] opacity-80">2.07 €</span>
-                        </button>
-                        <button onclick="selectFuelType('LPG')" id="fuelBtn_LPG" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-slate-900/80 border-slate-800 text-slate-400">
-                            <span>LPG</span>
-                            <span id="priceLabel_LPG" class="text-[10px] opacity-80">1.08 €</span>
+                    <!-- STRICT ERROR STATE: Shown when ./prices.json fails to load -->
+                    <div id="livePricesErrorBox" class="hidden mb-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 text-xs text-rose-300 font-medium">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+                            <span data-i18n="prices_load_failed">Failed to load data, please add manually</span>
+                        </div>
+                        <button onclick="fetchPricesJson(true)" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-[11px] font-semibold shrink-0 transition" data-i18n="retry_btn">
+                            Mēģināt vēlreiz
                         </button>
                     </div>
 
-                    <input id="priceSlider" type="range" min="0.50" max="3.00" step="0.01" value="2.07" oninput="syncInput('price', this.value)">
+                    <!-- LIVE STATION CONTAINER: Hidden unless ./prices.json succeeds! -->
+                    <div id="livePricesContent" class="hidden">
+                        <!-- Station Selector Tabs -->
+                        <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800 mb-3">
+                            <button onclick="selectStation('Virši')" id="stationBtn_Virši" class="py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500 text-slate-950">Virši</button>
+                            <button onclick="selectStation('Circle K')" id="stationBtn_Circle K" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Circle K</button>
+                            <button onclick="selectStation('Neste')" id="stationBtn_Neste" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Neste</button>
+                            <button onclick="selectStation('Viada')" id="stationBtn_Viada" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Viada</button>
+                        </div>
+
+                        <!-- Fuel Type Pills -->
+                        <div class="grid grid-cols-4 gap-1.5 mb-2.5">
+                            <button onclick="selectFuelType('95E')" id="fuelBtn_95E" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-slate-900/80 border-slate-800 text-slate-400">
+                                <span>95E</span>
+                                <span id="priceLabel_95E" class="text-[10px] opacity-80">--</span>
+                            </button>
+                            <button onclick="selectFuelType('98E')" id="fuelBtn_98E" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-slate-900/80 border-slate-800 text-slate-400">
+                                <span>98E</span>
+                                <span id="priceLabel_98E" class="text-[10px] opacity-80">--</span>
+                            </button>
+                            <button onclick="selectFuelType('Diesel')" id="fuelBtn_Diesel" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-emerald-500/15 border-emerald-500/50 text-emerald-300">
+                                <span data-i18n="diesel_short">Dīzelis</span>
+                                <span id="priceLabel_Diesel" class="text-[10px] opacity-80">--</span>
+                            </button>
+                            <button onclick="selectFuelType('LPG')" id="fuelBtn_LPG" class="py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-slate-900/80 border-slate-800 text-slate-400">
+                                <span>LPG</span>
+                                <span id="priceLabel_LPG" class="text-[10px] opacity-80">--</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input id="priceSlider" type="range" min="0.50" max="3.00" step="0.01" value="1.85" oninput="syncInput('price', this.value)">
                 </section>
 
                 <!-- 2. ROUTE PLANNER & DISTANCE -->
@@ -262,7 +276,7 @@
                             <div class="truncate">
                                 <h2 class="text-sm font-display font-bold text-white leading-tight" data-i18n="cons_title">Auto Vidējais Patēriņš</h2>
                                 <div class="flex items-center gap-1.5 mt-0.5 truncate">
-                                    <span id="activeCarPill" class="text-[11px] text-sky-400 font-medium truncate">VW Golf 2.0 TDI</span>
+                                    <span id="activeCarPill" class="text-[11px] text-sky-400 font-medium truncate">VW Golf VII 2.0 TDI</span>
                                     <button onclick="openGarageSearch()" class="text-[11px] underline text-slate-400 hover:text-white shrink-0" data-i18n="change_car_link">Meklēt auto</button>
                                 </div>
                             </div>
@@ -300,7 +314,7 @@
                     <div class="mb-4">
                         <div class="text-xs text-slate-400 mb-0.5" data-i18n="total_cost_label">Kopējās degvielas izmaksas</div>
                         <div class="flex items-baseline gap-2">
-                            <span id="totalCostDisplay" class="text-4xl sm:text-5xl font-mono font-bold text-white tracking-tight">20.31</span>
+                            <span id="totalCostDisplay" class="text-4xl sm:text-5xl font-mono font-bold text-white tracking-tight">18.15</span>
                             <span class="text-xl font-mono font-semibold text-emerald-400">€</span>
                         </div>
                     </div>
@@ -316,7 +330,7 @@
                         <div class="bg-slate-900/90 border border-slate-800/90 rounded-xl p-3">
                             <div class="text-[11px] text-slate-400 mb-0.5" data-i18n="cost_per_km_label">Izmaksas uz 1 km</div>
                             <div class="flex items-baseline gap-1">
-                                <span id="costPerKmDisplay" class="text-xl font-mono font-bold text-amber-400">0.093</span>
+                                <span id="costPerKmDisplay" class="text-xl font-mono font-bold text-amber-400">0.083</span>
                                 <span class="text-xs font-mono text-slate-400">€/km</span>
                             </div>
                         </div>
@@ -346,7 +360,7 @@
                         </div>
                         <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
                             <span class="text-xs text-slate-400" data-i18n="per_person_label">No katra pasažiera:</span>
-                            <span class="font-mono font-bold text-base text-emerald-400"><span id="costPerPersonDisplay">20.31</span> €</span>
+                            <span class="font-mono font-bold text-base text-emerald-400"><span id="costPerPersonDisplay">18.15</span> €</span>
                         </div>
                     </div>
                 </section>
@@ -462,6 +476,11 @@
                         </select>
                     </div>
 
+                    <!-- API Error Banner if fueleconomy.gov fails -->
+                    <div id="apiCarErrorBox" class="hidden p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[11px] text-rose-300" data-i18n="prices_load_failed">
+                        Failed to load data, please add manually
+                    </div>
+
                     <div id="apiVehicleResult" class="hidden pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
                         <div>
                             <div id="apiResultTitle" class="text-xs font-bold text-white"></div>
@@ -495,7 +514,9 @@
                 nav_routes: "Maršruti",
                 nav_garage: "Garāža",
                 fuel_price_title: "Degvielas Cena",
-                fuel_price_subtitle: "Latvijas DUS cenas vai manuāla ievade",
+                fuel_price_subtitle: "Tiešsaistes DUS dati vai manuāla ievade",
+                prices_load_failed: "Neizdevās ielādēt datus, lūdzu ievadiet manuāli (Failed to load data, please add manually)",
+                retry_btn: "Mēģināt vēlreiz",
                 diesel_short: "Dīzelis",
                 route_title: "Maršruta Plānotājs & Distance",
                 route_subtitle: "Aprēķiniet ceļa attālumu starp pilsētām vai ievadiet km",
@@ -533,13 +554,16 @@
                 toast_route_saved: "Maršruts saglabāts!",
                 toast_car_saved: "Auto pievienots garāžai!",
                 toast_car_selected: "Auto izvēlēts!",
-                toast_prices_synced: "DUS cenas atjaunotas!"
+                toast_prices_synced: "Tiešsaistes DUS cenas ielādētas!",
+                toast_prices_failed: "Neizdevās ielādēt ./prices.json!"
             },
             en: {
                 nav_routes: "Routes",
                 nav_garage: "Garage",
                 fuel_price_title: "Fuel Price",
-                fuel_price_subtitle: "Latvian station prices or manual entry",
+                fuel_price_subtitle: "Live station data or manual entry",
+                prices_load_failed: "Failed to load data, please add manually",
+                retry_btn: "Retry",
                 diesel_short: "Diesel",
                 route_title: "Route Planner & Distance",
                 route_subtitle: "Calculate driving distance between cities or enter km",
@@ -577,7 +601,8 @@
                 toast_route_saved: "Route saved!",
                 toast_car_saved: "Car saved to garage!",
                 toast_car_selected: "Vehicle selected!",
-                toast_prices_synced: "Station prices updated!"
+                toast_prices_synced: "Live station prices loaded!",
+                toast_prices_failed: "Failed to load ./prices.json!"
             }
         };
 
@@ -591,47 +616,28 @@
             { make: "Volkswagen", model: "Passat B6 / B7 2.0 TDI", year: "2005–2014", fuel: "Diesel", cons: 5.4, tank: 70 },
             { make: "Volkswagen", model: "Passat B8 2.0 TDI", year: "2015–2023", fuel: "Diesel", cons: 4.9, tank: 66 },
             { make: "Volkswagen", model: "Tiguan 2.0 TDI 4Motion", year: "2016–2024", fuel: "Diesel", cons: 6.1, tank: 60 },
-            { make: "Volkswagen", model: "Transporter T5 / T6 2.0 TDI", year: "2010–2023", fuel: "Diesel", cons: 7.8, tank: 80 },
             { make: "Audi", model: "A4 B8 2.0 TDI", year: "2008–2015", fuel: "Diesel", cons: 5.1, tank: 63 },
             { make: "Audi", model: "A4 B9 2.0 TDI", year: "2015–2023", fuel: "Diesel", cons: 4.8, tank: 54 },
             { make: "Audi", model: "A6 C6 3.0 TDI Quattro", year: "2004–2011", fuel: "Diesel", cons: 7.9, tank: 80 },
             { make: "Audi", model: "A6 C7 3.0 TDI Quattro", year: "2011–2018", fuel: "Diesel", cons: 6.0, tank: 65 },
-            { make: "Audi", model: "Q5 2.0 TDI Quattro", year: "2012–2023", fuel: "Diesel", cons: 6.2, tank: 70 },
             { make: "BMW", model: "320d (E90 / E91)", year: "2005–2012", fuel: "Diesel", cons: 5.4, tank: 61 },
             { make: "BMW", model: "320d (F30 / G20)", year: "2012–2023", fuel: "Diesel", cons: 4.8, tank: 59 },
-            { make: "BMW", model: "530d (E60 / E61)", year: "2003–2010", fuel: "Diesel", cons: 6.8, tank: 70 },
             { make: "BMW", model: "530d xDrive (F10 / G30)", year: "2011–2023", fuel: "Diesel", cons: 5.9, tank: 68 },
-            { make: "BMW", model: "X5 xDrive30d (E70 / F15 / G05)", year: "2007–2023", fuel: "Diesel", cons: 7.4, tank: 85 },
+            { make: "BMW", model: "X5 xDrive30d", year: "2007–2023", fuel: "Diesel", cons: 7.4, tank: 85 },
             { make: "Volvo", model: "V70 / XC70 2.4 D5", year: "2007–2016", fuel: "Diesel", cons: 6.4, tank: 70 },
             { make: "Volvo", model: "XC60 D4 / B4 AWD", year: "2014–2024", fuel: "Diesel", cons: 6.0, tank: 71 },
             { make: "Volvo", model: "XC90 D5 AWD", year: "2015–2023", fuel: "Diesel", cons: 6.6, tank: 71 },
-            { make: "Volvo", model: "S60 / V60 2.0 D3/D4", year: "2011–2022", fuel: "Diesel", cons: 4.7, tank: 60 },
             { make: "Škoda", model: "Octavia II 1.9 TDI", year: "2004–2013", fuel: "Diesel", cons: 5.0, tank: 55 },
             { make: "Škoda", model: "Octavia III/IV 2.0 TDI", year: "2013–2024", fuel: "Diesel", cons: 4.4, tank: 50 },
-            { make: "Škoda", model: "Octavia 1.4 / 1.5 TSI", year: "2014–2024", fuel: "95E", cons: 5.3, tank: 50 },
             { make: "Škoda", model: "Superb 2.0 TDI", year: "2015–2024", fuel: "Diesel", cons: 4.9, tank: 66 },
-            { make: "Škoda", model: "Kodiaq 2.0 TDI 4x4", year: "2017–2024", fuel: "Diesel", cons: 6.2, tank: 60 },
-            { make: "Toyota", model: "Avensis 2.0 D-4D", year: "2009–2018", fuel: "Diesel", cons: 5.2, tank: 60 },
             { make: "Toyota", model: "Corolla 1.8 Hybrid", year: "2019–2025", fuel: "95E", cons: 4.5, tank: 43 },
             { make: "Toyota", model: "RAV4 2.5 Hybrid AWD", year: "2019–2025", fuel: "95E", cons: 5.6, tank: 55 },
-            { make: "Toyota", model: "Yaris 1.5 Hybrid", year: "2015–2025", fuel: "95E", cons: 3.9, tank: 36 },
-            { make: "Toyota", model: "Land Cruiser 150 2.8 D-4D", year: "2015–2024", fuel: "Diesel", cons: 7.9, tank: 87 },
             { make: "Seat", model: "Arosa 1.0 MPI", year: "1997–2004", fuel: "95E", cons: 5.8, tank: 34 },
             { make: "Seat", model: "Leon 2.0 TDI", year: "2013–2022", fuel: "Diesel", cons: 4.6, tank: 50 },
             { make: "Mercedes-Benz", model: "E 220d (W212 / W213)", year: "2009–2023", fuel: "Diesel", cons: 5.1, tank: 66 },
-            { make: "Mercedes-Benz", model: "C 220d (W204 / W205)", year: "2008–2021", fuel: "Diesel", cons: 4.9, tank: 66 },
-            { make: "Mercedes-Benz", model: "Sprinter 316 CDI", year: "2013–2024", fuel: "Diesel", cons: 8.9, tank: 75 },
-            { make: "Opel", model: "Astra J / K 1.6 CDTI", year: "2012–2021", fuel: "Diesel", cons: 4.5, tank: 48 },
             { make: "Opel", model: "Insignia 2.0 CDTI", year: "2009–2020", fuel: "Diesel", cons: 5.4, tank: 62 },
             { make: "Ford", model: "Focus 1.6 / 1.5 TDCi", year: "2011–2022", fuel: "Diesel", cons: 4.5, tank: 52 },
-            { make: "Ford", model: "Mondeo 2.0 TDCi", year: "2010–2022", fuel: "Diesel", cons: 5.3, tank: 62 },
-            { make: "Hyundai", model: "Tucson 1.6 T-GDI / CRDi", year: "2016–2024", fuel: "95E", cons: 6.7, tank: 54 },
-            { make: "Kia", model: "Sportage 1.6 GDI / CRDi", year: "2016–2024", fuel: "95E", cons: 6.8, tank: 54 },
-            { make: "Dacia", model: "Duster 1.5 dCi / 1.0 ECO-G", year: "2015–2024", fuel: "LPG", cons: 6.9, tank: 50 },
-            { make: "Nissan", model: "Qashqai 1.5 dCi / 1.3 DIG-T", year: "2014–2024", fuel: "95E", cons: 5.8, tank: 55 },
-            { make: "Honda", model: "CR-V 2.0 i-MMD Hybrid", year: "2018–2024", fuel: "95E", cons: 5.5, tank: 57 },
-            { make: "Subaru", model: "Outback 2.5i AWD", year: "2015–2024", fuel: "95E", cons: 7.3, tank: 60 },
-            { make: "Lexus", model: "RX 450h AWD", year: "2015–2023", fuel: "95E", cons: 6.2, tank: 65 }
+            { make: "Dacia", model: "Duster 1.5 dCi / 1.0 ECO-G", year: "2015–2024", fuel: "LPG", cons: 6.9, tank: 50 }
         ];
 
         const LV_CITIES = {
@@ -654,20 +660,14 @@
             "ogre": { lat: 56.8149, lon: 24.6045 }
         };
 
-        // Default fallback station prices (overwritten automatically by ./prices.json)
-        const DEFAULT_STATION_PRICES = {
-            "Virši": { "95E": 1.82, "98E": 1.89, "Diesel": 2.07, "LPG": 1.08 },
-            "Circle K": { "95E": 1.84, "98E": 1.91, "Diesel": 2.08, "LPG": 1.09 },
-            "Neste": { "95E": 1.81, "98E": 1.88, "Diesel": 2.05, "LPG": 1.05 },
-            "Viada": { "95E": 1.80, "98E": 1.87, "Diesel": 2.04, "LPG": 0.89 }
-        };
-
+        // NO FAKE FALLBACK STATION PRICES! Starts completely null until ./prices.json is verified.
         let state = {
             lang: 'lv',
             station: 'Virši',
             fuelType: 'Diesel',
-            stationPrices: JSON.parse(localStorage.getItem('fp_station_prices')) || DEFAULT_STATION_PRICES,
-            price: 2.07,
+            stationPrices: null, // Strictly null unless ./prices.json loads!
+            liveDataLoaded: false,
+            price: 1.85,
             distance: 218,
             isRoundTrip: false,
             consumption: 4.5,
@@ -681,67 +681,94 @@
                 { id: 3, name: "Toyota RAV4 Hybrid", cons: 5.6, fuel: "95E", tank: 55 }
             ],
             savedRoutes: JSON.parse(localStorage.getItem('fp_saved_routes')) || [
-                { id: 101, from: "Rīga", to: "Liepāja", km: 218, cost: 20.31 }
+                { id: 101, from: "Rīga", to: "Liepāja", km: 218, cost: 18.15 }
             ]
         };
 
         // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', () => {
             initApiYearsDropdown();
-            applyStationAndFuelUI();
             renderSavedCars();
             renderSavedRoutes();
             renderCarDatabase();
             calculateAll();
-            fetchPricesJson(false); // Automatically fetch ./prices.json on startup
+            fetchPricesJson(false); // Strictly check ./prices.json on startup
             lucide.createIcons();
         });
 
-        // --- AUTOMATIC ./prices.json LOADER ---
+        // --- STRICT ./prices.json LOADER (NO FAKE FALLBACKS) ---
         async function fetchPricesJson(showNotification = false) {
             const icon = document.getElementById('syncIcon');
+            const badge = document.getElementById('priceUpdatedBadge');
+            const statusBtn = document.getElementById('syncStatusBtn');
+            const errorBox = document.getElementById('livePricesErrorBox');
+            const liveContent = document.getElementById('livePricesContent');
+
             if (icon) icon.classList.add('animate-spin');
 
             try {
-                // Fetches ./prices.json hosted in the same GitHub Pages repository
                 const res = await fetch(`./prices.json?t=${Date.now()}`, { cache: "no-store" });
-                if (res.ok) {
-                    const data = await res.json();
-                    ['Virši', 'Circle K', 'Neste', 'Viada'].forEach(st => {
-                        if (data[st]) {
-                            state.stationPrices[st] = { ...state.stationPrices[st], ...data[st] };
-                        }
-                    });
-                    localStorage.setItem('fp_station_prices', JSON.stringify(state.stationPrices));
-                    if (data.updated) {
-                        document.getElementById('priceUpdatedBadge').textContent = data.updated.split(' ')[0];
-                    }
-                    applyStationAndFuelUI();
-                    if (showNotification) showToast(i18n[state.lang].toast_prices_synced);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const data = await res.json();
+
+                // Verify that the JSON actually contains valid station objects
+                if (!data || (!data['Virši'] && !data['Circle K'] && !data['Neste'] && !data['Viada'])) {
+                    throw new Error("Invalid prices.json structure");
                 }
-            } catch (e) {
-                // Silently falls back to cached/default prices if prices.json is not created yet
+
+                state.stationPrices = data;
+                state.liveDataLoaded = true;
+
+                // Show live stations UI & hide error message
+                errorBox.classList.add('hidden');
+                liveContent.classList.remove('hidden');
+
+                badge.textContent = data.updated ? data.updated.split(' ')[0] : 'LIVE';
+                statusBtn.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono text-emerald-400 hover:bg-emerald-500/20 transition";
+
+                applyStationAndFuelUI();
+                if (showNotification) showToast(i18n[state.lang].toast_prices_synced);
+            } catch (err) {
+                // FAILED TO READ DATA: Hide all station buttons/prices and show the error message
+                state.stationPrices = null;
+                state.liveDataLoaded = false;
+
+                liveContent.classList.add('hidden');
+                errorBox.classList.remove('hidden');
+
+                badge.textContent = 'OFFLINE';
+                statusBtn.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-rose-500/15 border border-rose-500/30 text-[10px] font-mono text-rose-400 hover:bg-rose-500/25 transition";
+
+                if (showNotification) showToast(i18n[state.lang].toast_prices_failed);
             } finally {
                 if (icon) icon.classList.remove('animate-spin');
+                lucide.createIcons();
             }
         }
 
         function selectStation(stationName) {
+            if (!state.liveDataLoaded || !state.stationPrices) return;
             state.station = stationName;
             applyStationAndFuelUI();
         }
 
         function selectFuelType(type) {
             state.fuelType = type;
-            applyStationAndFuelUI();
+            if (state.liveDataLoaded && state.stationPrices) {
+                applyStationAndFuelUI();
+            }
         }
 
         function applyStationAndFuelUI() {
-            const stPrices = state.stationPrices[state.station] || DEFAULT_STATION_PRICES['Virši'];
-            state.price = stPrices[state.fuelType] || 1.85;
+            if (!state.liveDataLoaded || !state.stationPrices) return;
 
-            document.getElementById('priceInput').value = state.price.toFixed(2);
-            document.getElementById('priceSlider').value = Math.min(3.0, state.price);
+            const stPrices = state.stationPrices[state.station];
+            if (stPrices && typeof stPrices[state.fuelType] === 'number') {
+                state.price = stPrices[state.fuelType];
+                document.getElementById('priceInput').value = state.price.toFixed(2);
+                document.getElementById('priceSlider').value = Math.min(3.0, state.price);
+            }
 
             // Highlight active station tab
             ['Virši', 'Circle K', 'Neste', 'Viada'].forEach(st => {
@@ -756,7 +783,11 @@
             ['95E', '98E', 'Diesel', 'LPG'].forEach(ft => {
                 const lbl = document.getElementById(`priceLabel_${ft}`);
                 const btn = document.getElementById(`fuelBtn_${ft}`);
-                if (lbl && stPrices[ft] !== undefined) lbl.textContent = `${stPrices[ft].toFixed(2)} €`;
+                if (lbl) {
+                    lbl.textContent = (stPrices && typeof stPrices[ft] === 'number')
+                        ? `${stPrices[ft].toFixed(2)} €`
+                        : '--';
+                }
                 if (btn) {
                     btn.className = ft === state.fuelType
                         ? "py-2 px-1.5 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
@@ -797,12 +828,8 @@
                 document.getElementById('distanceSlider').value = Math.min(1500, state.distance);
             } else if (type === 'price') {
                 state.price = Math.round(num * 100) / 100;
-                state.stationPrices[state.station][state.fuelType] = state.price;
-                localStorage.setItem('fp_station_prices', JSON.stringify(state.stationPrices));
                 document.getElementById('priceInput').value = state.price.toFixed(2);
                 document.getElementById('priceSlider').value = Math.min(3.0, state.price);
-                const lbl = document.getElementById(`priceLabel_${state.fuelType}`);
-                if (lbl) lbl.textContent = `${state.price.toFixed(2)} €`;
             } else if (type === 'consumption') {
                 state.consumption = Math.round(num * 10) / 10;
                 document.getElementById('consumptionInput').value = state.consumption.toFixed(1);
@@ -869,23 +896,12 @@
 
             try {
                 const [c1, c2] = await Promise.all([geocodePlace(origin), geocodePlace(dest)]);
-                let km = 0, mins = 0;
+                const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${c1.lon},${c1.lat};${c2.lon},${c2.lat}?overview=false`);
+                const osrmData = await osrmRes.json();
+                if (!osrmData.routes || osrmData.routes.length === 0) throw new Error("No route");
 
-                try {
-                    const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${c1.lon},${c1.lat};${c2.lon},${c2.lat}?overview=false`);
-                    const osrmData = await osrmRes.json();
-                    if (osrmData.routes && osrmData.routes.length > 0) {
-                        km = Math.round(osrmData.routes[0].distance / 1000);
-                        mins = Math.round(osrmData.routes[0].duration / 60);
-                    }
-                } catch (e) {
-                    const R = 6371;
-                    const dLat = (c2.lat - c1.lat) * Math.PI / 180;
-                    const dLon = (c2.lon - c1.lon) * Math.PI / 180;
-                    const a = Math.sin(dLat/2)**2 + Math.cos(c1.lat*Math.PI/180)*Math.cos(c2.lat*Math.PI/180)*Math.sin(dLon/2)**2;
-                    km = Math.max(1, Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 1.24));
-                    mins = Math.round((km / 75) * 60);
-                }
+                const km = Math.round(osrmData.routes[0].distance / 1000);
+                const mins = Math.round(osrmData.routes[0].duration / 60);
 
                 syncInput('distance', km);
                 const banner = document.getElementById('routeStatusBanner');
@@ -894,7 +910,10 @@
                 const h = Math.floor(mins / 60), m = mins % 60;
                 document.getElementById('routeDurationBadge').textContent = h > 0 ? `~${h}h ${m}m` : `~${m} min`;
             } catch (err) {
-                showToast(state.lang === 'lv' ? "Pilsēta nav atrasta" : "City not found");
+                const banner = document.getElementById('routeStatusBanner');
+                banner.classList.remove('hidden');
+                document.getElementById('routeStatusText').textContent = i18n[state.lang].prices_load_failed;
+                document.getElementById('routeDurationBadge').textContent = "";
             } finally {
                 btn.disabled = false;
                 btn.style.opacity = '1';
@@ -922,7 +941,9 @@
             const makeSel = document.getElementById('apiMakeSelect');
             const modelSel = document.getElementById('apiModelSelect');
             const optSel = document.getElementById('apiOptionSelect');
+            const errBox = document.getElementById('apiCarErrorBox');
 
+            errBox.classList.add('hidden');
             makeSel.innerHTML = `<option value="">2. Marka...</option>`;
             modelSel.innerHTML = `<option value="">3. Modelis...</option>`;
             optSel.innerHTML = `<option value="">4. Dzinējs...</option>`;
@@ -930,15 +951,20 @@
             document.getElementById('apiVehicleResult').classList.add('hidden');
             if (!year) return;
 
-            const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=${year}`, { headers: { 'Accept': 'application/json' } });
-            const items = normalizeMenuItems(await res.json());
-            items.forEach(i => {
-                const o = document.createElement('option');
-                o.value = i.value;
-                o.textContent = i.text;
-                makeSel.appendChild(o);
-            });
-            makeSel.disabled = false;
+            try {
+                const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=${year}`, { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error("API error");
+                const items = normalizeMenuItems(await res.json());
+                items.forEach(i => {
+                    const o = document.createElement('option');
+                    o.value = i.value;
+                    o.textContent = i.text;
+                    makeSel.appendChild(o);
+                });
+                makeSel.disabled = false;
+            } catch (e) {
+                errBox.classList.remove('hidden');
+            }
         }
 
         async function loadApiModels() {
@@ -946,22 +972,29 @@
             const make = document.getElementById('apiMakeSelect').value;
             const modelSel = document.getElementById('apiModelSelect');
             const optSel = document.getElementById('apiOptionSelect');
+            const errBox = document.getElementById('apiCarErrorBox');
 
+            errBox.classList.add('hidden');
             modelSel.innerHTML = `<option value="">3. Modelis...</option>`;
             optSel.innerHTML = `<option value="">4. Dzinējs...</option>`;
             modelSel.disabled = optSel.disabled = true;
             document.getElementById('apiVehicleResult').classList.add('hidden');
             if (!make) return;
 
-            const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=${year}&make=${encodeURIComponent(make)}`, { headers: { 'Accept': 'application/json' } });
-            const items = normalizeMenuItems(await res.json());
-            items.forEach(i => {
-                const o = document.createElement('option');
-                o.value = i.value;
-                o.textContent = i.text;
-                modelSel.appendChild(o);
-            });
-            modelSel.disabled = false;
+            try {
+                const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=${year}&make=${encodeURIComponent(make)}`, { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error("API error");
+                const items = normalizeMenuItems(await res.json());
+                items.forEach(i => {
+                    const o = document.createElement('option');
+                    o.value = i.value;
+                    o.textContent = i.text;
+                    modelSel.appendChild(o);
+                });
+                modelSel.disabled = false;
+            } catch (e) {
+                errBox.classList.remove('hidden');
+            }
         }
 
         async function loadApiOptions() {
@@ -969,45 +1002,61 @@
             const make = document.getElementById('apiMakeSelect').value;
             const model = document.getElementById('apiModelSelect').value;
             const optSel = document.getElementById('apiOptionSelect');
+            const errBox = document.getElementById('apiCarErrorBox');
 
+            errBox.classList.add('hidden');
             optSel.innerHTML = `<option value="">4. Dzinējs / Kārba...</option>`;
             optSel.disabled = true;
             document.getElementById('apiVehicleResult').classList.add('hidden');
             if (!model) return;
 
-            const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`, { headers: { 'Accept': 'application/json' } });
-            const items = normalizeMenuItems(await res.json());
-            items.forEach(i => {
-                const o = document.createElement('option');
-                o.value = i.value;
-                o.textContent = i.text;
-                optSel.appendChild(o);
-            });
-            optSel.disabled = false;
+            try {
+                const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`, { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error("API error");
+                const items = normalizeMenuItems(await res.json());
+                items.forEach(i => {
+                    const o = document.createElement('option');
+                    o.value = i.value;
+                    o.textContent = i.text;
+                    optSel.appendChild(o);
+                });
+                optSel.disabled = false;
+            } catch (e) {
+                errBox.classList.remove('hidden');
+            }
         }
 
         async function fetchApiVehicleSpecs() {
             const id = document.getElementById('apiOptionSelect').value;
+            const errBox = document.getElementById('apiCarErrorBox');
+            errBox.classList.add('hidden');
             if (!id) return;
 
-            const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/${id}`, { headers: { 'Accept': 'application/json' } });
-            const v = await res.json();
-            const mpg = parseFloat(v.comb08) || 28;
-            const l100 = Math.round((235.215 / mpg) * 10) / 10;
-            const fuelStr = (v.fuelType1 || '').toLowerCase();
-            const fuel = fuelStr.includes('diesel') ? 'Diesel' : (fuelStr.includes('premium') ? '98E' : '95E');
+            try {
+                const res = await fetch(`https://www.fueleconomy.gov/ws/rest/vehicle/${id}`, { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error("API error");
+                const v = await res.json();
+                const mpg = parseFloat(v.comb08);
+                if (!mpg) throw new Error("No MPG data");
 
-            state.pendingApiCar = {
-                id: Date.now(),
-                name: `${v.year} ${v.make} ${v.model}`,
-                cons: l100,
-                fuel: fuel,
-                tank: 55
-            };
+                const l100 = Math.round((235.215 / mpg) * 10) / 10;
+                const fuelStr = (v.fuelType1 || '').toLowerCase();
+                const fuel = fuelStr.includes('diesel') ? 'Diesel' : (fuelStr.includes('premium') ? '98E' : '95E');
 
-            document.getElementById('apiResultTitle').textContent = state.pendingApiCar.name;
-            document.getElementById('apiResultSpecs').textContent = `${l100} L/100km • ${fuel}`;
-            document.getElementById('apiVehicleResult').classList.remove('hidden');
+                state.pendingApiCar = {
+                    id: Date.now(),
+                    name: `${v.year} ${v.make} ${v.model}`,
+                    cons: l100,
+                    fuel: fuel,
+                    tank: 55
+                };
+
+                document.getElementById('apiResultTitle').textContent = state.pendingApiCar.name;
+                document.getElementById('apiResultSpecs').textContent = `${l100} L/100km • ${fuel}`;
+                document.getElementById('apiVehicleResult').classList.remove('hidden');
+            } catch (e) {
+                errBox.classList.remove('hidden');
+            }
         }
 
         function saveApiVehicle() {
