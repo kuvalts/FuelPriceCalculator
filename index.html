@@ -49,7 +49,7 @@
         }
 
         .glass-panel {
-            background: rgba(17, 24, 39, 0.82);
+            background: rgba(17, 24, 39, 0.84);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.07);
@@ -116,23 +116,30 @@
     <!-- ULTRA-COMPACT TOP NAVIGATION BAR -->
     <header class="sticky top-0 z-30 h-14 border-b border-slate-800/80 bg-[#090D16]/90 backdrop-blur-xl px-3 sm:px-6">
         <div class="max-w-6xl mx-auto h-full flex items-center justify-between gap-2">
-            <!-- Left Side: Routes & Garage Drawers -->
-            <div class="flex items-center gap-2">
-                <button onclick="toggleDrawer('routes')" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 text-xs font-medium text-slate-200 transition-all active:scale-95">
+            <!-- Left Side: Routes, Garage & DUS API Config -->
+            <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar">
+                <button onclick="toggleDrawer('routes')" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 text-xs font-medium text-slate-200 transition-all active:scale-95 shrink-0">
                     <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-400"></i>
                     <span data-i18n="nav_routes">Maršruti</span>
                     <span id="routesBadge" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0</span>
                 </button>
 
-                <button onclick="toggleDrawer('garage')" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 text-xs font-medium text-slate-200 transition-all active:scale-95">
+                <button onclick="toggleDrawer('garage')" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 text-xs font-medium text-slate-200 transition-all active:scale-95 shrink-0">
                     <i data-lucide="car" class="w-3.5 h-3.5 text-sky-400"></i>
                     <span data-i18n="nav_garage">Garāža</span>
                     <span id="garageBadge" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">0</span>
                 </button>
+
+                <!-- NEW: DegvielaLV_TG_Lambda Status & Config Trigger -->
+                <button onclick="toggleApiModal()" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 text-xs font-medium text-slate-200 transition-all active:scale-95 shrink-0" title="DegvielaLV_TG_Lambda API & Scraper">
+                    <span id="apiStatusDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span data-i18n="nav_api">DUS API</span>
+                    <i data-lucide="sliders-horizontal" class="w-3 h-3 text-slate-400"></i>
+                </button>
             </div>
 
             <!-- Right Side: Language Switcher -->
-            <div class="flex items-center bg-slate-900 p-0.5 rounded-xl border border-slate-800">
+            <div class="flex items-center bg-slate-900 p-0.5 rounded-xl border border-slate-800 shrink-0">
                 <button id="langLvBtn" onclick="setLanguage('lv')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-emerald-500 text-slate-950">LV</button>
                 <button id="langEnBtn" onclick="setLanguage('en')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">EN</button>
             </div>
@@ -146,7 +153,89 @@
             <!-- LEFT COLUMN: CONTROLS & INPUTS (7 cols) -->
             <div class="lg:col-span-7 space-y-4">
 
-                <!-- 1. ROUTE PLANNER & DISTANCE -->
+                <!-- 1. FUEL PRICE & DEGVIELALV_TG_LAMBDA LIVE BAR -->
+                <section class="glass-panel rounded-2xl p-4 sm:p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                                <i data-lucide="fuel" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-display font-bold text-white leading-tight" data-i18n="fuel_price_title">Degvielas Cena & Latvijas DUS</h2>
+                                <p id="fuelSourceSubtitle" class="text-[11px] text-slate-400" data-i18n="fuel_price_subtitle">DegvielaLV_TG_Lambda tiešsaistes skrāpis vai manuāla ievade</p>
+                            </div>
+                        </div>
+
+                        <!-- Stepper & Direct Input -->
+                        <div class="flex items-center gap-1">
+                            <button onclick="stepValue('price', -0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">-</button>
+                            <div class="relative">
+                                <input id="priceInput" type="number" min="0.10" max="5.00" step="0.01" value="2.07" oninput="syncInput('price', this.value)" class="w-24 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-2 pr-8 text-right font-mono font-bold text-sm text-amber-400 focus:outline-none focus:border-amber-500">
+                                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400">€/L</span>
+                            </div>
+                            <button onclick="stepValue('price', 0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">+</button>
+                        </div>
+                    </div>
+
+                    <!-- DegvielaLV_TG_Lambda Station Bar -->
+                    <div class="bg-slate-900/90 border border-slate-800/90 rounded-xl p-2.5 mb-3">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <div class="flex items-center gap-1.5">
+                                <span id="stationLiveBadge" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30">CACHE / LOCAL</span>
+                                <span id="lastSyncTimeText" class="text-[10px] text-slate-400 font-mono" data-i18n="sync_ready">Virši • Circle K • Neste • Viada</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button id="syncStationBtn" onclick="syncDegvielaLVPrices()" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition active:scale-95">
+                                    <i id="syncIcon" data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                    <span data-i18n="btn_sync_live">Atjaunot cenas</span>
+                                </button>
+                                <button onclick="toggleApiModal()" class="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition" title="Lambda URL / Scraper Settings">
+                                    <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Station Pills (Virši, Circle K, Neste, Viada) -->
+                        <div class="grid grid-cols-4 gap-1.5">
+                            <button onclick="selectStation('virsi')" id="stationBtn_virsi" class="py-1.5 px-2 rounded-lg text-xs font-semibold transition border bg-emerald-500 text-slate-950 border-emerald-400 font-bold">
+                                Virši
+                            </button>
+                            <button onclick="selectStation('circlek')" id="stationBtn_circlek" class="py-1.5 px-2 rounded-lg text-xs font-semibold transition border bg-slate-950/80 text-slate-300 border-slate-800 hover:border-slate-700">
+                                Circle K
+                            </button>
+                            <button onclick="selectStation('neste')" id="stationBtn_neste" class="py-1.5 px-2 rounded-lg text-xs font-semibold transition border bg-slate-950/80 text-slate-300 border-slate-800 hover:border-slate-700">
+                                Neste
+                            </button>
+                            <button onclick="selectStation('viada')" id="stationBtn_viada" class="py-1.5 px-2 rounded-lg text-xs font-semibold transition border bg-slate-950/80 text-slate-300 border-slate-800 hover:border-slate-700">
+                                Viada
+                            </button>
+                        </div>
+                    </div>
+
+                    <input id="priceSlider" type="range" min="0.50" max="3.00" step="0.01" value="2.07" oninput="syncInput('price', this.value)" class="mb-3">
+
+                    <!-- Fuel Grade Selector (95E, 98E, Diesel, LPG for active station) -->
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="selectFuelType('95E')" id="fuelBtn_95E" class="fuel-type-btn py-2 px-2 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center gap-0.5 bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200">
+                            <span>95E</span>
+                            <span id="savedPrice_95E" class="text-[10px] opacity-75">1.82 €</span>
+                        </button>
+                        <button onclick="selectFuelType('98E')" id="fuelBtn_98E" class="fuel-type-btn py-2 px-2 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center gap-0.5 bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200">
+                            <span>98E</span>
+                            <span id="savedPrice_98E" class="text-[10px] opacity-75">1.89 €</span>
+                        </button>
+                        <button onclick="selectFuelType('Diesel')" id="fuelBtn_Diesel" class="fuel-type-btn py-2 px-2 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center gap-0.5 bg-emerald-500/15 border-emerald-500/50 text-emerald-300">
+                            <span data-i18n="diesel_short">Dīzelis</span>
+                            <span id="savedPrice_Diesel" class="text-[10px] opacity-75">2.07 €</span>
+                        </button>
+                        <button onclick="selectFuelType('LPG')" id="fuelBtn_LPG" class="fuel-type-btn py-2 px-2 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center gap-0.5 bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200">
+                            <span>LPG</span>
+                            <span id="savedPrice_LPG" class="text-[10px] opacity-75">0.92 €</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 2. ROUTE PLANNER & DISTANCE -->
                 <section class="glass-panel rounded-2xl p-4 sm:p-5">
                     <div class="flex items-center justify-between mb-3.5">
                         <div class="flex items-center gap-2.5">
@@ -223,53 +312,6 @@
                     <input id="distanceSlider" type="range" min="1" max="1500" step="1" value="218" oninput="syncInput('distance', this.value)">
                 </section>
 
-                <!-- 2. FUEL PRICE CARD (MANUAL + SAVED FUEL TYPE MEMORY) -->
-                <section class="glass-panel rounded-2xl p-4 sm:p-5">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                                <i data-lucide="fuel" class="w-4 h-4"></i>
-                            </div>
-                            <div>
-                                <h2 class="text-sm font-display font-bold text-white leading-tight" data-i18n="fuel_price_title">Degvielas Cena</h2>
-                                <p class="text-[11px] text-slate-400" data-i18n="fuel_price_subtitle">Ievadiet cenu vai pārslēdziet saglabāto degvielas veidu</p>
-                            </div>
-                        </div>
-
-                        <!-- Stepper & Direct Input -->
-                        <div class="flex items-center gap-1">
-                            <button onclick="stepValue('price', -0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">-</button>
-                            <div class="relative">
-                                <input id="priceInput" type="number" min="0.10" max="5.00" step="0.01" value="1.65" oninput="syncInput('price', this.value)" class="w-24 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-2 pr-8 text-right font-mono font-bold text-sm text-amber-400 focus:outline-none focus:border-amber-500">
-                                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400">€/L</span>
-                            </div>
-                            <button onclick="stepValue('price', 0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">+</button>
-                        </div>
-                    </div>
-
-                    <input id="priceSlider" type="range" min="0.50" max="3.00" step="0.01" value="1.65" oninput="syncInput('price', this.value)" class="mb-3">
-
-                    <!-- Fuel Grade Selector (Remembers last entered price per fuel type) -->
-                    <div class="grid grid-cols-4 gap-2">
-                        <button onclick="selectFuelType('95E')" id="fuelBtn_95E" class="fuel-type-btn py-2 px-2 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center gap-0.5 bg-emerald-500/15 border-emerald-500/50 text-emerald-300">
-                            <span>95E</span>
-                            <span id="savedPrice_95E" class="text-[10px] opacity-75">1.65 €</span>
-                        </button>
-                        <button onclick="selectFuelType('98E')" id="fuelBtn_98E" class="fuel-type-btn py-2 px-2 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center gap-0.5 bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200">
-                            <span>98E</span>
-                            <span id="savedPrice_98E" class="text-[10px] opacity-75">1.73 €</span>
-                        </button>
-                        <button onclick="selectFuelType('Diesel')" id="fuelBtn_Diesel" class="fuel-type-btn py-2 px-2 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center gap-0.5 bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200">
-                            <span data-i18n="diesel_short">Dīzelis</span>
-                            <span id="savedPrice_Diesel" class="text-[10px] opacity-75">1.62 €</span>
-                        </button>
-                        <button onclick="selectFuelType('LPG')" id="fuelBtn_LPG" class="fuel-type-btn py-2 px-2 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center gap-0.5 bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200">
-                            <span>LPG</span>
-                            <span id="savedPrice_LPG" class="text-[10px] opacity-75">0.85 €</span>
-                        </button>
-                    </div>
-                </section>
-
                 <!-- 3. VEHICLE CONSUMPTION & ACTIVE CAR -->
                 <section class="glass-panel rounded-2xl p-4 sm:p-5">
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -280,7 +322,7 @@
                             <div>
                                 <h2 class="text-sm font-display font-bold text-white leading-tight" data-i18n="cons_title">Auto Vidējais Patēriņš</h2>
                                 <div class="flex items-center gap-1.5 mt-0.5">
-                                    <span id="activeCarPill" class="text-[11px] text-sky-400 font-medium">Pielāgots auto</span>
+                                    <span id="activeCarPill" class="text-[11px] text-sky-400 font-medium">VW Golf 2.0 TDI</span>
                                     <button onclick="openGarageSearch()" class="text-[11px] underline text-slate-400 hover:text-white" data-i18n="change_car_link">Mainīt / Meklēt datubāzē</button>
                                 </div>
                             </div>
@@ -289,14 +331,14 @@
                         <div class="flex items-center gap-1">
                             <button onclick="stepValue('consumption', -0.1)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">-</button>
                             <div class="relative">
-                                <input id="consumptionInput" type="number" min="1.0" max="35.0" step="0.1" value="6.2" oninput="syncInput('consumption', this.value)" class="w-24 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-2 pr-12 text-right font-mono font-bold text-sm text-sky-400 focus:outline-none focus:border-sky-500">
+                                <input id="consumptionInput" type="number" min="1.0" max="35.0" step="0.1" value="5.5" oninput="syncInput('consumption', this.value)" class="w-24 bg-slate-900 border border-slate-700 rounded-lg py-1 pl-2 pr-12 text-right font-mono font-bold text-sm text-sky-400 focus:outline-none focus:border-sky-500">
                                 <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-400">L/100</span>
                             </div>
                             <button onclick="stepValue('consumption', 0.1)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">+</button>
                         </div>
                     </div>
 
-                    <input id="consumptionSlider" type="range" min="2.5" max="20.0" step="0.1" value="6.2" oninput="syncInput('consumption', this.value)" class="mb-3">
+                    <input id="consumptionSlider" type="range" min="2.5" max="20.0" step="0.1" value="5.5" oninput="syncInput('consumption', this.value)" class="mb-3">
 
                     <!-- Presets -->
                     <div class="grid grid-cols-4 gap-2">
@@ -320,7 +362,7 @@
                     <div class="mb-5">
                         <div class="text-xs text-slate-400 mb-1" data-i18n="total_cost_label">Kopējās degvielas izmaksas</div>
                         <div class="flex items-baseline gap-2">
-                            <span id="totalCostDisplay" class="text-4xl sm:text-5xl font-mono font-bold text-white tracking-tight">22.30</span>
+                            <span id="totalCostDisplay" class="text-4xl sm:text-5xl font-mono font-bold text-white tracking-tight">24.82</span>
                             <span class="text-xl font-mono font-semibold text-emerald-400">€</span>
                         </div>
                     </div>
@@ -330,14 +372,14 @@
                         <div class="bg-slate-900/90 border border-slate-800/90 rounded-xl p-3">
                             <div class="text-[11px] text-slate-400 mb-1" data-i18n="fuel_needed_label">Nepieciešamā degviela</div>
                             <div class="flex items-baseline gap-1">
-                                <span id="totalLitersDisplay" class="text-xl font-mono font-bold text-sky-400">13.52</span>
+                                <span id="totalLitersDisplay" class="text-xl font-mono font-bold text-sky-400">11.99</span>
                                 <span class="text-xs font-mono text-slate-400" data-i18n="liters_unit">litri</span>
                             </div>
                         </div>
                         <div class="bg-slate-900/90 border border-slate-800/90 rounded-xl p-3">
                             <div class="text-[11px] text-slate-400 mb-1" data-i18n="cost_per_km_label">Izmaksas uz 1 km</div>
                             <div class="flex items-baseline gap-1">
-                                <span id="costPerKmDisplay" class="text-xl font-mono font-bold text-amber-400">0.102</span>
+                                <span id="costPerKmDisplay" class="text-xl font-mono font-bold text-amber-400">0.114</span>
                                 <span class="text-xs font-mono text-slate-400">€/km</span>
                             </div>
                         </div>
@@ -346,11 +388,11 @@
                     <!-- Fuel Tank Level Indicator -->
                     <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3 mb-4">
                         <div class="flex items-center justify-between text-xs mb-1.5">
-                            <span class="text-slate-400" data-i18n="tank_usage_label">Bākas patēriņš (<span id="tankSizeLabel">55</span>L bāka)</span>
-                            <span id="tankPercentDisplay" class="font-mono font-semibold text-emerald-400">25%</span>
+                            <span class="text-slate-400"><span data-i18n="tank_usage_label">Bākas patēriņš</span> (<span id="tankSizeLabel">55</span>L)</span>
+                            <span id="tankPercentDisplay" class="font-mono font-semibold text-emerald-400">22%</span>
                         </div>
                         <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                            <div id="tankProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-sky-400 transition-all duration-300" style="width: 25%"></div>
+                            <div id="tankProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-sky-400 transition-all duration-300" style="width: 22%"></div>
                         </div>
                     </div>
 
@@ -369,7 +411,7 @@
                         </div>
                         <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
                             <span class="text-xs text-slate-400" data-i18n="per_person_label">No katra pasažiera:</span>
-                            <span class="font-mono font-bold text-base text-emerald-400"><span id="costPerPersonDisplay">22.30</span> €</span>
+                            <span class="font-mono font-bold text-base text-emerald-400"><span id="costPerPersonDisplay">24.82</span> €</span>
                         </div>
                     </div>
                 </section>
@@ -388,6 +430,53 @@
                 <i data-lucide="bookmark-plus" class="w-4 h-4"></i>
                 <span data-i18n="btn_save_route">Saglabāt Maršrutu</span>
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL: DEGVIELALV_TG_LAMBDA API & SCRAPER CONFIGURATION -->
+    <div id="apiConfigModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="toggleApiModal()" class="drawer-backdrop absolute inset-0"></div>
+        <div class="relative w-full max-w-lg bg-[#0D1320] border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-4 z-10">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+                    <h3 class="font-display font-bold text-sm text-white">DegvielaLV_TG_Lambda Integrācija</h3>
+                </div>
+                <button onclick="toggleApiModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-300">
+                <p class="leading-relaxed text-slate-400" data-i18n="api_modal_desc">
+                    Šis modulis izmanto <code class="text-emerald-300 font-mono">pizzadesk/DegvielaLV_TG_Lambda</code> arhitektūru. Jūs varat izmantot iebūvēto tiešsaistes CORS skrāpi (kas nolasa cenas no Virši, Circle K, Neste, Viada) vai pieslēgt savu AWS Lambda Function URL.
+                </p>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">AWS Lambda Function URL / Custom JSON Endpoint (neobligāts):</label>
+                    <input id="customLambdaUrlInput" type="url" placeholder="https://xxxx.lambda-url.eu-central-1.on.aws/" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none">
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+                    <div class="text-[11px] font-semibold text-emerald-400">Atbalstītais DegvielaLV_TG_Lambda JSON formāts:</div>
+                    <pre class="text-[10px] font-mono text-slate-400 overflow-x-auto leading-tight">{
+  "virsi":   { "95E": 1.82, "98E": 1.89, "Diesel": 2.07, "LPG": 0.92 },
+  "circlek": { "95E": 1.84, "98E": 1.92, "Diesel": 2.08, "LPG": 0.94 },
+  "neste":   { "95E": 1.81, "98E": 1.88, "Diesel": 2.05, "LPG": 0.91 },
+  "viada":   { "95E": 1.80, "98E": 1.87, "Diesel": 2.04, "LPG": 0.89 }
+}</pre>
+                </div>
+
+                <div id="scraperLogBox" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[10px] text-slate-400 max-h-28 overflow-y-auto">
+                    [System] Ready. Active station: Virši (Diesel: 2.07 €/L)
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                <button onclick="saveLambdaSettings()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition">
+                    Saglabāt & Sinhronizēt
+                </button>
+            </div>
         </div>
     </div>
 
@@ -412,7 +501,6 @@
     <div id="garageDrawer" class="fixed inset-0 z-50 hidden">
         <div onclick="toggleDrawer('garage')" class="drawer-backdrop absolute inset-0"></div>
         <div class="absolute right-0 top-0 bottom-0 w-full max-w-lg bg-[#0D1320] border-l border-slate-800 flex flex-col shadow-2xl">
-            <!-- Header -->
             <div class="p-4 border-b border-slate-800 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <i data-lucide="car" class="w-4 h-4 text-sky-400"></i>
@@ -431,7 +519,6 @@
 
             <!-- TAB 1: SAVED CARS + MANUAL ADD -->
             <div id="garageTabMyCars" class="flex-1 overflow-y-auto p-4 space-y-4">
-                <!-- Add Custom Car Form -->
                 <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 space-y-3">
                     <div class="text-xs font-semibold text-white flex items-center gap-1.5">
                         <i data-lucide="plus" class="w-3.5 h-3.5 text-sky-400"></i>
@@ -440,11 +527,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <input id="customCarName" type="text" placeholder="Auto nosaukums (piem. Seat Arosa 1.0)" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
                         <div class="grid grid-cols-2 gap-2">
-                            <input id="customCarCons" type="number" step="0.1" placeholder="L/100km (6.0)" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-sky-500">
+                            <input id="customCarCons" type="number" step="0.1" placeholder="L/100km (5.5)" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-sky-500">
                             <select id="customCarFuel" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+                                <option value="Diesel">Dīzelis</option>
                                 <option value="95E">95E</option>
                                 <option value="98E">98E</option>
-                                <option value="Diesel">Dīzelis</option>
                                 <option value="LPG">LPG</option>
                             </select>
                         </div>
@@ -452,18 +539,15 @@
                     <button onclick="addCustomCar()" class="w-full py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs transition" data-i18n="save_to_garage_btn">Saglabāt garāžā</button>
                 </div>
 
-                <!-- Saved Cars List -->
                 <div id="savedCarsList" class="space-y-2"></div>
             </div>
 
             <!-- TAB 2: CAR SPECIFICATIONS DATABASE -->
             <div id="garageTabDb" class="hidden flex-1 overflow-y-auto p-4 space-y-3">
-                <!-- Prominent Disclaimer -->
                 <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-200/90 leading-relaxed">
                     <span data-i18n="db_disclaimer">⚠️ Uzmanību: Šie dati ir informatīvi un ņemti no tehniskajām datubāzēm. Reālais degvielas patēriņš dzīvē var atšķirties atkarībā no braukšanas stila, ceļa apstākļiem, laikapstākļiem un auto tehniskā stāvokļa.</span>
                 </div>
 
-                <!-- Search & Make Filter -->
                 <div class="space-y-2">
                     <div class="relative">
                         <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
@@ -474,7 +558,6 @@
                     </select>
                 </div>
 
-                <!-- Database Results -->
                 <div id="dbResultsList" class="space-y-2 pt-1"></div>
             </div>
         </div>
@@ -489,6 +572,7 @@
             lv: {
                 nav_routes: "Maršruti",
                 nav_garage: "Garāža",
+                nav_api: "DUS API",
                 route_title: "Maršruta Plānotājs & Distance",
                 route_subtitle: "Aprēķiniet ceļa attālumu starp pilsētām vai ievadiet km",
                 from_label: "No kurienes",
@@ -498,8 +582,9 @@
                 distance_label: "Attālums (vienā virzienā)",
                 one_way: "Turp",
                 round_trip: "Turp-Atpakaļ",
-                fuel_price_title: "Degvielas Cena",
-                fuel_price_subtitle: "Ievadiet cenu vai pārslēdziet saglabāto degvielas veidu",
+                fuel_price_title: "Degvielas Cena & Latvijas DUS",
+                fuel_price_subtitle: "DegvielaLV_TG_Lambda tiešsaistes skrāpis vai manuāla ievade",
+                btn_sync_live: "Atjaunot cenas",
                 diesel_short: "Dīzelis",
                 cons_title: "Auto Vidējais Patēriņš",
                 change_car_link: "Mainīt / Meklēt datubāzē",
@@ -525,11 +610,13 @@
                 no_routes: "Nav saglabātu maršrutu.",
                 toast_route_saved: "Maršruts saglabāts!",
                 toast_car_saved: "Auto pievienots garāžai!",
-                toast_car_selected: "Auto izvēlēts!"
+                toast_car_selected: "Auto izvēlēts!",
+                toast_prices_synced: "DUS cenas atjaunotas!"
             },
             en: {
                 nav_routes: "Routes",
                 nav_garage: "Garage",
+                nav_api: "Fuel API",
                 route_title: "Route Planner & Distance",
                 route_subtitle: "Calculate driving distance between cities or enter km manually",
                 from_label: "Origin",
@@ -539,8 +626,9 @@
                 distance_label: "Distance (one way)",
                 one_way: "One-way",
                 round_trip: "Round-trip",
-                fuel_price_title: "Fuel Price",
-                fuel_price_subtitle: "Enter price or switch saved fuel grade",
+                fuel_price_title: "Fuel Price & Latvian Stations",
+                fuel_price_subtitle: "DegvielaLV_TG_Lambda live scraper or manual entry",
+                btn_sync_live: "Sync Prices",
                 diesel_short: "Diesel",
                 cons_title: "Vehicle Fuel Consumption",
                 change_car_link: "Change / Search Database",
@@ -566,33 +654,34 @@
                 no_routes: "No saved routes yet.",
                 toast_route_saved: "Route saved!",
                 toast_car_saved: "Car saved to garage!",
-                toast_car_selected: "Vehicle applied!"
+                toast_car_selected: "Vehicle applied!",
+                toast_prices_synced: "Station prices updated!"
             }
         };
 
         // --- BUILT-IN EUROPEAN & LATVIAN VEHICLE SPECS DATABASE ---
         const CAR_DATABASE = [
-            { make: "Seat", model: "Arosa 1.0 MPI", year: "1997–2004", fuel: "95E", cons: 5.8, city: 7.4, hwy: 4.9, tank: 34 },
-            { make: "Seat", model: "Leon 2.0 TDI", year: "2013–2020", fuel: "Diesel", cons: 4.6, city: 5.4, hwy: 4.1, tank: 50 },
-            { make: "Volkswagen", model: "Golf 2.0 TDI", year: "2013–2020", fuel: "Diesel", cons: 4.5, city: 5.3, hwy: 4.0, tank: 50 },
-            { make: "Volkswagen", model: "Passat B8 2.0 TDI", year: "2015–2022", fuel: "Diesel", cons: 4.9, city: 5.8, hwy: 4.3, tank: 66 },
-            { make: "Volkswagen", model: "Tiguan 2.0 TDI 4Motion", year: "2016–2023", fuel: "Diesel", cons: 6.1, city: 7.1, hwy: 5.4, tank: 60 },
-            { make: "BMW", model: "320d (F30 / G20)", year: "2012–2023", fuel: "Diesel", cons: 4.8, city: 5.7, hwy: 4.2, tank: 59 },
-            { make: "BMW", model: "530d xDrive (G30)", year: "2017–2023", fuel: "Diesel", cons: 5.8, city: 6.9, hwy: 5.1, tank: 66 },
-            { make: "Audi", model: "A4 Avant 2.0 TDI", year: "2015–2023", fuel: "Diesel", cons: 4.9, city: 5.8, hwy: 4.3, tank: 54 },
-            { make: "Audi", model: "A6 C7 3.0 TDI Quattro", year: "2011–2018", fuel: "Diesel", cons: 6.0, city: 7.2, hwy: 5.3, tank: 65 },
-            { make: "Volvo", model: "XC60 D4 / B4 AWD", year: "2018–2024", fuel: "Diesel", cons: 6.1, city: 7.1, hwy: 5.4, tank: 71 },
-            { make: "Volvo", model: "V70 2.4 D5", year: "2008–2016", fuel: "Diesel", cons: 6.2, city: 7.6, hwy: 5.3, tank: 70 },
-            { make: "Škoda", model: "Octavia 1.4 TSI", year: "2014–2020", fuel: "95E", cons: 5.4, city: 6.6, hwy: 4.7, tank: 50 },
-            { make: "Škoda", model: "Octavia 2.0 TDI", year: "2017–2024", fuel: "Diesel", cons: 4.4, city: 5.2, hwy: 3.9, tank: 50 },
-            { make: "Toyota", model: "RAV4 2.5 Hybrid", year: "2019–2025", fuel: "95E", cons: 5.6, city: 4.9, hwy: 6.1, tank: 55 },
-            { make: "Toyota", model: "Corolla 1.8 Hybrid", year: "2019–2025", fuel: "95E", cons: 4.5, city: 3.9, hwy: 4.9, tank: 43 },
-            { make: "Mercedes-Benz", model: "E 220d (W213)", year: "2016–2023", fuel: "Diesel", cons: 4.9, city: 5.8, hwy: 4.3, tank: 66 },
-            { make: "Ford", model: "Focus 1.0 EcoBoost", year: "2015–2022", fuel: "95E", cons: 5.5, city: 6.7, hwy: 4.8, tank: 52 },
-            { make: "Opel", model: "Insignia 2.0 CDTI", year: "2014–2020", fuel: "Diesel", cons: 5.3, city: 6.4, hwy: 4.6, tank: 62 }
+            { make: "Seat", model: "Arosa 1.0 MPI", year: "1997–2004", fuel: "95E", cons: 5.8, tank: 34 },
+            { make: "Seat", model: "Leon 2.0 TDI", year: "2013–2020", fuel: "Diesel", cons: 4.6, tank: 50 },
+            { make: "Volkswagen", model: "Golf 2.0 TDI", year: "2013–2020", fuel: "Diesel", cons: 4.5, tank: 50 },
+            { make: "Volkswagen", model: "Passat B8 2.0 TDI", year: "2015–2022", fuel: "Diesel", cons: 4.9, tank: 66 },
+            { make: "Volkswagen", model: "Tiguan 2.0 TDI 4Motion", year: "2016–2023", fuel: "Diesel", cons: 6.1, tank: 60 },
+            { make: "BMW", model: "320d (F30 / G20)", year: "2012–2023", fuel: "Diesel", cons: 4.8, tank: 59 },
+            { make: "BMW", model: "530d xDrive (G30)", year: "2017–2023", fuel: "Diesel", cons: 5.8, tank: 66 },
+            { make: "Audi", model: "A4 Avant 2.0 TDI", year: "2015–2023", fuel: "Diesel", cons: 4.9, tank: 54 },
+            { make: "Audi", model: "A6 C7 3.0 TDI Quattro", year: "2011–2018", fuel: "Diesel", cons: 6.0, tank: 65 },
+            { make: "Volvo", model: "XC60 D4 / B4 AWD", year: "2018–2024", fuel: "Diesel", cons: 6.1, tank: 71 },
+            { make: "Volvo", model: "V70 2.4 D5", year: "2008–2016", fuel: "Diesel", cons: 6.2, tank: 70 },
+            { make: "Škoda", model: "Octavia 1.4 TSI", year: "2014–2020", fuel: "95E", cons: 5.4, tank: 50 },
+            { make: "Škoda", model: "Octavia 2.0 TDI", year: "2017–2024", fuel: "Diesel", cons: 4.4, tank: 50 },
+            { make: "Toyota", model: "RAV4 2.5 Hybrid", year: "2019–2025", fuel: "95E", cons: 5.6, tank: 55 },
+            { make: "Toyota", model: "Corolla 1.8 Hybrid", year: "2019–2025", fuel: "95E", cons: 4.5, tank: 43 },
+            { make: "Mercedes-Benz", model: "E 220d (W213)", year: "2016–2023", fuel: "Diesel", cons: 4.9, tank: 66 },
+            { make: "Ford", model: "Focus 1.0 EcoBoost", year: "2015–2022", fuel: "95E", cons: 5.5, tank: 52 },
+            { make: "Opel", model: "Insignia 2.0 CDTI", year: "2014–2020", fuel: "Diesel", cons: 5.3, tank: 62 }
         ];
 
-        // --- LATVIAN CITIES COORDS & ROAD DISTANCES ---
+        // --- LATVIAN CITIES COORDS ---
         const LV_CITIES = {
             "rīga": { lat: 56.9496, lon: 24.1052 },
             "riga": { lat: 56.9496, lon: 24.1052 },
@@ -611,47 +700,259 @@
             "līvāni": { lat: 56.3543, lon: 26.1758 }
         };
 
+        // --- DEFAULT STATION PRICES (Reference: Virši Diesel = 2.07€) ---
+        const DEFAULT_STATION_PRICES = {
+            virsi:   { '95E': 1.82, '98E': 1.89, 'Diesel': 2.07, 'LPG': 0.92 },
+            circlek: { '95E': 1.84, '98E': 1.92, 'Diesel': 2.08, 'LPG': 0.94 },
+            neste:   { '95E': 1.81, '98E': 1.88, 'Diesel': 2.05, 'LPG': 0.91 },
+            viada:   { '95E': 1.80, '98E': 1.87, 'Diesel': 2.04, 'LPG': 0.89 }
+        };
+
         // --- APPLICATION STATE ---
         let state = {
             lang: 'lv',
             distance: 218,
             isRoundTrip: false,
-            fuelType: '95E',
-            fuelPrices: JSON.parse(localStorage.getItem('fp_fuel_prices')) || {
-                '95E': 1.65,
-                '98E': 1.73,
-                'Diesel': 1.62,
-                'LPG': 0.85
-            },
-            price: 1.65,
-            consumption: 6.2,
-            tankSize: 55,
+            activeStation: localStorage.getItem('fp_active_station') || 'virsi',
+            fuelType: localStorage.getItem('fp_active_fuel') || 'Diesel',
+            stationPrices: JSON.parse(localStorage.getItem('fp_station_prices_v2')) || DEFAULT_STATION_PRICES,
+            customLambdaUrl: localStorage.getItem('fp_custom_lambda_url') || '',
+            price: 2.07,
+            consumption: 5.5,
+            tankSize: 50,
             activeCarName: 'VW Golf 2.0 TDI',
             passengers: 1,
             savedCars: JSON.parse(localStorage.getItem('fp_saved_cars')) || [
-                { id: 1, name: "Seat Arosa 1.0 MPI", cons: 5.8, fuel: "95E", tank: 34 },
-                { id: 2, name: "VW Golf 2.0 TDI", cons: 4.5, fuel: "Diesel", tank: 50 },
+                { id: 1, name: "VW Golf 2.0 TDI", cons: 5.5, fuel: "Diesel", tank: 50 },
+                { id: 2, name: "Seat Arosa 1.0 MPI", cons: 5.8, fuel: "95E", tank: 34 },
                 { id: 3, name: "Toyota RAV4 Hybrid", cons: 5.6, fuel: "95E", tank: 55 }
             ],
             savedRoutes: JSON.parse(localStorage.getItem('fp_saved_routes')) || [
-                { id: 101, from: "Rīga", to: "Kandava", km: 96, cost: 9.82 },
-                { id: 102, from: "Rīga", to: "Liepāja", km: 218, cost: 22.30 }
+                { id: 101, from: "Rīga", to: "Kandava", km: 96, cost: 10.93 },
+                { id: 102, from: "Rīga", to: "Liepāja", km: 218, cost: 24.82 }
             ]
         };
 
         // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', () => {
-            state.price = state.fuelPrices[state.fuelType] || 1.65;
+            document.getElementById('customLambdaUrlInput').value = state.customLambdaUrl;
+            const currentStPrices = state.stationPrices[state.activeStation] || DEFAULT_STATION_PRICES.virsi;
+            state.price = currentStPrices[state.fuelType] || 2.07;
+
             document.getElementById('priceInput').value = state.price.toFixed(2);
             document.getElementById('priceSlider').value = state.price;
+
             populateMakeFilter();
+            updateStationUI();
             updateFuelTypeButtons();
             renderSavedCars();
             renderSavedRoutes();
             renderCarDatabase();
             calculateAll();
             lucide.createIcons();
+
+            // Attempt background live scrape on startup
+            syncDegvielaLVPrices(true);
         });
+
+        // --- DEGVIELALV_TG_LAMBDA CLIENT SCRAPER & ENDPOINT ENGINE ---
+        function logScraper(msg) {
+            const box = document.getElementById('scraperLogBox');
+            if (box) {
+                const time = new Date().toLocaleTimeString();
+                box.innerHTML += `\n[${time}] ${msg}`;
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        function setLiveStatus(isLive, labelText) {
+            const dot = document.getElementById('apiStatusDot');
+            const badge = document.getElementById('stationLiveBadge');
+            const syncTime = document.getElementById('lastSyncTimeText');
+
+            if (isLive) {
+                dot.className = "w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]";
+                badge.className = "px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                badge.textContent = "LIVE DUS";
+            } else {
+                dot.className = "w-2 h-2 rounded-full bg-amber-400";
+                badge.className = "px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                badge.textContent = "LOCAL / CACHE";
+            }
+            if (labelText && syncTime) {
+                syncTime.textContent = labelText;
+            }
+        }
+
+        // Extracts plausible Latvian fuel prices (between 0.65 and 2.65 EUR) from scraped HTML text
+        function parseFuelPricesFromHtml(html, stationKey) {
+            const result = {};
+            const cleanText = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+            // Helper regex for price patterns following fuel keywords (mirrors DegvielaLV_TG_Lambda logic)
+            const findPriceNear = (keywords, minVal = 1.35, maxVal = 2.55) => {
+                for (const kw of keywords) {
+                    const idx = cleanText.toLowerCase().indexOf(kw.toLowerCase());
+                    if (idx !== -1) {
+                        const snippet = cleanText.slice(idx, idx + 180);
+                        const matches = snippet.match(/\b([0-2][.,]\d{2,3})\b/g);
+                        if (matches) {
+                            for (const m of matches) {
+                                const val = parseFloat(m.replace(',', '.'));
+                                if (val >= minVal && val <= maxVal) {
+                                    return Math.round(val * 100) / 100;
+                                }
+                            }
+                        }
+                    }
+                }
+                return null;
+            };
+
+            const p95 = findPriceNear(['95e', 'miles 95', 'futura 95', '95 ecto', '95 ']);
+            const p98 = findPriceNear(['98e', 'miles+ 98', 'futura 98', '98 ']);
+            const pDiesel = findPriceNear(['dīzelis', 'dd', 'miles dīzelis', 'futura d', 'diesel']);
+            const pLpg = findPriceNear(['lpg', 'autogāze', 'gāze'], 0.60, 1.35);
+
+            if (p95) result['95E'] = p95;
+            if (p98) result['98E'] = p98;
+            if (pDiesel) result['Diesel'] = pDiesel;
+            if (pLpg) result['LPG'] = pLpg;
+
+            return Object.keys(result).length > 0 ? result : null;
+        }
+
+        async function fetchWithCorsProxy(targetUrl) {
+            const proxies = [
+                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+            ];
+            for (const proxyUrl of proxies) {
+                try {
+                    const ctrl = new AbortController();
+                    const timer = setTimeout(() => ctrl.abort(), 5500);
+                    const res = await fetch(proxyUrl, { signal: ctrl.signal });
+                    clearTimeout(timer);
+                    if (!res.ok) continue;
+                    if (proxyUrl.includes('allorigins')) {
+                        const data = await res.json();
+                        if (data && data.contents) return data.contents;
+                    } else {
+                        return await res.text();
+                    }
+                } catch (e) {
+                    // Try next proxy
+                }
+            }
+            return null;
+        }
+
+        async function syncDegvielaLVPrices(silent = false) {
+            const syncIcon = document.getElementById('syncIcon');
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+
+            let updatedAny = false;
+
+            try {
+                // 1. If user configured a custom DegvielaLV_TG_Lambda URL / JSON endpoint
+                if (state.customLambdaUrl) {
+                    logScraper(`Fetching custom Lambda URL: ${state.customLambdaUrl}`);
+                    const res = await fetch(state.customLambdaUrl);
+                    const data = await res.json();
+                    ['virsi', 'circlek', 'neste', 'viada'].forEach(st => {
+                        if (data[st]) {
+                            state.stationPrices[st] = { ...state.stationPrices[st], ...data[st] };
+                            updatedAny = true;
+                        }
+                    });
+                    if (updatedAny) {
+                        logScraper(`Custom Lambda sync successful!`);
+                    }
+                }
+
+                // 2. Built-in DegvielaLV_TG_Lambda Client-Side Scraper for Latvian DUS pages
+                if (!updatedAny) {
+                    const targets = [
+                        { key: 'virsi', url: 'https://www.virsi.lv/lv/privatpersonam/degviela/degvielas-cenas' },
+                        { key: 'circlek', url: 'https://www.circlek.lv/degvielas-cenas' },
+                        { key: 'neste', url: 'https://www.neste.lv/lv/content/degvielas-cenas' }
+                    ];
+
+                    for (const t of targets) {
+                        logScraper(`Scraping ${t.key.toUpperCase()} (${t.url})...`);
+                        const html = await fetchWithCorsProxy(t.url);
+                        if (html) {
+                            const parsed = parseFuelPricesFromHtml(html, t.key);
+                            if (parsed) {
+                                state.stationPrices[t.key] = { ...state.stationPrices[t.key], ...parsed };
+                                updatedAny = true;
+                                logScraper(`Parsed ${t.key.toUpperCase()}: ${JSON.stringify(parsed)}`);
+                            }
+                        }
+                    }
+                }
+
+                localStorage.setItem('fp_station_prices_v2', JSON.stringify(state.stationPrices));
+                const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                if (updatedAny) {
+                    setLiveStatus(true, `DegvielaLV Live (${nowStr})`);
+                    if (!silent) showToast(i18n[state.lang].toast_prices_synced);
+                } else {
+                    setLiveStatus(false, `Lokālais kešs (${state.activeStation.toUpperCase()})`);
+                    logScraper(`Using cached/reference station prices (Virši Diesel: ${state.stationPrices.virsi.Diesel}€).`);
+                    if (!silent) showToast(state.lang === 'lv' ? "Izmanto saglabātās DUS cenas" : "Using saved station prices");
+                }
+
+                // Apply active station & fuel price
+                const activeStObj = state.stationPrices[state.activeStation];
+                if (activeStObj && activeStObj[state.fuelType]) {
+                    syncInput('price', activeStObj[state.fuelType]);
+                }
+                updateFuelTypeButtons();
+            } catch (err) {
+                logScraper(`Sync fallback: ${err.message}`);
+                setLiveStatus(false, `Lokālais režīms`);
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('animate-spin');
+            }
+        }
+
+        function selectStation(stationKey) {
+            state.activeStation = stationKey;
+            localStorage.setItem('fp_active_station', stationKey);
+            updateStationUI();
+            const stPrices = state.stationPrices[stationKey] || DEFAULT_STATION_PRICES.virsi;
+            if (stPrices[state.fuelType]) {
+                syncInput('price', stPrices[state.fuelType]);
+            }
+            updateFuelTypeButtons();
+        }
+
+        function updateStationUI() {
+            ['virsi', 'circlek', 'neste', 'viada'].forEach(st => {
+                const btn = document.getElementById(`stationBtn_${st}`);
+                if (!btn) return;
+                if (state.activeStation === st) {
+                    btn.className = "py-1.5 px-2 rounded-lg text-xs font-bold transition border bg-emerald-500 text-slate-950 border-emerald-400 shadow-sm";
+                } else {
+                    btn.className = "py-1.5 px-2 rounded-lg text-xs font-semibold transition border bg-slate-950/80 text-slate-300 border-slate-800 hover:border-slate-700";
+                }
+            });
+        }
+
+        function toggleApiModal() {
+            const modal = document.getElementById('apiConfigModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function saveLambdaSettings() {
+            const url = document.getElementById('customLambdaUrlInput').value.trim();
+            state.customLambdaUrl = url;
+            localStorage.setItem('fp_custom_lambda_url', url);
+            toggleApiModal();
+            syncDegvielaLVPrices(false);
+        }
 
         // --- CORE CALCULATIONS ---
         function calculateAll() {
@@ -683,8 +984,11 @@
                 document.getElementById('distanceSlider').value = Math.min(1500, state.distance);
             } else if (type === 'price') {
                 state.price = Math.round(num * 100) / 100;
-                state.fuelPrices[state.fuelType] = state.price;
-                localStorage.setItem('fp_fuel_prices', JSON.stringify(state.fuelPrices));
+                if (!state.stationPrices[state.activeStation]) {
+                    state.stationPrices[state.activeStation] = { ...DEFAULT_STATION_PRICES.virsi };
+                }
+                state.stationPrices[state.activeStation][state.fuelType] = state.price;
+                localStorage.setItem('fp_station_prices_v2', JSON.stringify(state.stationPrices));
                 document.getElementById('priceInput').value = state.price.toFixed(2);
                 document.getElementById('priceSlider').value = Math.min(3.0, state.price);
                 updateFuelTypeButtons();
@@ -704,7 +1008,9 @@
 
         function selectFuelType(type) {
             state.fuelType = type;
-            state.price = state.fuelPrices[type] || 1.65;
+            localStorage.setItem('fp_active_fuel', type);
+            const stPrices = state.stationPrices[state.activeStation] || DEFAULT_STATION_PRICES.virsi;
+            state.price = stPrices[type] || 1.85;
             document.getElementById('priceInput').value = state.price.toFixed(2);
             document.getElementById('priceSlider').value = state.price;
             updateFuelTypeButtons();
@@ -712,10 +1018,13 @@
         }
 
         function updateFuelTypeButtons() {
+            const stPrices = state.stationPrices[state.activeStation] || DEFAULT_STATION_PRICES.virsi;
             ['95E', '98E', 'Diesel', 'LPG'].forEach(type => {
                 const btn = document.getElementById(`fuelBtn_${type}`);
                 const priceSpan = document.getElementById(`savedPrice_${type}`);
-                if (priceSpan) priceSpan.textContent = `${(state.fuelPrices[type] || 1.60).toFixed(2)} €`;
+                if (priceSpan && stPrices[type] !== undefined) {
+                    priceSpan.textContent = `${stPrices[type].toFixed(2)} €`;
+                }
                 if (btn) {
                     if (state.fuelType === type) {
                         btn.className = "fuel-type-btn py-2 px-2 rounded-xl border text-xs font-mono font-semibold transition flex flex-col items-center justify-center gap-0.5 bg-emerald-500/15 border-emerald-500/50 text-emerald-300";
@@ -794,7 +1103,6 @@
                         mins = Math.round(osrmData.routes[0].duration / 60);
                     }
                 } catch (e) {
-                    // Fallback Haversine * 1.24 road factor
                     const R = 6371;
                     const dLat = (c2.lat - c1.lat) * Math.PI / 180;
                     const dLon = (c2.lon - c1.lon) * Math.PI / 180;
@@ -931,7 +1239,7 @@
             if (!car) return;
             state.activeCarName = car.name;
             state.tankSize = car.tank || 55;
-            selectFuelType(car.fuel || '95E');
+            selectFuelType(car.fuel || 'Diesel');
             syncInput('consumption', car.cons);
             renderSavedCars();
             showToast(i18n[state.lang].toast_car_selected);
