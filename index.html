@@ -117,17 +117,21 @@
             <!-- LEFT COLUMN: INPUT CARDS (7 cols) -->
             <div class="lg:col-span-7 space-y-3.5">
 
-                <!-- 1. LATVIAN DUS FUEL PRICE CARD (STRICTLY LIVE FROM ./prices.json OR ERROR STATE) -->
+                <!-- 1. LATVIAN DUS FUEL PRICE CARD (CLEAN MOBILE LAYOUT + WORKFLOW STATUS) -->
                 <section class="glass-panel rounded-2xl p-4">
-                    <div class="flex items-center justify-between gap-2 mb-3">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                    <!-- Row 1: Title & Manual Stepper -->
+                    <div class="flex items-center justify-between gap-2 mb-2.5">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
                                 <i data-lucide="fuel" class="w-4 h-4"></i>
                             </div>
-                            <div class="truncate">
-                                <div class="flex items-center gap-2">
-                                    <h2 class="text-sm font-display font-bold text-white truncate" data-i18n="fuel_price_title">Degvielas Cena</h2>
-                        <!-- Manual Price Stepper (Starts empty until ./prices.json loads or user enters manually) -->
+                            <div class="min-w-0">
+                                <h2 class="text-sm font-display font-bold text-white leading-tight truncate" data-i18n="fuel_price_title">Degvielas Cena</h2>
+                                <p class="text-[11px] text-slate-400 truncate" data-i18n="fuel_price_subtitle">Tiešsaistes DUS dati vai manuāla ievade</p>
+                            </div>
+                        </div>
+
+                        <!-- Manual Price Stepper -->
                         <div class="flex items-center gap-1 shrink-0">
                             <button onclick="stepValue('price', -0.01)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-mono text-sm">-</button>
                             <div class="relative">
@@ -138,30 +142,43 @@
                         </div>
                     </div>
 
-                    <!-- INITIAL LOADING STATE: Shown immediately on page open while fetching ./prices.json -->
-                    <div id="livePricesLoadingBox" class="mb-3 p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-2.5 text-xs text-sky-300 font-medium">
-                            <i data-lucide="loader-2" class="w-4 h-4 text-sky-400 animate-spin shrink-0"></i>
-                            <span data-i18n="prices_loading_msg">Ielādē tiešsaistes DUS cenas no ./prices.json...</span>
+                    <!-- Row 2: GitHub Workflow Last Updated Bar -->
+                    <div class="flex items-center justify-between gap-2 px-3 py-1.5 mb-3 rounded-xl bg-slate-900/90 border border-slate-800/90 text-[11px]">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <span id="workflowDot" class="w-2 h-2 rounded-full bg-sky-400 animate-pulse shrink-0"></span>
+                            <span class="text-slate-400 truncate" data-i18n="workflow_label">GitHub Workflow:</span>
+                            <span id="priceUpdatedBadge" class="font-mono font-semibold text-slate-200 truncate">Pārbauda...</span>
                         </div>
-                        <span class="text-[10px] font-mono text-sky-400/80 uppercase">GET ./prices.json</span>
-                    </div>
-
-                    <!-- STRICT ERROR STATE: Shown when ./prices.json fails to load -->
-                    <div id="livePricesErrorBox" class="hidden mb-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2 text-xs text-rose-300 font-medium">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0"></i>
-                            <span data-i18n="prices_load_failed">Failed to load data, please add manually</span>
-                        </div>
-                        <button onclick="fetchPricesJson(true)" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-[11px] font-semibold shrink-0 transition" data-i18n="retry_btn">
-                            Mēģināt vēlreiz
+                        <button id="syncStatusBtn" onclick="fetchPricesJson(true)" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] font-mono text-slate-300 shrink-0 transition">
+                            <i id="syncIcon" data-lucide="refresh-cw" class="w-2.5 h-2.5"></i>
+                            <span data-i18n="refresh_short">Atjaunot</span>
                         </button>
                     </div>
 
-                    <!-- LIVE STATION CONTAINER: Hidden unless ./prices.json succeeds! -->
+                    <!-- INITIAL LOADING STATE (4s max timeout, full width) -->
+                    <div id="livePricesLoadingBox" class="mb-3 p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 text-xs text-sky-300 font-medium">
+                            <i data-lucide="loader-2" class="w-4 h-4 text-sky-400 animate-spin shrink-0"></i>
+                            <span data-i18n="prices_loading_msg">Ielādē ./prices.json...</span>
+                        </div>
+                        <span class="text-[10px] font-mono text-sky-400/80 shrink-0">GET ./prices.json</span>
+                    </div>
+
+                    <!-- STRICT ERROR STATE: Shown when ./prices.json is missing or invalid -->
+                    <div id="livePricesErrorBox" class="hidden mb-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 text-xs text-rose-300 font-medium">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+                            <span id="livePricesErrorText" data-i18n="prices_load_failed">Failed to load data, please add manually</span>
+                        </div>
+                        <button onclick="fetchPricesJson(true)" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-[11px] font-semibold shrink-0 transition" data-i18n="retry_btn">
+                            Retry
+                        </button>
+                    </div>
+
+                    <!-- LIVE STATION CONTAINER: Shown when ./prices.json loads -->
                     <div id="livePricesContent" class="hidden">
                         <!-- Station Selector Tabs -->
-                        <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800 mb-3">
+                        <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800 mb-2.5">
                             <button onclick="selectStation('Virši')" id="stationBtn_Virši" class="py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500 text-slate-950">Virši</button>
                             <button onclick="selectStation('Circle K')" id="stationBtn_Circle K" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Circle K</button>
                             <button onclick="selectStation('Neste')" id="stationBtn_Neste" class="py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Neste</button>
@@ -373,13 +390,13 @@
             </div>
         </div>
 
-        <!-- SYSTEM DIAGNOSTIC LOG & VERSION CONSOLE (FuelPro-07) -->
+        <!-- SYSTEM DIAGNOSTIC LOG & VERSION CONSOLE (FuelPro-08) -->
         <section class="mt-5 glass-panel rounded-2xl p-4 border border-slate-800/90">
             <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-800/80">
                 <div class="flex items-center gap-2">
                     <span id="diagStatusDot" class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
                     <h3 class="text-xs font-mono font-bold text-slate-200 uppercase tracking-wider">System Diagnostic Log</h3>
-                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-400">Version: FuelPro-07</span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-400">Version: FuelPro-08</span>
                 </div>
                 <div class="flex items-center gap-1.5">
                     <button onclick="fetchPricesJson(true)" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300 border border-slate-700 transition">
@@ -536,7 +553,7 @@
     <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-semibold text-xs shadow-xl"></div>
 
     <script>
-        const APP_VERSION = "FuelPro-07";
+        const APP_VERSION = "FuelPro-08";
 
         const i18n = {
             lv: {
@@ -544,7 +561,9 @@
                 nav_garage: "Garāža",
                 fuel_price_title: "Degvielas Cena",
                 fuel_price_subtitle: "Tiešsaistes DUS dati vai manuāla ievade",
-                prices_loading_msg: "Ielādē tiešsaistes DUS cenas no ./prices.json...",
+                workflow_label: "GitHub Workflow:",
+                refresh_short: "Atjaunot",
+                prices_loading_msg: "Ielādē ./prices.json...",
                 prices_load_failed: "Neizdevās ielādēt datus, lūdzu ievadiet manuāli (Failed to load data, please add manually)",
                 retry_btn: "Mēģināt vēlreiz",
                 diesel_short: "Dīzelis",
@@ -594,7 +613,9 @@
                 nav_garage: "Garage",
                 fuel_price_title: "Fuel Price",
                 fuel_price_subtitle: "Live station data or manual entry",
-                prices_loading_msg: "Loading live station prices from ./prices.json...",
+                workflow_label: "GitHub Workflow:",
+                refresh_short: "Refresh",
+                prices_loading_msg: "Loading ./prices.json...",
                 prices_load_failed: "Failed to load data, please add manually",
                 retry_btn: "Retry",
                 diesel_short: "Diesel",
@@ -619,29 +640,30 @@
                 per_person_label: "Cost per person:",
                 copy_summary_btn: "Copy trip summary",
                 btn_save_car: "Save Car",
-                btn_save_route: "Save Route",
-                drawer_routes_title: "Saved Routes",
-                drawer_garage_title: "My Garage & Car Database",
-                tab_my_cars: "My Cars",
-                tab_db_search: "Search Database (45,000+)",
-                add_custom_car_title: "Add Custom Vehicle",
-                save_to_garage_btn: "Save to Garage",
-                db_disclaimer: "⚠️ Note: This data is for informational purposes derived from technical databases. Real-world fuel consumption may vary depending on driving style, road conditions, and vehicle condition.",
-                live_api_title: "Global Vehicle API Lookup (1984–2026)",
-                eu_catalog_title: "European & Baltic Popular Car Catalog (TDI / TSI / D5 / d)",
-                use_car_btn: "Select",
-                add_from_db_btn: "Add Car",
-                no_routes: "No saved routes yet.",
-                toast_route_saved: "Route saved!",
-                toast_car_saved: "Car saved to garage!",
-                toast_car_selected: "Vehicle selected!",
-                toast_prices_synced: "Live station prices loaded!",
-                toast_prices_failed: "Failed to load ./prices.json!",
-                toast_copied: "Trip summary copied!"
-            }
+            { make: "Subaru", model: "Outback 2.5i AWD", year: "2015–2024", fuel: "95E", cons: 7.3, tank: 60 },
+            { make: "Lexus", model: "RX 450h AWD", year: "2015–2023", fuel: "95E", cons: 6.2, tank: 65 }
+        ];
+
+        const LV_CITIES = {
+            "rīga": { lat: 56.9496, lon: 24.1052 },
+            "riga": { lat: 56.9496, lon: 24.1052 },
+            "jūrmala": { lat: 56.9680, lon: 23.7704 },
+            "jurmala": { lat: 56.9680, lon: 23.7704 },
+            "jelgava": { lat: 56.6511, lon: 23.7214 },
+            "sigulda": { lat: 57.1537, lon: 24.8595 },
+            "ventspils": { lat: 57.3937, lon: 21.5647 },
+            "liepāja": { lat: 56.5047, lon: 21.0108 },
+            "liepaja": { lat: 56.5047, lon: 21.0108 },
+            "daugavpils": { lat: 55.8747, lon: 26.5362 },
+            "valmiera": { lat: 57.5385, lon: 25.4264 },
+            "cēsis": { lat: 57.3119, lon: 25.2746 },
+            "kandava": { lat: 57.0406, lon: 22.7747 },
+            "talsi": { lat: 57.2456, lon: 22.5814 },
+            "rēzekne": { lat: 56.5099, lon: 27.3331 },
+            "jēkabpils": { lat: 56.4975, lon: 25.8662 },
+            "ogre": { lat: 56.8149, lon: 24.6045 }
         };
 
-        // --- EUROPEAN & LATVIAN VEHICLE CATALOG ---
         // NO PRE-PRICES! Price starts at 0 (unloaded) until ./prices.json is fetched or user types a price manually.
         let state = {
             lang: 'lv',
@@ -686,45 +708,38 @@
             const out = document.getElementById('systemLogOutput');
             if (out) out.innerHTML = '';
             logDiagnostic(`Log cleared. Running ${APP_VERSION}`, 'INFO');
-        }
-
-        // --- INITIALIZATION ---
-        window.addEventListener('DOMContentLoaded', () => {
-            logDiagnostic(`Booting application (${APP_VERSION})...`, 'INFO');
-            logDiagnostic(`Initial fuel price state: UNSET (waiting for ./prices.json or manual input)`, 'INFO');
-            initApiYearsDropdown();
-            renderSavedCars();
-            renderSavedRoutes();
-            renderCarDatabase();
-            calculateAll();
-            fetchPricesJson(false); // Strictly check ./prices.json on startup
-            lucide.createIcons();
-        });
-
-        // --- STRICT ./prices.json LOADER (NO PRE-PRICES, LOADING INDICATOR -> LIVE OR ERROR) ---
+        // --- STRICT ./prices.json LOADER (NO PRE-PRICES, 4s TIMEOUT, SHOWS WORKFLOW TIMESTAMP) ---
         async function fetchPricesJson(showNotification = false) {
             const icon = document.getElementById('syncIcon');
             const badge = document.getElementById('priceUpdatedBadge');
-            const statusBtn = document.getElementById('syncStatusBtn');
+            const workflowDot = document.getElementById('workflowDot');
             const loadingBox = document.getElementById('livePricesLoadingBox');
             const errorBox = document.getElementById('livePricesErrorBox');
             const liveContent = document.getElementById('livePricesContent');
             const diagDot = document.getElementById('diagStatusDot');
 
             if (icon) icon.classList.add('animate-spin');
-            loadingBox.classList.remove('hidden');
-            errorBox.classList.add('hidden');
-            liveContent.classList.add('hidden');
-            badge.textContent = 'LOADING...';
+            if (loadingBox) loadingBox.classList.remove('hidden');
+            if (errorBox) errorBox.classList.add('hidden');
+            if (liveContent) liveContent.classList.add('hidden');
+            if (badge) {
+                badge.textContent = state.lang === 'lv' ? 'Ielādē...' : 'Loading...';
+                badge.className = "font-mono font-semibold text-sky-400 truncate";
+            }
+            if (workflowDot) workflowDot.className = "w-2 h-2 rounded-full bg-sky-400 animate-pulse shrink-0";
 
             const url = `./prices.json?t=${Date.now()}`;
             logDiagnostic(`Fetching live fuel prices from: ${url}`, 'INFO');
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4500);
+
             try {
-                const res = await fetch(url, { cache: "no-store" });
+                const res = await fetch(url, { cache: "no-store", signal: controller.signal });
+                clearTimeout(timeoutId);
                 logDiagnostic(`HTTP response status: ${res.status} ${res.statusText}`, res.ok ? 'INFO' : 'ERROR');
 
-                if (!res.ok) throw new Error(`HTTP ${res.status} (${res.statusText})`);
+                if (!res.ok) throw new Error(`HTTP ${res.status} (${res.statusText} - check if prices.json exists in repo root)`);
 
                 const rawText = await res.text();
                 let data;
@@ -745,15 +760,19 @@
                 state.stationPrices = data;
                 state.liveDataLoaded = true;
 
-                loadingBox.classList.add('hidden');
-                errorBox.classList.add('hidden');
-                liveContent.classList.remove('hidden');
+                if (loadingBox) loadingBox.classList.add('hidden');
+                if (errorBox) errorBox.classList.add('hidden');
+                if (liveContent) liveContent.classList.remove('hidden');
 
-                badge.textContent = data.updated ? `LIVE (${data.updated})` : 'LIVE';
-                statusBtn.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono text-emerald-400 hover:bg-emerald-500/20 transition";
+                const lastUpdatedStr = data.updated ? data.updated : (state.lang === 'lv' ? 'Aktīvs (nav laika zīmoga)' : 'Active (no timestamp)');
+                if (badge) {
+                    badge.textContent = `${lastUpdatedStr}`;
+                    badge.className = "font-mono font-semibold text-emerald-400 truncate";
+                }
+                if (workflowDot) workflowDot.className = "w-2 h-2 rounded-full bg-emerald-400 shrink-0";
                 if (diagDot) diagDot.className = "w-2 h-2 rounded-full bg-emerald-400";
 
-                logDiagnostic(`SUCCESS! Loaded stations: ${foundStations.join(', ')} | Updated timestamp: "${data.updated || 'N/A'}"`, 'OK');
+                logDiagnostic(`SUCCESS! GitHub Workflow updated timestamp: "${lastUpdatedStr}" | Stations: ${foundStations.join(', ')}`, 'OK');
                 if (data['Virši']) {
                     logDiagnostic(`Virši rates -> 95E: ${data['Virši']['95E']}€, 98E: ${data['Virši']['98E']}€, Diesel: ${data['Virši']['Diesel']}€, LPG: ${data['Virši']['LPG']}€`, 'OK');
                 }
@@ -761,16 +780,19 @@
                 applyStationAndFuelUI();
                 if (showNotification) showToast(i18n[state.lang].toast_prices_synced);
             } catch (err) {
-                // FAILED TO READ DATA: Hide loading & station buttons, show strict error message, leave price unset unless user typed one
+                clearTimeout(timeoutId);
                 state.stationPrices = null;
                 state.liveDataLoaded = false;
 
-                loadingBox.classList.add('hidden');
-                liveContent.classList.add('hidden');
-                errorBox.classList.remove('hidden');
+                if (loadingBox) loadingBox.classList.add('hidden');
+                if (liveContent) liveContent.classList.add('hidden');
+                if (errorBox) errorBox.classList.remove('hidden');
 
-                badge.textContent = 'FAILED';
-                statusBtn.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-rose-500/15 border border-rose-500/30 text-[10px] font-mono text-rose-400 hover:bg-rose-500/25 transition";
+                if (badge) {
+                    badge.textContent = `FAILED (${err.message.slice(0, 28)})`;
+                    badge.className = "font-mono font-semibold text-rose-400 truncate";
+                }
+                if (workflowDot) workflowDot.className = "w-2 h-2 rounded-full bg-rose-500 shrink-0";
                 if (diagDot) diagDot.className = "w-2 h-2 rounded-full bg-rose-500";
 
                 logDiagnostic(`FAILED to load ./prices.json -> ${err.message}. Waiting for manual price input.`, 'ERROR');
