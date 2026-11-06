@@ -1,0 +1,71 @@
+name: Update Latvian Fuel Prices
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Runs automatically every 6 hours
+  workflow_dispatch:      # Lets you click a button to run it manually anytime
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-prices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install scraping tools
+        run: pip install requests beautifulsoup4
+
+      - name: Fetch LV Fuel Prices & Save to prices.json
+        run: |
+          python3 -c '
+          import json, re, requests, datetime
+
+          # Load existing prices as backup in case one station website is down
+          with open("prices.json", "r") as f:
+              data = json.load(f)
+
+          headers = {"User-Agent": "Mozilla/5.0"}
+
+          def find_price(text, keyword):
+              m = re.search(keyword + r".{0,120}?([0-2][.,]\d{2,3})", text, re.I | re.S)
+              return round(float(m.group(1).replace(",", ".")), 2) if m else None
+
+          # Scrape Virši
+          try:
+              r = requests.get("https://www.virsi.lv/lv/privatpersonam/degviela/degvielas-cenas", headers=headers, timeout=10).text
+              for k, kw in [("95E", "95E"), ("98E", "98E"), ("Diesel", "DD"), ("LPG", "LPG")]:
+                  p = find_price(r, kw)
+                  if p: data["Virši"][k] = p
+          except Exception as e:
+              print("Virsi skip:", e)
+
+          # Scrape Circle K
+          try:
+              r = requests.get("https://www.circlek.lv/degviela-miles/degvielas-cenas", headers=headers, timeout=10).text
+              for k, kw in [("95E", "95 miles"), ("98E", "98 miles"), ("Diesel", "Dmiles"), ("LPG", "Autogāze")]:
+                  p = find_price(r, kw)
+                  if p: data["Circle K"][k] = p
+          except Exception as e:
+              print("Circle K skip:", e)
+
+          data["updated"] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M")
+
+          with open("prices.json", "w") as f:
+              json.dump(data, f, indent=2, ensure_ascii=False)
+          '
+
+      - name: Save updated prices.json back to GitHub
+        run: |
+          git config --global user.name "Fuel Price Bot"
+          git config --global user.email "bot@github.com"
+          git add prices.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update fuel prices"
+          git push
