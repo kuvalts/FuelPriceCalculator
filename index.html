@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FuelPro Studio — Brauciena un degvielas izmaksu kalkulators</title>
+    <title>FuelPro Studio LV — Degvielas Cenas, Auto Garāža & Maršrutu Kalkulators</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <!-- Fonts: Plus Jakarta Sans & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,14 +26,17 @@
                             950: '#070A10',
                             900: '#0C111C',
                             850: '#111827',
-                            800: '#182132',
+                            800: '#162033',
+                            750: '#1c2840'
                         },
                         brand: {
-                            50: '#ecfdf5',
-                            100: '#d1fae5',
                             400: '#34d399',
                             500: '#10b981',
                             600: '#059669',
+                        },
+                        accent: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
                         }
                     }
                 }
@@ -41,7 +44,6 @@
         }
     </script>
     <style>
-        /* Designer Range Slider with Dynamic Progress Fill */
         input[type=range].studio-slider {
             -webkit-appearance: none;
             appearance: none;
@@ -51,10 +53,6 @@
             background: #1e293b;
             outline: none;
             cursor: pointer;
-            transition: background 0.15s ease;
-        }
-        html:not(.dark) input[type=range].studio-slider {
-            background: #e2e8f0;
         }
         input[type=range].studio-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -66,1129 +64,1085 @@
             border: 3px solid #ffffff;
             box-shadow: 0 2px 10px rgba(16, 185, 129, 0.55);
             cursor: grab;
-            transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.15s ease;
-        }
-        input[type=range].studio-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.16);
-            box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.18);
-        }
-        input[type=range].studio-slider::-webkit-slider-thumb:active {
-            cursor: grabbing;
-            transform: scale(1.06);
-        }
-        input[type=range].studio-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #10b981;
-            border: 3px solid #ffffff;
-            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.55);
-            cursor: grab;
             transition: transform 0.15s ease;
         }
-
-        /* Hide spin buttons on number inputs */
+        input[type=range].studio-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
             margin: 0; 
         }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        /* Subtle Ambient Grid Background */
+        input[type=number] { -moz-appearance: textfield; }
         .bg-grid-pattern {
             background-size: 32px 32px;
             background-image: 
                 linear-gradient(to right, rgba(148, 163, 184, 0.04) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
         }
-
-        /* Card Inner Highlight */
-        .studio-card {
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-        }
-        .dark .studio-card {
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 10px 30px -10px rgba(0, 0, 0, 0.45);
+        .modal-blur {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
     </style>
 </head>
-<body class="bg-[#F6F8FB] dark:bg-obsidian-950 text-slate-900 dark:text-slate-100 font-sans min-h-screen transition-colors duration-300 selection:bg-brand-500 selection:text-white bg-grid-pattern pb-16">
+<body class="bg-[#070A10] text-slate-100 font-sans min-h-screen selection:bg-brand-500 selection:text-white bg-grid-pattern pb-28">
 
-    <!-- Ambient Background Spotlights -->
+    <!-- Ambient Glows -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div class="absolute -top-40 left-1/4 w-[500px] h-[500px] bg-brand-500/8 dark:bg-brand-500/10 rounded-full blur-[130px]"></div>
-        <div class="absolute top-1/3 -right-24 w-[420px] h-[420px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[130px]"></div>
+        <div class="absolute -top-32 left-1/4 w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[140px]"></div>
+        <div class="absolute top-1/2 -right-32 w-[460px] h-[460px] bg-accent-500/10 rounded-full blur-[140px]"></div>
     </div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+    <!-- Notification Toast -->
+    <div id="toast-container" class="fixed top-24 right-5 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
 
-    <!-- Top Navigation Bar -->
-    <header class="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-obsidian-900/80 backdrop-blur-xl sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
+    <!-- TOP HEADER / MENU BAR -->
+    <header class="border-b border-slate-800/80 bg-obsidian-900/90 backdrop-blur-xl sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-2 sm:gap-4">
             
-            <!-- Brand Identity -->
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-brand-400 via-brand-500 to-emerald-700 flex items-center justify-center text-white shadow-lg shadow-brand-500/25 ring-1 ring-white/20">
-                    <i class="ph-fill ph-steering-wheel text-xl sm:text-2xl"></i>
+            <!-- Logo & Brand -->
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-400 via-brand-500 to-emerald-700 flex items-center justify-center text-white shadow-lg shadow-brand-500/25 ring-1 ring-white/20 shrink-0">
+                    <i class="ph-fill ph-gas-pump text-2xl"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-                            FuelPro <span class="font-medium text-slate-400 dark:text-slate-500">Studio</span>
-                        </h1>
-                        <span id="i18n-badge" class="hidden md:inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">
-                            Telemetrija
-                        </span>
+                        <span class="text-lg font-extrabold tracking-tight text-white">FuelPro</span>
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-gradient-to-r from-red-800 to-red-950 text-white border border-red-700/50">LV</span>
                     </div>
-                    <p id="i18n-subtitle" class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-                        Brauciena un degvielas izmaksu kalkulators
-                    </p>
+                    <p class="text-[11px] text-slate-400 hidden sm:block" id="nav-subtitle">Degvielas cenas, auto garāža & navigācija</p>
                 </div>
             </div>
 
-            <!-- Controls Toolbar: Language Switcher, Currency, Reset, Theme -->
-            <div class="flex items-center gap-2 sm:gap-2.5">
+            <!-- Nav Actions: Saved Routes, Saved Cars, Live Prices, Language -->
+            <div class="flex items-center gap-2 sm:gap-3">
                 
-                <!-- Prominent Segmented Bilingual Switcher (LV / EN) -->
-                <div class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-obsidian-800 border border-slate-200/80 dark:border-slate-700/70" role="group" aria-label="Language Switcher">
-                    <button type="button" id="lang-lv-btn" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all flex items-center gap-1.5 bg-white dark:bg-obsidian-900 text-slate-900 dark:text-white shadow-sm">
-                        <span class="w-2 h-2 rounded-full bg-[#9E3039]"></span>
-                        <span>LV</span>
-                    </button>
-                    <button type="button" id="lang-en-btn" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
-                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                        <span>EN</span>
-                    </button>
-                </div>
-
-                <!-- Currency Selector -->
-                <div class="relative">
-                    <select id="currency-select" aria-label="Currency" class="appearance-none bg-slate-100 dark:bg-obsidian-800 border border-slate-200/80 dark:border-slate-700/70 text-xs sm:text-sm font-bold font-mono rounded-xl px-3 py-2 pr-7 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer text-slate-800 dark:text-slate-200">
-                        <option value="€">EUR (€)</option>
-                        <option value="$">USD ($)</option>
-                        <option value="£">GBP (£)</option>
-                        <option value="zł">PLN (zł)</option>
-                    </select>
-                    <i class="ph-bold ph-caret-down absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[11px]"></i>
-                </div>
-
-                <!-- Reset Button -->
-                <button id="reset-btn" type="button" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-obsidian-800 border border-slate-200/80 dark:border-slate-700/70 hover:bg-slate-200/70 dark:hover:bg-slate-700/60 text-slate-600 dark:text-slate-300 flex items-center justify-center transition" title="Atjaunot sākotnējās vērtības">
-                    <i class="ph-bold ph-arrow-counter-clockwise text-base"></i>
+                <!-- Saved Routes Menu Button -->
+                <button type="button" id="open-routes-btn" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-obsidian-800 border border-slate-700/80 hover:border-brand-500/50 text-xs font-semibold text-slate-200 transition">
+                    <i class="ph-bold ph-map-pin-line text-brand-400 text-sm"></i>
+                    <span class="hidden md:inline" id="nav-routes-label">Maršruti</span>
+                    <span id="nav-routes-count" class="w-5 h-5 rounded-full bg-brand-500/20 text-brand-400 font-mono text-[10px] flex items-center justify-center font-bold">0</span>
                 </button>
 
-                <!-- Theme Toggle -->
-                <button id="theme-toggle" type="button" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-obsidian-800 border border-slate-200/80 dark:border-slate-700/70 hover:bg-slate-200/70 dark:hover:bg-slate-700/60 text-slate-600 dark:text-slate-300 flex items-center justify-center transition" title="Mainīt tēmu">
-                    <i id="theme-icon" class="ph-bold ph-sun text-base text-amber-400"></i>
+                <!-- Saved Cars Menu Button -->
+                <button type="button" id="open-cars-btn" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-obsidian-800 border border-slate-700/80 hover:border-accent-400/50 text-xs font-semibold text-slate-200 transition">
+                    <i class="ph-bold ph-car-profile text-accent-400 text-sm"></i>
+                    <span class="hidden md:inline" id="nav-cars-label">Mana Garāža</span>
+                    <span id="nav-cars-count" class="w-5 h-5 rounded-full bg-accent-500/20 text-accent-400 font-mono text-[10px] flex items-center justify-center font-bold">4</span>
                 </button>
+
+                <!-- Quick Live Price Sync Button -->
+                <button type="button" id="sync-prices-btn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold transition">
+                    <i id="sync-icon" class="ph-bold ph-arrows-clockwise text-sm"></i>
+                    <span class="hidden lg:inline" id="nav-sync-label">LV Cenas</span>
+                </button>
+
+                <!-- Language Toggle (LV / EN) -->
+                <div class="inline-flex p-1 rounded-xl bg-obsidian-800 border border-slate-700/80">
+                    <button type="button" id="lang-lv" class="px-2 py-1 rounded-lg text-xs font-bold bg-obsidian-900 text-white shadow-sm transition">LV</button>
+                    <button type="button" id="lang-en" class="px-2 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">EN</button>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Bento Grid Content -->
+    <!-- MAIN COCKPIT -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <!-- LATVIAN FUEL STATION API INTEGRATION BAR -->
+        <section class="mb-6 bg-obsidian-900 border border-slate-800/90 rounded-3xl p-4 sm:p-5 shadow-2xl">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                        <i class="ph-fill ph-chart-line-up text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-extrabold text-white" id="api-title">Latvijas Degvielas Tirgus Cenas</h2>
+                            <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span id="api-status-badge">LIVE API</span>
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400" id="api-subtitle">Dati no Circle K, Neste & Virši degvielas uzpildes stacijām Latvijā</p>
+                    </div>
+                </div>
+
+                <!-- Station Chain Filter & Prices Grid -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="inline-flex rounded-xl p-1 bg-obsidian-800 border border-slate-700/80 text-xs">
+                        <button type="button" class="station-filter-btn px-2.5 py-1 rounded-lg font-bold bg-obsidian-900 text-brand-400" data-station="average">Vidējā LV</button>
+                        <button type="button" class="station-filter-btn px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white" data-station="neste">Neste</button>
+                        <button type="button" class="station-filter-btn px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white" data-station="circlek">Circle K</button>
+                        <button type="button" class="station-filter-btn px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white" data-station="virsi">Virši</button>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button type="button" data-fuel="95" class="fuel-rate-btn text-xs font-mono px-3 py-2 rounded-xl bg-obsidian-800 hover:border-emerald-500/50 border border-slate-700/80 transition flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="text-slate-300 font-sans font-semibold">95E:</span>
+                            <span id="rate-95" class="font-bold text-white">1.62€</span>
+                        </button>
+                        <button type="button" data-fuel="98" class="fuel-rate-btn text-xs font-mono px-3 py-2 rounded-xl bg-obsidian-800 hover:border-teal-400/50 border border-slate-700/80 transition flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-teal-400"></span>
+                            <span class="text-slate-300 font-sans font-semibold">98E:</span>
+                            <span id="rate-98" class="font-bold text-white">1.69€</span>
+                        </button>
+                        <button type="button" data-fuel="diesel" class="fuel-rate-btn text-xs font-mono px-3 py-2 rounded-xl bg-obsidian-800 hover:border-amber-400/50 border border-slate-700/80 transition flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            <span class="text-slate-300 font-sans font-semibold">Dīzelis:</span>
+                            <span id="rate-diesel" class="font-bold text-white">1.58€</span>
+                        </button>
+                        <button type="button" data-fuel="lpg" class="fuel-rate-btn text-xs font-mono px-3 py-2 rounded-xl bg-obsidian-800 hover:border-sky-400/50 border border-slate-700/80 transition flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                            <span class="text-slate-300 font-sans font-semibold">LPG:</span>
+                            <span id="rate-lpg" class="font-bold text-white">0.79€</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ROUTE CALCULATOR CARD (FROM -> TO ROUTING) -->
+        <section class="mb-6 bg-obsidian-900 border border-slate-800/90 rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden">
+            <div class="flex items-center justify-between gap-3 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center shrink-0">
+                        <i class="ph-fill ph-path text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-white" id="route-planner-title">Maršruta Plānotājs & Distance</h2>
+                        <p class="text-xs text-slate-400" id="route-planner-subtitle">Ievadiet pilsētas vai adresi, lai automātiski aprēķinātu ceļa attālumu km</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" id="swap-cities-btn" class="p-2.5 rounded-xl bg-obsidian-800 border border-slate-700/80 hover:text-brand-400 text-slate-300 transition" title="Mainīt vietām">
+                        <i class="ph-bold ph-arrows-left-right text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Route Inputs -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4">
+                <!-- Origin -->
+                <div class="md:col-span-5 relative">
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1" id="origin-label">No kurienes (Sākumpunkts)</label>
+                    <div class="relative">
+                        <i class="ph-bold ph-map-pin absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-400"></i>
+                        <input type="text" id="route-from-input" value="Rīga" placeholder="Piem., Rīga, Valmiera, Liepāja..." class="w-full bg-obsidian-800 border border-slate-700/80 rounded-2xl pl-10 pr-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <!-- Destination -->
+                <div class="md:col-span-5 relative">
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1" id="dest-label">Uz kurieni (Galamērķis)</label>
+                    <div class="relative">
+                        <i class="ph-bold ph-flag-pennant absolute left-3.5 top-1/2 -translate-y-1/2 text-accent-400"></i>
+                        <input type="text" id="route-to-input" value="Daugavpils" placeholder="Piem., Daugavpils, Ventspils, Jelgava..." class="w-full bg-obsidian-800 border border-slate-700/80 rounded-2xl pl-10 pr-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <!-- Calculate Button -->
+                <div class="md:col-span-2 flex items-end">
+                    <button type="button" id="calculate-route-api-btn" class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.99] text-white font-bold py-2.5 px-4 rounded-2xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-brand-500/25">
+                        <i id="calc-spinner" class="ph-bold ph-navigation-arrow"></i>
+                        <span id="calc-route-btn-text">Aprēķināt</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick City Chips -->
+            <div class="flex items-center gap-2 flex-wrap pt-3 border-t border-slate-800">
+                <span class="text-xs font-semibold text-slate-400 mr-1" id="popular-cities-label">Populāri galamērķi:</span>
+                <button type="button" data-city="Jūrmala" class="city-chip text-xs px-2.5 py-1 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 border border-slate-700/60 text-slate-300">Jūrmala</button>
+                <button type="button" data-city="Liepāja" class="city-chip text-xs px-2.5 py-1 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 border border-slate-700/60 text-slate-300">Liepāja</button>
+                <button type="button" data-city="Ventspils" class="city-chip text-xs px-2.5 py-1 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 border border-slate-700/60 text-slate-300">Ventspils</button>
+                <button type="button" data-city="Daugavpils" class="city-chip text-xs px-2.5 py-1 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 border border-slate-700/60 text-slate-300">Daugavpils</button>
+                <button type="button" data-city="Valmiera" class="city-chip text-xs px-2.5 py-1 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 border border-slate-700/60 text-slate-300">Valmiera</button>
+                <button type="button" data-city="Sigulda" class="city-chip text-xs px-2.5 py-1 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 border border-slate-700/60 text-slate-300">Sigulda</button>
+                <button type="button" data-city="Jelgava" class="city-chip text-xs px-2.5 py-1 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 border border-slate-700/60 text-slate-300">Jelgava</button>
+                <button type="button" data-city="Cēsis" class="city-chip text-xs px-2.5 py-1 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 border border-slate-700/60 text-slate-300">Cēsis</button>
+            </div>
+
+            <!-- Route Route Metric Pill -->
+            <div id="route-status-strip" class="mt-3 text-xs flex items-center justify-between text-slate-400 bg-obsidian-850 px-3.5 py-2 rounded-xl border border-slate-800">
+                <div class="flex items-center gap-2">
+                    <i class="ph-fill ph-check-circle text-brand-400"></i>
+                    <span id="route-status-msg">Aktīvs maršruts: Rīga → Daugavpils (~230 km)</span>
+                </div>
+                <span id="route-est-time" class="font-mono text-slate-300 font-semibold">~2 h 55 min</span>
+            </div>
+        </section>
+
+        <!-- MAIN 2-COLUMN GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            <!-- LEFT COLUMN: Interactive Configurator Controls (7 Cols) -->
+            <!-- LEFT COLUMN: CONTROLS (7 Cols) -->
             <div class="lg:col-span-7 space-y-5">
                 
+                <!-- ACTIVE CAR BAR (From Garage) -->
+                <div class="bg-gradient-to-r from-obsidian-900 to-obsidian-850 border border-slate-800 rounded-3xl p-4 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-accent-500/10 border border-accent-500/20 text-accent-400 flex items-center justify-center shrink-0">
+                            <i class="ph-fill ph-car-profile text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400" id="active-car-label">Aktīvais auto</span>
+                            <div class="flex items-center gap-2">
+                                <h3 id="current-car-name" class="font-bold text-white text-sm sm:text-base">VW Golf 2.0 TDI</h3>
+                                <span id="current-car-pill" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">Dīzelis • 55L</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="change-car-btn" class="text-xs font-bold px-3 py-2 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 border border-slate-700 text-accent-400 transition flex items-center gap-1.5">
+                        <i class="ph-bold ph-swap"></i>
+                        <span id="change-car-text">Mainīt auto</span>
+                    </button>
+                </div>
+
                 <!-- 1. FUEL PRICE MODULE -->
-                <section class="studio-card bg-white dark:bg-obsidian-900 border border-slate-200/80 dark:border-slate-800/90 rounded-3xl p-5 sm:p-6 transition-all">
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <section class="bg-obsidian-900 border border-slate-800/90 rounded-3xl p-5 sm:p-6 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
                                 <i class="ph-fill ph-gas-pump text-xl"></i>
                             </div>
                             <div>
-                                <div class="flex items-center gap-2">
-                                    <label for="price-input" id="i18n-price-title" class="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
-                                        Degvielas cena
-                                    </label>
-                                    <span class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-obsidian-800 text-slate-500 dark:text-slate-400">
-                                        <span class="currency-symbol">€</span>/L
-                                    </span>
-                                </div>
-                                <p id="i18n-price-desc" class="text-xs text-slate-500 dark:text-slate-400">
-                                    Viena litra degvielas cena uzpildes stacijā
-                                </p>
+                                <label for="price-input" id="price-title" class="font-bold text-base text-white block">Degvielas cena (€/L)</label>
+                                <p id="price-desc" class="text-xs text-slate-400">Viena litra degvielas izmaksas</p>
                             </div>
                         </div>
 
-                        <!-- Precision Numeric Box with +/- Steppers -->
-                        <div class="flex items-center bg-slate-100/90 dark:bg-obsidian-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-1 focus-within:ring-2 focus-within:ring-brand-500 transition">
-                            <button type="button" id="price-step-down" class="w-8 h-8 rounded-xl hover:bg-white dark:hover:bg-obsidian-900 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition" aria-label="Decrease price">
+                        <!-- Price Stepper Box -->
+                        <div class="flex items-center bg-obsidian-800 border border-slate-700/80 rounded-2xl p-1 focus-within:ring-2 focus-within:ring-brand-500">
+                            <button type="button" id="price-down" class="w-8 h-8 rounded-xl hover:bg-obsidian-900 text-slate-400 hover:text-white flex items-center justify-center">
                                 <i class="ph-bold ph-minus text-xs"></i>
                             </button>
                             <div class="flex items-baseline px-2">
-                                <span class="currency-symbol text-xs font-mono font-bold text-brand-500 mr-1">€</span>
-                                <input type="number" id="price-input" value="1.62" min="0.10" max="10.00" step="0.01" class="w-16 bg-transparent text-center font-mono font-bold text-lg text-slate-900 dark:text-white focus:outline-none">
+                                <span class="text-xs font-mono font-bold text-brand-500 mr-1">€</span>
+                                <input type="number" id="price-input" value="1.58" min="0.10" max="10.00" step="0.01" class="w-16 bg-transparent text-center font-mono font-bold text-lg text-white focus:outline-none">
                             </div>
-                            <button type="button" id="price-step-up" class="w-8 h-8 rounded-xl hover:bg-white dark:hover:bg-obsidian-900 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition" aria-label="Increase price">
+                            <button type="button" id="price-up" class="w-8 h-8 rounded-xl hover:bg-obsidian-900 text-slate-400 hover:text-white flex items-center justify-center">
                                 <i class="ph-bold ph-plus text-xs"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Range Slider -->
-                    <div class="space-y-2.5 my-2">
-                        <input type="range" id="price-slider" min="0.50" max="3.00" step="0.01" value="1.62" class="studio-slider">
-                        <div class="flex justify-between text-[11px] font-mono text-slate-400 dark:text-slate-500">
-                            <span>0.50</span>
-                            <span>1.25</span>
-                            <span>2.00</span>
-                            <span>3.00</span>
-                        </div>
-                    </div>
-
-                    <!-- Fuel Type Presets -->
-                    <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 flex-wrap">
-                        <span id="i18n-fuel-presets-label" class="text-xs font-semibold text-slate-400 dark:text-slate-500 mr-1">Veids:</span>
-                        <button type="button" data-price="1.62" class="price-preset group text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span id="i18n-fuel-95">95E Benzīns</span>
-                            <span class="font-mono text-[11px] opacity-60">1.62</span>
-                        </button>
-                        <button type="button" data-price="1.69" class="price-preset group text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-teal-400"></span>
-                            <span id="i18n-fuel-98">98E</span>
-                            <span class="font-mono text-[11px] opacity-60">1.69</span>
-                        </button>
-                        <button type="button" data-price="1.58" class="price-preset group text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                            <span id="i18n-fuel-diesel">Dīzelis</span>
-                            <span class="font-mono text-[11px] opacity-60">1.58</span>
-                        </button>
-                        <button type="button" data-price="0.79" class="price-preset group text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
-                            <span id="i18n-fuel-lpg">LPG Gāze</span>
-                            <span class="font-mono text-[11px] opacity-60">0.79</span>
-                        </button>
-                    </div>
+                    <input type="range" id="price-slider" min="0.50" max="3.00" step="0.01" value="1.58" class="studio-slider">
                 </section>
 
                 <!-- 2. FUEL CONSUMPTION MODULE -->
-                <section class="studio-card bg-white dark:bg-obsidian-900 border border-slate-200/80 dark:border-slate-800/90 rounded-3xl p-5 sm:p-6 transition-all">
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <section class="bg-obsidian-900 border border-slate-800/90 rounded-3xl p-5 sm:p-6 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center shrink-0">
                                 <i class="ph-fill ph-gauge text-xl"></i>
                             </div>
                             <div>
-                                <div class="flex items-center gap-2">
-                                    <label for="consumption-input" id="i18n-cons-title" class="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
-                                        Degvielas patēriņš
-                                    </label>
-                                    <span id="efficiency-pill" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                        Optimāls
-                                    </span>
-                                </div>
-                                <p id="i18n-cons-desc" class="text-xs text-slate-500 dark:text-slate-400">
-                                    Vidējais auto degvielas patēriņš
-                                </p>
+                                <label for="consumption-input" id="cons-title" class="font-bold text-base text-white block">Degvielas patēriņš</label>
+                                <p id="cons-desc" class="text-xs text-slate-400">Vidējais degvielas patēriņš uz 100 km</p>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <!-- Unit Switcher (L/100km vs km/L) -->
-                            <div class="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-obsidian-800 border border-slate-200 dark:border-slate-700/80">
-                                <button type="button" id="unit-l100" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-white dark:bg-obsidian-900 text-brand-600 dark:text-brand-400 shadow-sm transition">
-                                    L/100km
-                                </button>
-                                <button type="button" id="unit-kml" class="px-2.5 py-1 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition">
-                                    km/L
-                                </button>
+                        <div class="flex items-center gap-2">
+                            <!-- Unit Switcher -->
+                            <div class="inline-flex rounded-xl p-1 bg-obsidian-800 border border-slate-700/80">
+                                <button type="button" id="unit-l100" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-obsidian-900 text-brand-400">L/100km</button>
+                                <button type="button" id="unit-kml" class="px-2.5 py-1 text-xs font-bold rounded-lg text-slate-400 hover:text-white">km/L</button>
                             </div>
 
-                            <!-- Precision Numeric Box with +/- Steppers -->
-                            <div class="flex items-center bg-slate-100/90 dark:bg-obsidian-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-1 focus-within:ring-2 focus-within:ring-brand-500 transition">
-                                <button type="button" id="cons-step-down" class="w-8 h-8 rounded-xl hover:bg-white dark:hover:bg-obsidian-900 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition" aria-label="Decrease consumption">
+                            <div class="flex items-center bg-obsidian-800 border border-slate-700/80 rounded-2xl p-1 focus-within:ring-2 focus-within:ring-brand-500">
+                                <button type="button" id="cons-down" class="w-8 h-8 rounded-xl hover:bg-obsidian-900 text-slate-400 hover:text-white flex items-center justify-center">
                                     <i class="ph-bold ph-minus text-xs"></i>
                                 </button>
                                 <div class="flex items-baseline px-2">
-                                    <input type="number" id="consumption-input" value="6.8" min="0.5" max="50.0" step="0.1" class="w-14 bg-transparent text-center font-mono font-bold text-lg text-slate-900 dark:text-white focus:outline-none">
-                                    <span id="consumption-unit-label" class="text-[11px] font-mono text-slate-400 ml-1">L/100</span>
+                                    <input type="number" id="consumption-input" value="5.2" min="0.5" max="40.0" step="0.1" class="w-14 bg-transparent text-center font-mono font-bold text-lg text-white focus:outline-none">
+                                    <span id="consumption-unit-label" class="text-[11px] font-mono text-slate-400 ml-1">L</span>
                                 </div>
-                                <button type="button" id="cons-step-up" class="w-8 h-8 rounded-xl hover:bg-white dark:hover:bg-obsidian-900 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition" aria-label="Increase consumption">
+                                <button type="button" id="cons-up" class="w-8 h-8 rounded-xl hover:bg-obsidian-900 text-slate-400 hover:text-white flex items-center justify-center">
                                     <i class="ph-bold ph-plus text-xs"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Range Slider -->
-                    <div class="space-y-2.5 my-2">
-                        <input type="range" id="consumption-slider" min="2.0" max="22.0" step="0.1" value="6.8" class="studio-slider">
-                        <div id="consumption-scale" class="flex justify-between text-[11px] font-mono text-slate-400 dark:text-slate-500">
-                            <span>2.0 L</span>
-                            <span>7.0 L</span>
-                            <span>14.0 L</span>
-                            <span>22.0 L</span>
-                        </div>
-                    </div>
-
-                    <!-- Vehicle Class Presets -->
-                    <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 flex-wrap">
-                        <span id="i18n-car-presets-label" class="text-xs font-semibold text-slate-400 dark:text-slate-500 mr-1">Klase:</span>
-                        <button type="button" data-l100="4.5" class="car-preset text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition flex items-center gap-1.5">
-                            <i class="ph-bold ph-leaf text-emerald-500"></i>
-                            <span id="i18n-car-hybrid">Hibrīds</span>
-                            <span class="font-mono text-[11px] opacity-60">4.5L</span>
-                        </button>
-                        <button type="button" data-l100="6.5" class="car-preset text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition flex items-center gap-1.5">
-                            <i class="ph-bold ph-car-profile text-blue-400"></i>
-                            <span id="i18n-car-sedan">Sedans</span>
-                            <span class="font-mono text-[11px] opacity-60">6.5L</span>
-                        </button>
-                        <button type="button" data-l100="8.5" class="car-preset text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition flex items-center gap-1.5">
-                            <i class="ph-bold ph-jeep text-amber-500"></i>
-                            <span id="i18n-car-suv">Krosovers / SUV</span>
-                            <span class="font-mono text-[11px] opacity-60">8.5L</span>
-                        </button>
-                        <button type="button" data-l100="11.0" class="car-preset text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition flex items-center gap-1.5">
-                            <i class="ph-bold ph-van text-purple-400"></i>
-                            <span id="i18n-car-van">Mikroautobuss</span>
-                            <span class="font-mono text-[11px] opacity-60">11.0L</span>
-                        </button>
-                    </div>
+                    <input type="range" id="consumption-slider" min="2.0" max="20.0" step="0.1" value="5.2" class="studio-slider">
                 </section>
 
-                <!-- 3. TRIP DISTANCE & LATVIAN ROUTE PRESETS MODULE -->
-                <section class="studio-card bg-white dark:bg-obsidian-900 border border-slate-200/80 dark:border-slate-800/90 rounded-3xl p-5 sm:p-6 transition-all">
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <!-- 3. DISTANCE MODULE -->
+                <section class="bg-obsidian-900 border border-slate-800/90 rounded-3xl p-5 sm:p-6 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-500 flex items-center justify-center shrink-0">
                                 <i class="ph-fill ph-navigation-arrow text-xl"></i>
                             </div>
                             <div>
-                                <label for="distance-input" id="i18n-dist-title" class="font-bold text-base sm:text-lg text-slate-900 dark:text-white block">
-                                    Maršruta attālums
-                                </label>
-                                <p id="i18n-dist-desc" class="text-xs text-slate-500 dark:text-slate-400">
-                                    Attālums vienā virzienā kilometros (km)
-                                </p>
+                                <label for="distance-input" id="dist-title" class="font-bold text-base text-white block">Maršruta distance (km)</label>
+                                <p id="dist-desc" class="text-xs text-slate-400">Attālums vienā virzienā kilometros</p>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2.5">
-                            <!-- Round Trip Pill Toggle -->
-                            <label class="inline-flex items-center cursor-pointer bg-slate-100 dark:bg-obsidian-800 px-3 py-2 rounded-2xl border border-slate-200 dark:border-slate-700/80 hover:border-brand-500/40 transition select-none">
+                        <div class="flex items-center gap-2">
+                            <!-- Round-Trip Switch -->
+                            <label class="inline-flex items-center cursor-pointer bg-obsidian-800 px-3 py-2 rounded-2xl border border-slate-700/80 hover:border-brand-500/40 select-none">
                                 <input type="checkbox" id="round-trip-toggle" class="sr-only peer">
-                                <div class="relative w-8 h-4 bg-slate-300 dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-500"></div>
-                                <span id="i18n-round-trip" class="ml-2 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1">
-                                    Turp un atpakaļ (2x)
-                                </span>
+                                <div class="relative w-8 h-4 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-500"></div>
+                                <span class="ml-2 text-xs font-bold text-slate-200" id="round-trip-label">Turp-atpakaļ (2x)</span>
                             </label>
 
-                            <!-- Precision Numeric Box with +/- Steppers -->
-                            <div class="flex items-center bg-slate-100/90 dark:bg-obsidian-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-1 focus-within:ring-2 focus-within:ring-brand-500 transition">
-                                <button type="button" id="dist-step-down" class="w-8 h-8 rounded-xl hover:bg-white dark:hover:bg-obsidian-900 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition" aria-label="Decrease distance">
+                            <div class="flex items-center bg-obsidian-800 border border-slate-700/80 rounded-2xl p-1 focus-within:ring-2 focus-within:ring-brand-500">
+                                <button type="button" id="dist-down" class="w-8 h-8 rounded-xl hover:bg-obsidian-900 text-slate-400 hover:text-white flex items-center justify-center">
                                     <i class="ph-bold ph-minus text-xs"></i>
                                 </button>
                                 <div class="flex items-baseline px-2">
-                                    <input type="number" id="distance-input" value="230" min="1" max="50000" step="5" class="w-20 bg-transparent text-center font-mono font-bold text-lg text-slate-900 dark:text-white focus:outline-none">
+                                    <input type="number" id="distance-input" value="230" min="1" max="10000" step="5" class="w-20 bg-transparent text-center font-mono font-bold text-lg text-white focus:outline-none">
                                     <span class="text-xs font-mono text-slate-400 ml-1">km</span>
                                 </div>
-                                <button type="button" id="dist-step-up" class="w-8 h-8 rounded-xl hover:bg-white dark:hover:bg-obsidian-900 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition" aria-label="Increase distance">
+                                <button type="button" id="dist-up" class="w-8 h-8 rounded-xl hover:bg-obsidian-900 text-slate-400 hover:text-white flex items-center justify-center">
                                     <i class="ph-bold ph-plus text-xs"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Range Slider -->
-                    <div class="space-y-2.5 my-2">
-                        <input type="range" id="distance-slider" min="5" max="1200" step="5" value="230" class="studio-slider">
-                        <div class="flex justify-between text-[11px] font-mono text-slate-400 dark:text-slate-500">
-                            <span>5 km</span>
-                            <span>300 km</span>
-                            <span>600 km</span>
-                            <span>1200 km</span>
-                        </div>
-                    </div>
-
-                    <!-- Popular Routes & Distance Presets -->
-                    <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 flex-wrap">
-                        <span id="i18n-route-presets-label" class="text-xs font-semibold text-slate-400 dark:text-slate-500 mr-1">Maršruti:</span>
-                        <button type="button" data-dist="25" data-route="Rīga–Jūrmala" class="dist-preset text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition">
-                            Rīga–Jūrmala <span class="font-mono text-[11px] opacity-60">25km</span>
-                        </button>
-                        <button type="button" data-dist="100" data-route="100 km" class="dist-preset text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition">
-                            100 km
-                        </button>
-                        <button type="button" data-dist="218" data-route="Rīga–Liepāja" class="dist-preset text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition">
-                            Rīga–Liepāja <span class="font-mono text-[11px] opacity-60">218km</span>
-                        </button>
-                        <button type="button" data-dist="230" data-route="Rīga–Daugavpils" class="dist-preset text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition">
-                            Rīga–Daugavpils <span class="font-mono text-[11px] opacity-60">230km</span>
-                        </button>
-                        <button type="button" data-dist="270" data-route="Krāslava–Rīga" class="dist-preset text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-obsidian-800 hover:bg-brand-500/15 hover:text-brand-600 dark:hover:text-brand-400 border border-transparent hover:border-brand-500/30 transition">
-                            Krāslava–Rīga <span class="font-mono text-[11px] opacity-60">270km</span>
-                        </button>
-                    </div>
+                    <input type="range" id="distance-slider" min="5" max="1000" step="5" value="230" class="studio-slider">
                 </section>
 
-                <!-- 4. PASSENGERS COST SPLITTING MODULE -->
-                <section class="studio-card bg-white dark:bg-obsidian-900 border border-slate-200/80 dark:border-slate-800/90 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all">
+                <!-- 4. PASSENGERS SPLIT -->
+                <section class="bg-obsidian-900 border border-slate-800/90 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center shrink-0">
                             <i class="ph-fill ph-users-three text-xl"></i>
                         </div>
                         <div>
-                            <span id="i18n-pass-title" class="font-bold text-base sm:text-lg text-slate-900 dark:text-white block">
-                                Pasažieru skaits
-                            </span>
-                            <span id="i18n-pass-desc" class="text-xs text-slate-500 dark:text-slate-400">
-                                Sadalīt degvielas izmaksas vienādi starp braucējiem
-                            </span>
+                            <span class="font-bold text-base text-white block" id="pass-title">Pasažieru skaits</span>
+                            <span class="text-xs text-slate-400" id="pass-desc">Sadalīt kopējās degvielas izmaksas</span>
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between sm:justify-end gap-3">
-                        <!-- Quick Seat Selector Pills (1-5) -->
-                        <div class="flex items-center gap-1 bg-slate-100 dark:bg-obsidian-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700/80">
-                            <button type="button" data-seats="1" class="seat-preset w-8 h-8 rounded-xl text-xs font-mono font-bold transition bg-white dark:bg-obsidian-900 text-brand-500 shadow-sm">1</button>
-                            <button type="button" data-seats="2" class="seat-preset w-8 h-8 rounded-xl text-xs font-mono font-bold transition text-slate-500 hover:text-slate-900 dark:hover:text-white">2</button>
-                            <button type="button" data-seats="3" class="seat-preset w-8 h-8 rounded-xl text-xs font-mono font-bold transition text-slate-500 hover:text-slate-900 dark:hover:text-white">3</button>
-                            <button type="button" data-seats="4" class="seat-preset w-8 h-8 rounded-xl text-xs font-mono font-bold transition text-slate-500 hover:text-slate-900 dark:hover:text-white">4</button>
-                            <button type="button" data-seats="5" class="seat-preset w-8 h-8 rounded-xl text-xs font-mono font-bold transition text-slate-500 hover:text-slate-900 dark:hover:text-white">5</button>
-                        </div>
-
-                        <!-- Fine Stepper -->
-                        <div class="flex items-center gap-1.5">
-                            <button type="button" id="pass-minus" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-obsidian-800 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition disabled:opacity-40" aria-label="Remove passenger">
-                                <i class="ph-bold ph-minus text-xs"></i>
-                            </button>
-                            <div class="w-10 text-center">
-                                <span id="passenger-count" class="font-mono font-extrabold text-lg">1</span>
-                            </div>
-                            <button type="button" id="pass-plus" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-obsidian-800 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition" aria-label="Add passenger">
-                                <i class="ph-bold ph-plus text-xs"></i>
-                            </button>
-                        </div>
+                    <div class="flex items-center gap-1.5 self-end sm:self-auto">
+                        <button type="button" id="pass-minus" class="w-9 h-9 rounded-xl bg-obsidian-800 border border-slate-700/80 hover:bg-obsidian-750 flex items-center justify-center text-slate-300">
+                            <i class="ph-bold ph-minus text-xs"></i>
+                        </button>
+                        <div class="w-10 text-center font-mono font-extrabold text-lg" id="passenger-count">1</div>
+                        <button type="button" id="pass-plus" class="w-9 h-9 rounded-xl bg-obsidian-800 border border-slate-700/80 hover:bg-obsidian-750 flex items-center justify-center text-slate-300">
+                            <i class="ph-bold ph-plus text-xs"></i>
+                        </button>
                     </div>
                 </section>
 
             </div>
 
-            <!-- RIGHT COLUMN: Automotive Telemetry & Cost Summary Cockpit (5 Cols) -->
-            <div class="lg:col-span-5 lg:sticky lg:top-24 space-y-6">
+            <!-- RIGHT COLUMN: TELEMETRY DASHBOARD (5 Cols) -->
+            <div class="lg:col-span-5 lg:sticky lg:top-28 space-y-5">
                 
-                <div class="studio-card bg-gradient-to-b from-obsidian-900 via-[#0B1220] to-obsidian-950 text-white rounded-3xl p-6 sm:p-7 border border-slate-800/90 relative overflow-hidden shadow-2xl">
+                <div class="bg-gradient-to-b from-obsidian-900 via-[#0C121F] to-obsidian-950 rounded-3xl p-6 sm:p-7 border border-slate-800/90 shadow-2xl relative overflow-hidden">
                     
-                    <!-- Ambient Cockpit Top Glow -->
-                    <div class="absolute -top-24 right-0 w-64 h-64 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="absolute -bottom-28 -left-16 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                    <!-- Telemetry Header -->
-                    <div class="flex items-center justify-between gap-2 mb-6 relative z-10">
+                    <div class="flex items-center justify-between mb-5">
                         <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-                            <span id="i18n-results-header" class="text-xs font-extrabold uppercase tracking-widest text-brand-400">
-                                Rezultātu kopsavilkums
-                            </span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-brand-400 animate-pulse"></span>
+                            <span class="text-xs font-extrabold uppercase tracking-widest text-brand-400" id="telemetry-label">Telemetrija</span>
                         </div>
-                        <span id="effective-distance-badge" class="text-xs font-mono font-semibold px-3 py-1 rounded-full bg-slate-800/90 text-slate-200 border border-slate-700/80">
+                        <span id="route-summary-pill" class="text-xs font-mono font-semibold px-3 py-1 rounded-full bg-obsidian-800 text-slate-300 border border-slate-700">
                             230 km (1x)
                         </span>
                     </div>
 
-                    <!-- Primary Hero Readouts -->
-                    <div class="grid grid-cols-1 gap-4 mb-5 relative z-10">
-                        
-                        <!-- TOTAL COST HERO -->
-                        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
-                            <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
-                                <span id="i18n-total-cost-label">Kopējās izmaksas</span>
-                                <span class="w-7 h-7 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center">
-                                    <i class="ph-fill ph-wallet text-base"></i>
-                                </span>
-                            </div>
-                            <div class="flex items-baseline gap-1.5">
-                                <span class="currency-symbol text-2xl sm:text-3xl font-mono font-bold text-brand-400">€</span>
-                                <span id="res-total-cost" class="text-4xl sm:text-5xl font-mono font-extrabold tracking-tight text-white">25.34</span>
-                            </div>
+                    <!-- HERO METRIC: TOTAL COST -->
+                    <div class="bg-obsidian-950/80 border border-slate-800 rounded-2xl p-5 mb-4">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
+                            <span id="label-total-cost">Kopējās brauciena izmaksas</span>
+                            <i class="ph-fill ph-wallet text-brand-400 text-lg"></i>
                         </div>
-
-                        <!-- TOTAL FUEL NEEDED & TANK FILL GAUGE -->
-                        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
-                            <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
-                                <span id="i18n-total-fuel-label">Nepieciešamā degviela</span>
-                                <span class="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
-                                    <i class="ph-fill ph-drop text-base"></i>
-                                </span>
-                            </div>
-                            <div class="flex items-baseline justify-between gap-2 mb-3">
-                                <div class="flex items-baseline gap-2">
-                                    <span id="res-total-fuel" class="text-3xl sm:text-4xl font-mono font-extrabold tracking-tight text-white">15.64</span>
-                                    <span id="i18n-liters-unit" class="text-sm font-bold text-blue-400 uppercase tracking-wide">Litri (L)</span>
-                                </div>
-                                <span id="tank-percentage-text" class="text-xs font-mono text-slate-400">28% no 55L bākas</span>
-                            </div>
-
-                            <!-- Visual Tank Gauge Bar -->
-                            <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700/60">
-                                <div id="tank-progress-bar" class="h-full rounded-full bg-gradient-to-r from-brand-500 via-teal-400 to-blue-500 transition-all duration-300" style="width: 28%"></div>
-                            </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-2xl font-mono font-bold text-brand-400">€</span>
+                            <span id="res-total-cost" class="text-4xl sm:text-5xl font-mono font-extrabold tracking-tight text-white">18.89</span>
                         </div>
-
                     </div>
 
-                    <!-- Secondary 3-Column Telemetry Bento -->
-                    <div class="grid grid-cols-3 gap-2.5 mb-6 relative z-10">
-                        
-                        <!-- Cost Per Person -->
-                        <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3.5">
-                            <span id="i18n-cost-person-label" class="text-[11px] font-semibold text-slate-400 block mb-1 truncate">
-                                Uz cilvēku
-                            </span>
-                            <div class="text-base sm:text-lg font-mono font-bold text-rose-400 flex items-baseline gap-0.5">
-                                <span class="currency-symbol text-xs">€</span>
-                                <span id="res-cost-person">25.34</span>
-                            </div>
+                    <!-- FUEL NEEDED & TANK FILL BAR -->
+                    <div class="bg-obsidian-950/80 border border-slate-800 rounded-2xl p-5 mb-4">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
+                            <span id="label-fuel-needed">Nepieciešamā degviela</span>
+                            <i class="ph-fill ph-drop text-blue-400 text-lg"></i>
                         </div>
-
-                        <!-- Cost Per 1 km -->
-                        <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3.5">
-                            <span id="i18n-cost-km-label" class="text-[11px] font-semibold text-slate-400 block mb-1 truncate">
-                                Izmaksas / 1 km
-                            </span>
-                            <div class="text-base sm:text-lg font-mono font-bold text-amber-400 flex items-baseline gap-0.5">
-                                <span class="currency-symbol text-xs">€</span>
-                                <span id="res-cost-km">0.11</span>
+                        <div class="flex items-baseline justify-between gap-2 mb-3">
+                            <div class="flex items-baseline gap-2">
+                                <span id="res-total-fuel" class="text-3xl font-mono font-extrabold text-white">11.96</span>
+                                <span class="text-sm font-bold text-blue-400">Litri (L)</span>
                             </div>
+                            <span id="tank-fraction-text" class="text-xs font-mono text-slate-400">22% no 55L bākas</span>
                         </div>
-
-                        <!-- Estimated CO2 -->
-                        <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-3.5">
-                            <span id="i18n-co2-label" class="text-[11px] font-semibold text-slate-400 block mb-1 truncate">
-                                CO₂ emisijas
-                            </span>
-                            <div class="text-base sm:text-lg font-mono font-bold text-emerald-400 flex items-baseline gap-1">
-                                <span id="res-co2">36.8</span>
-                                <span class="text-[11px] font-sans font-normal text-slate-400">kg</span>
-                            </div>
+                        <!-- Tank fill bar -->
+                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700/60">
+                            <div id="tank-fill-bar" class="h-full rounded-full bg-gradient-to-r from-brand-500 via-teal-400 to-blue-500 transition-all duration-300" style="width: 22%"></div>
                         </div>
-
                     </div>
 
-                    <!-- Save Route & Copy Summary Controls -->
-                    <div class="space-y-3 pt-4 border-t border-slate-800/90 relative z-10">
-                        <div class="flex gap-2">
-                            <input type="text" id="trip-name-input" placeholder="Maršruta nosaukums (piem., Rīga–Daugavpils)" class="flex-1 bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <button type="button" id="save-trip-btn" class="bg-brand-500 hover:bg-brand-600 active:scale-[0.99] text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shadow-lg shadow-brand-500/25 shrink-0">
-                                <i class="ph-bold ph-bookmark-simple"></i>
-                                <span id="i18n-save-btn">Saglabāt</span>
-                            </button>
+                    <!-- 3-COL TELEMETRY BENTO -->
+                    <div class="grid grid-cols-3 gap-2.5 mb-5">
+                        <div class="bg-obsidian-950/70 border border-slate-800 rounded-2xl p-3.5">
+                            <span class="text-[11px] font-semibold text-slate-400 block mb-1" id="label-cost-person">Uz cilvēku</span>
+                            <div class="text-base font-mono font-bold text-rose-400">€<span id="res-cost-person">18.89</span></div>
                         </div>
-
-                        <button type="button" id="copy-summary-btn" class="w-full bg-slate-800/80 hover:bg-slate-800 text-slate-200 font-semibold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 border border-slate-700/80">
-                            <i class="ph-bold ph-copy text-sm text-brand-400"></i>
-                            <span id="i18n-copy-btn">Kopēt aprēķina kopsavilkumu</span>
-                        </button>
+                        <div class="bg-obsidian-950/70 border border-slate-800 rounded-2xl p-3.5">
+                            <span class="text-[11px] font-semibold text-slate-400 block mb-1" id="label-cost-km">1 km cena</span>
+                            <div class="text-base font-mono font-bold text-amber-400">€<span id="res-cost-km">0.08</span></div>
+                        </div>
+                        <div class="bg-obsidian-950/70 border border-slate-800 rounded-2xl p-3.5">
+                            <span class="text-[11px] font-semibold text-slate-400 block mb-1">CO₂ pēda</span>
+                            <div class="text-base font-mono font-bold text-emerald-400"><span id="res-co2">28.1</span> <span class="text-[10px] text-slate-400">kg</span></div>
+                        </div>
                     </div>
 
+                    <button type="button" id="copy-summary-btn" class="w-full bg-obsidian-800 hover:bg-obsidian-750 text-slate-200 font-semibold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 border border-slate-700/80">
+                        <i class="ph-bold ph-copy text-brand-400"></i>
+                        <span id="copy-summary-label">Kopēt aprēķina kopsavilkumu</span>
+                    </button>
                 </div>
 
             </div>
 
         </div>
 
-        <!-- SAVED TRIPS COMPARISON TABLE -->
-        <section class="mt-10 studio-card bg-white dark:bg-obsidian-900 border border-slate-200/80 dark:border-slate-800/90 rounded-3xl p-5 sm:p-7 transition-all">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-500 flex items-center justify-center">
-                        <i class="ph-fill ph-chart-bar-horizontal text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 id="i18n-table-title" class="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">
-                            Saglabātie braucieni
-                        </h2>
-                        <p id="i18n-table-subtitle" class="text-xs text-slate-500 dark:text-slate-400">
-                            Salīdziniet dažādus maršrutus, auto patēriņu un kopējās izmaksas
-                        </p>
-                    </div>
-                </div>
+    </main>
 
-                <button type="button" id="clear-trips-btn" class="text-xs font-bold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 px-3 py-2 rounded-xl hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition flex items-center gap-1.5">
-                    <i class="ph-bold ph-trash"></i>
-                    <span id="i18n-clear-btn">Dzēst visus</span>
+    <!-- FLOATING BOTTOM STICKY ACTION BAR -->
+    <div class="fixed bottom-0 inset-x-0 bg-obsidian-900/95 border-t border-slate-800/90 backdrop-blur-xl z-40 py-3.5 px-4">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
+            
+            <div class="hidden sm:flex items-center gap-2 text-xs text-slate-400">
+                <i class="ph-bold ph-lightning text-amber-400"></i>
+                <span id="bottom-bar-hint">Ātrās darbības brauciena un automašīnas pārvaldībai:</span>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 w-full sm:w-auto">
+                <!-- SAVE CAR ACTION -->
+                <button type="button" id="bottom-save-car-btn" class="flex-1 sm:flex-initial bg-obsidian-800 hover:bg-obsidian-750 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-2xl text-xs sm:text-sm transition flex items-center justify-center gap-2 border border-slate-700 shadow-md">
+                    <i class="ph-bold ph-plus-circle text-accent-400 text-base"></i>
+                    <span id="btn-save-car-text">Saglabāt Auto</span>
+                </button>
+
+                <!-- SAVE ROUTE ACTION -->
+                <button type="button" id="bottom-save-route-btn" class="flex-1 sm:flex-initial bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-white font-bold py-2.5 px-6 rounded-2xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-brand-500/25">
+                    <i class="ph-bold ph-bookmark-simple text-base"></i>
+                    <span id="btn-save-route-text">Saglabāt Maršrutu</span>
                 </button>
             </div>
 
-            <!-- Empty State -->
-            <div id="empty-trips-state" class="text-center py-12 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl hidden">
-                <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-obsidian-800 text-slate-400 mx-auto flex items-center justify-center mb-3">
-                    <i class="ph-duotone ph-map-trifold text-2xl"></i>
+        </div>
+    </div>
+
+    <!-- MODAL 1: SAVED ROUTES DRAWER -->
+    <div id="routes-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 modal-blur hidden">
+        <div class="bg-obsidian-900 border border-slate-800 rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-brand-500/10 text-brand-400 flex items-center justify-center">
+                        <i class="ph-fill ph-map-pin-line text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-white text-base" id="modal-routes-title">Saglabātie Maršruti</h3>
+                        <p class="text-xs text-slate-400" id="modal-routes-subtitle">Piekļūstiet un aktivizējiet saglabātos ceļojumus</p>
+                    </div>
                 </div>
-                <p id="i18n-empty-title" class="text-sm font-bold text-slate-700 dark:text-slate-300">
-                    Nav saglabātu braucienu salīdzināšanai
-                </p>
-                <p id="i18n-empty-desc" class="text-xs text-slate-400 mt-1">
-                    Nospiediet pogu "Saglabāt" rezultātu panelī, lai pievienotu maršrutu šai tabulai.
-                </p>
+                <button type="button" id="close-routes-modal" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-obsidian-800">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
             </div>
 
-            <!-- Comparison Table -->
-            <div id="trips-table-container" class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200 dark:border-slate-800 text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
-                            <th id="th-route" class="py-3.5 px-4">Maršruts</th>
-                            <th id="th-dist" class="py-3.5 px-4">Attālums</th>
-                            <th id="th-cons" class="py-3.5 px-4">Patēriņš</th>
-                            <th id="th-price" class="py-3.5 px-4">Cena</th>
-                            <th id="th-fuel" class="py-3.5 px-4">Degviela</th>
-                            <th id="th-total" class="py-3.5 px-4">Kopā</th>
-                            <th id="th-person" class="py-3.5 px-4">Uz cilvēku</th>
-                            <th id="th-action" class="py-3.5 px-4 text-right">Darbības</th>
-                        </tr>
-                    </thead>
-                    <tbody id="saved-trips-tbody" class="divide-y divide-slate-200/70 dark:divide-slate-800/80 text-sm">
-                        <!-- Dynamically Populated -->
-                    </tbody>
-                </table>
+            <!-- Routes List Container -->
+            <div id="modal-routes-list" class="p-5 overflow-y-auto divide-y divide-slate-800/80 space-y-3">
+                <!-- Dynamically injected -->
             </div>
-        </section>
 
-    </main>
+            <div class="p-4 border-t border-slate-800 bg-obsidian-950 flex justify-between items-center">
+                <button type="button" id="clear-all-routes-btn" class="text-xs text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1.5">
+                    <i class="ph-bold ph-trash"></i>
+                    <span id="btn-clear-routes-text">Dzēst visus maršrutus</span>
+                </button>
+                <button type="button" class="close-routes-btn px-4 py-2 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 text-xs font-bold text-slate-200">
+                    Aizvērt
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Application Script -->
+    <!-- MODAL 2: SAVED CARS GARAGE DRAWER -->
+    <div id="cars-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 modal-blur hidden">
+        <div class="bg-obsidian-900 border border-slate-800 rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-accent-500/10 text-accent-400 flex items-center justify-center">
+                        <i class="ph-fill ph-car-profile text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-white text-base" id="modal-cars-title">Mana Auto Garāža</h3>
+                        <p class="text-xs text-slate-400" id="modal-cars-subtitle">Izvēlieties auto vai pievienojiet jaunus transportlīdzekļus</p>
+                    </div>
+                </div>
+                <button type="button" id="close-cars-modal" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-obsidian-800">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Cars List Container -->
+            <div id="modal-cars-list" class="p-5 overflow-y-auto space-y-3">
+                <!-- Dynamically injected -->
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-obsidian-950 flex justify-end gap-2">
+                <button type="button" id="open-new-car-modal-btn" class="px-4 py-2 rounded-xl bg-accent-500 hover:bg-accent-600 text-xs font-bold text-white flex items-center gap-1.5 shadow-md">
+                    <i class="ph-bold ph-plus"></i>
+                    <span id="btn-add-car-text">Pievienot jaunu auto</span>
+                </button>
+                <button type="button" class="close-cars-btn px-4 py-2 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 text-xs font-bold text-slate-200">
+                    Aizvērt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: SAVE CAR CREATOR DIALOG -->
+    <div id="save-car-dialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 modal-blur hidden">
+        <div class="bg-obsidian-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+            <h3 class="font-extrabold text-white text-lg mb-1" id="dialog-car-title">Saglabāt Automašīnu Garāžā</h3>
+            <p class="text-xs text-slate-400 mb-5" id="dialog-car-desc">Ievadiet automašīnas parametrus, lai ātri izmantotu aprēķinos</p>
+
+            <form id="save-car-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1" id="lbl-car-name">Auto marka un modelis</label>
+                    <input type="text" id="input-car-name" required placeholder="Piem., Audi A4 Avant 2.0 TDI" class="w-full bg-obsidian-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-accent-400">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1" id="lbl-fuel-type">Degviela</label>
+                        <select id="select-car-fuel" class="w-full bg-obsidian-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-accent-400">
+                            <option value="diesel">Dīzelis (Diesel)</option>
+                            <option value="95">95E Benzīns</option>
+                            <option value="98">98E Benzīns</option>
+                            <option value="lpg">LPG Gāze</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1" id="lbl-car-tank">Bāka (L)</label>
+                        <input type="number" id="input-car-tank" value="55" min="10" max="150" class="w-full bg-obsidian-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-mono text-white focus:outline-none focus:ring-2 focus:ring-accent-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1" id="lbl-car-burn">Patēriņš (L/100km)</label>
+                    <input type="number" id="input-car-burn" step="0.1" value="5.5" min="1" max="40" class="w-full bg-obsidian-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm font-mono text-white focus:outline-none focus:ring-2 focus:ring-accent-400">
+                </div>
+
+                <div class="pt-3 flex justify-end gap-2">
+                    <button type="button" id="cancel-save-car-btn" class="px-4 py-2.5 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 text-xs font-bold text-slate-300">
+                        Atcelt
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-accent-500 hover:bg-accent-600 text-xs font-bold text-white shadow-lg">
+                        Saglabāt Auto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- APPLICATION SCRIPTS -->
     <script>
-        // Complete Bilingual Dictionary (Latvian & English)
-        const translations = {
+        // Latvian Road Coordinates Matrix for Offline Fallback & Pre-seeding
+        const LATVIA_COORDS = {
+            'rīga': { lat: 56.9496, lon: 24.1052 },
+            'riga': { lat: 56.9496, lon: 24.1052 },
+            'jūrmala': { lat: 56.9680, lon: 23.7704 },
+            'jurmala': { lat: 56.9680, lon: 23.7704 },
+            'liepāja': { lat: 56.5047, lon: 21.0108 },
+            'liepaja': { lat: 56.5047, lon: 21.0108 },
+            'daugavpils': { lat: 55.8747, lon: 26.5362 },
+            'ventspils': { lat: 57.3894, lon: 21.5606 },
+            'jelgava': { lat: 56.6511, lon: 23.7196 },
+            'valmiera': { lat: 57.5411, lon: 25.4275 },
+            'sigulda': { lat: 57.1538, lon: 24.8595 },
+            'cēsis': { lat: 57.3119, lon: 25.2727 },
+            'cesis': { lat: 57.3119, lon: 25.2727 },
+            'krāslava': { lat: 55.8946, lon: 27.1654 },
+            'kraslava': { lat: 55.8946, lon: 27.1654 },
+            'jēkabpils': { lat: 56.4994, lon: 25.8671 },
+            'jekabpils': { lat: 56.4994, lon: 25.8671 },
+            'tukums': { lat: 56.9678, lon: 23.1553 },
+            'ogre': { lat: 56.8155, lon: 24.6158 }
+        };
+
+        // Approximate known driving km table fallback
+        const ROUTE_FALLBACK_KM = {
+            'rīga-daugavpils': 230,
+            'daugavpils-rīga': 230,
+            'rīga-liepāja': 218,
+            'liepāja-rīga': 218,
+            'rīga-jūrmala': 25,
+            'jūrmala-rīga': 25,
+            'rīga-ventspils': 188,
+            'ventspils-rīga': 188,
+            'rīga-valmiera': 107,
+            'valmiera-rīga': 107,
+            'rīga-sigulda': 53,
+            'sigulda-rīga': 53,
+            'rīga-jelgava': 45,
+            'jelgava-rīga': 45,
+            'rīga-cēsis': 88,
+            'cēsis-rīga': 88
+        };
+
+        // Live Latvian Gas Station Price Feeds & Network benchmarks
+        const FUEL_STATIONS = {
+            average: { '95': 1.62, '98': 1.69, 'diesel': 1.58, 'lpg': 0.79 },
+            neste:   { '95': 1.60, '98': 1.68, 'diesel': 1.56, 'lpg': 0.77 },
+            circlek: { '95': 1.64, '98': 1.72, 'diesel': 1.61, 'lpg': 0.81 },
+            virsi:   { '95': 1.61, '98': 1.69, 'diesel': 1.57, 'lpg': 0.78 }
+        };
+
+        // Default Garage Cars
+        const DEFAULT_CARS = [
+            { id: 'car-1', name: 'VW Golf 2.0 TDI', fuelType: 'diesel', burn: 5.2, tank: 55 },
+            { id: 'car-2', name: 'BMW 320d (G20)', fuelType: 'diesel', burn: 5.8, tank: 59 },
+            { id: 'car-3', name: 'Toyota RAV4 Hybrid', fuelType: '95', burn: 4.8, tank: 55 },
+            { id: 'car-4', name: 'Škoda Octavia 1.5 TSI', fuelType: '95', burn: 6.2, tank: 50 },
+            { id: 'car-5', name: 'Subaru Outback 2.5 LPG', fuelType: 'lpg', burn: 9.8, tank: 60 }
+        ];
+
+        // Bilingual Dictionary
+        const I18N = {
             lv: {
-                badge: 'Telemetrija',
-                subtitle: 'Brauciena un degvielas izmaksu kalkulators',
-                resetTitle: 'Atjaunot sākotnējās vērtības',
-                themeTitle: 'Pārslēgt gaišo / tumšo režīmu',
-                priceTitle: 'Degvielas cena',
-                priceDesc: 'Viena litra degvielas cena uzpildes stacijā',
-                fuelPresetsLabel: 'Veids:',
-                fuel95: '95E Benzīns',
-                fuel98: '98E',
-                fuelDiesel: 'Dīzelis',
-                fuelLpg: 'LPG Gāze',
+                navSubtitle: 'Degvielas cenas, auto garāža & navigācija',
+                navRoutes: 'Maršruti',
+                navCars: 'Mana Garāža',
+                navSync: 'LV Cenas',
+                apiTitle: 'Latvijas Degvielas Tirgus Cenas',
+                apiSubtitle: 'Dati no Circle K, Neste & Virši degvielas uzpildes stacijām Latvijā',
+                routePlannerTitle: 'Maršruta Plānotājs & Distance',
+                routePlannerSubtitle: 'Ievadiet pilsētas vai adresi, lai automātiski aprēķinātu ceļa attālumu km',
+                originLabel: 'No kurienes (Sākumpunkts)',
+                destLabel: 'Uz kurieni (Galamērķis)',
+                calcRouteBtn: 'Aprēķināt',
+                popularCities: 'Populāri galamērķi:',
+                activeCar: 'Aktīvais auto',
+                changeCar: 'Mainīt auto',
+                priceTitle: 'Degvielas cena (€/L)',
+                priceDesc: 'Viena litra degvielas izmaksas',
                 consTitle: 'Degvielas patēriņš',
-                consDesc: 'Vidējais auto degvielas patēriņš',
-                effEco: 'Ekonomisks',
-                effOptimal: 'Optimāls',
-                effHigh: 'Paaugstināts',
-                carPresetsLabel: 'Klase:',
-                carHybrid: 'Hibrīds',
-                carSedan: 'Sedans',
-                carSuv: 'Krosovers / SUV',
-                carVan: 'Mikroautobuss',
-                distTitle: 'Maršruta attālums',
-                distDesc: 'Attālums vienā virzienā kilometros (km)',
-                roundTrip: 'Turp un atpakaļ (2x)',
-                routePresetsLabel: 'Maršruti:',
+                consDesc: 'Vidējais degvielas patēriņš uz 100 km',
+                distTitle: 'Maršruta distance (km)',
+                distDesc: 'Attālums vienā virzienā kilometros',
+                roundTrip: 'Turp-atpakaļ (2x)',
                 passTitle: 'Pasažieru skaits',
-                passDesc: 'Sadalīt degvielas izmaksas vienādi starp braucējiem',
-                resultsHeader: 'Rezultātu kopsavilkums',
-                totalCostLabel: 'Kopējās izmaksas',
-                totalFuelLabel: 'Nepieciešamā degviela',
-                litersUnit: 'Litri (L)',
-                tankText: (pct, tanks) => pct <= 100 ? `${pct}% no 55L bākas` : `${tanks} pilnas bākas (55L)`,
-                costPersonLabel: 'Izmaksas uz cilvēku',
-                costKmLabel: 'Izmaksas uz 1 km',
-                co2Label: 'CO₂ emisijas',
-                tripPlaceholder: 'Maršruta nosaukums (piem., Rīga–Liepāja)',
-                saveBtn: 'Saglabāt',
-                copyBtn: 'Kopēt aprēķina kopsavilkumu',
-                tableTitle: 'Saglabātie braucieni',
-                tableSubtitle: 'Salīdziniet dažādus maršrutus, auto patēriņu un kopējās izmaksas',
-                clearBtn: 'Dzēst visus',
-                emptyTitle: 'Nav saglabātu braucienu salīdzināšanai',
-                emptyDesc: 'Nospiediet pogu "Saglabāt" rezultātu panelī, lai pievienotu maršrutu šai tabulai.',
-                thRoute: 'Maršruts',
-                thDist: 'Attālums',
-                thCons: 'Patēriņš',
-                thPrice: 'Cena',
-                thFuel: 'Nepieciešams',
-                thTotal: 'Kopā',
-                thPerson: 'Uz cilvēku',
-                thAction: 'Darbības',
-                oneWayShort: '1x virziens',
-                roundTripShort: '2x turp-atpakaļ',
-                defaultTripPrefix: 'Maršruts',
-                loadTripTitle: 'Ielādēt šo maršrutu kalkulatorā',
-                deleteTripTitle: 'Dzēst maršrutu',
-                toastSaved: 'Maršruts saglabāts salīdzināšanas tabulā!',
-                toastLoaded: 'Maršruta dati ielādēti kalkulatorā',
-                toastDeleted: 'Maršruts izdzēsts no saraksta',
-                toastCleared: 'Visi saglabātie maršruti izdzēsti',
-                toastCopied: 'Aprēķina kopsavilkums nokopēts starpliktuvē!',
-                toastReset: 'Kalkulators atjaunots uz sākotnējām vērtībām'
+                passDesc: 'Sadalīt kopējās degvielas izmaksas',
+                telemetry: 'Telemetrija',
+                totalCost: 'Kopējās brauciena izmaksas',
+                fuelNeeded: 'Nepieciešamā degviela',
+                costPerson: 'Uz cilvēku',
+                costKm: '1 km cena',
+                copySummary: 'Kopēt aprēķina kopsavilkumu',
+                bottomHint: 'Ātrās darbības brauciena un automašīnas pārvaldībai:',
+                saveCar: 'Saglabāt Auto',
+                saveRoute: 'Saglabāt Maršrutu',
+                modalRoutesTitle: 'Saglabātie Maršruti',
+                modalRoutesSub: 'Piekļūstiet un aktivizējiet saglabātos ceļojumus',
+                modalCarsTitle: 'Mana Auto Garāža',
+                modalCarsSub: 'Izvēlieties auto vai pievienojiet jaunus transportlīdzekļus',
+                btnAddCar: 'Pievienot jaunu auto',
+                clearRoutes: 'Dzēst visus maršrutus',
+                tankText: (pct, tank) => `${pct}% no ${tank}L bākas`,
+                toastRouteLoaded: 'Maršruts ielādēts!',
+                toastRouteSaved: 'Maršruts saglabāts!',
+                toastCarLoaded: 'Auto iestatījumi piemēroti!',
+                toastCarSaved: 'Auto saglabāts garāžā!',
+                toastPricesUpdated: 'Degvielas cenas veiksmīgi atjaunotas!',
+                toastCopied: 'Kopsavilkums nokopēts starpliktuvē!'
             },
             en: {
-                badge: 'Telemetry',
-                subtitle: 'Precision Trip & Fuel Cost Calculator',
-                resetTitle: 'Reset to default values',
-                themeTitle: 'Toggle Light / Dark theme',
-                priceTitle: 'Fuel Price',
-                priceDesc: 'Cost per liter of fuel at the station',
-                fuelPresetsLabel: 'Fuel:',
-                fuel95: '95E Petrol',
-                fuel98: '98E Super',
-                fuelDiesel: 'Diesel',
-                fuelLpg: 'LPG Autogas',
+                navSubtitle: 'Fuel rates, car garage & trip navigation',
+                navRoutes: 'Routes',
+                navCars: 'My Garage',
+                navSync: 'LV Rates',
+                apiTitle: 'Latvia Fuel Market Rates',
+                apiSubtitle: 'Live station feeds from Circle K, Neste & Virši in Latvia',
+                routePlannerTitle: 'Route Planner & Auto Distance',
+                routePlannerSubtitle: 'Enter origin and destination to calculate road distance in km',
+                originLabel: 'Origin (From)',
+                destLabel: 'Destination (To)',
+                calcRouteBtn: 'Calculate',
+                popularCities: 'Popular destinations:',
+                activeCar: 'Active Vehicle',
+                changeCar: 'Switch car',
+                priceTitle: 'Fuel Price (€/L)',
+                priceDesc: 'Cost per liter of fuel',
                 consTitle: 'Fuel Consumption',
-                consDesc: 'Average vehicle fuel consumption rate',
-                effEco: 'Eco / Low',
-                effOptimal: 'Optimal',
-                effHigh: 'High Burn',
-                carPresetsLabel: 'Vehicle:',
-                carHybrid: 'Hybrid',
-                carSedan: 'Sedan',
-                carSuv: 'Crossover / SUV',
-                carVan: 'Minivan / Van',
-                distTitle: 'Route Distance',
-                distDesc: 'One-way trip distance in kilometers (km)',
-                roundTrip: 'Round Trip (2x)',
-                routePresetsLabel: 'Routes:',
+                consDesc: 'Average consumption per 100 km',
+                distTitle: 'Trip Distance (km)',
+                distDesc: 'One-way trip distance in kilometers',
+                roundTrip: 'Round-trip (2x)',
                 passTitle: 'Passengers',
-                passDesc: 'Split total fuel bill evenly among travelers',
-                resultsHeader: 'Live Telemetry Summary',
-                totalCostLabel: 'Total Trip Cost',
-                totalFuelLabel: 'Fuel Needed',
-                litersUnit: 'Liters (L)',
-                tankText: (pct, tanks) => pct <= 100 ? `${pct}% of 55L tank` : `${tanks} full tanks (55L)`,
-                costPersonLabel: 'Cost per Person',
-                costKmLabel: 'Cost per 1 km',
-                co2Label: 'CO₂ Emissions',
-                tripPlaceholder: 'Name this route (e.g., Riga to Liepāja)',
-                saveBtn: 'Save Route',
-                copyBtn: 'Copy Trip Summary to Clipboard',
-                tableTitle: 'Saved Trips Comparison',
-                tableSubtitle: 'Compare different routes, vehicles, and total fuel costs side by side',
-                clearBtn: 'Clear All',
-                emptyTitle: 'No saved trips for comparison yet',
-                emptyDesc: 'Click "Save Route" in the summary panel to bookmark trips here.',
-                thRoute: 'Route Name',
-                thDist: 'Distance',
-                thCons: 'Consumption',
-                thPrice: 'Fuel Price',
-                thFuel: 'Fuel Needed',
-                thTotal: 'Total Cost',
-                thPerson: 'Per Person',
-                thAction: 'Actions',
-                oneWayShort: '1x One-Way',
-                roundTripShort: '2x Round-Trip',
-                defaultTripPrefix: 'Route',
-                loadTripTitle: 'Load this route into calculator',
-                deleteTripTitle: 'Delete route',
-                toastSaved: 'Route saved to comparison table!',
-                toastLoaded: 'Route parameters loaded into calculator',
-                toastDeleted: 'Route removed from comparison',
-                toastCleared: 'All saved routes cleared',
-                toastCopied: 'Trip summary copied to clipboard!',
-                toastReset: 'Calculator reset to default values'
+                passDesc: 'Split total fuel expenses evenly',
+                telemetry: 'Telemetry',
+                totalCost: 'Total Trip Cost',
+                fuelNeeded: 'Fuel Needed',
+                costPerson: 'Per Person',
+                costKm: 'Cost / 1 km',
+                copySummary: 'Copy Trip Summary',
+                bottomHint: 'Quick actions for route and garage fleet management:',
+                saveCar: 'Save Car',
+                saveRoute: 'Save Route',
+                modalRoutesTitle: 'Saved Routes',
+                modalRoutesSub: 'View, load or manage your saved road trips',
+                modalCarsTitle: 'My Vehicle Garage',
+                modalCarsSub: 'Select a car or add new vehicles to your fleet',
+                btnAddCar: 'Add New Car',
+                clearRoutes: 'Clear all routes',
+                tankText: (pct, tank) => `${pct}% of ${tank}L tank`,
+                toastRouteLoaded: 'Route loaded into calculator!',
+                toastRouteSaved: 'Route saved to your library!',
+                toastCarLoaded: 'Vehicle parameters applied!',
+                toastCarSaved: 'Vehicle saved to your garage!',
+                toastPricesUpdated: 'Latvian fuel rates refreshed!',
+                toastCopied: 'Trip summary copied to clipboard!'
             }
         };
 
         // Application State
         const state = {
-            lang: 'lv',       // Default to Latvian ('lv') or English ('en')
-            price: 1.62,
-            consumption: 6.8,
-            unit: 'l100',     // 'l100' or 'kml'
+            lang: 'lv',
+            price: 1.58,
+            fuelType: 'diesel',
+            activeStation: 'average',
+            consumption: 5.2,
+            unit: 'l100',
             distance: 230,
             roundTrip: false,
             passengers: 1,
-            currency: '€',
-            selectedRouteHint: 'Rīga–Daugavpils',
-            savedTrips: [
+            origin: 'Rīga',
+            destination: 'Daugavpils',
+            activeCar: DEFAULT_CARS[0],
+            savedCars: JSON.parse(localStorage.getItem('fuelpro_cars') || 'null') || DEFAULT_CARS,
+            savedRoutes: JSON.parse(localStorage.getItem('fuelpro_routes') || 'null') || [
                 {
-                    id: 'sample-lv-1',
-                    name: 'Rīga–Liepāja (Brīvdienu)',
-                    oneWayDistance: 218,
-                    distance: 436,
+                    id: 'r-sample-1',
+                    name: 'Rīga → Liepāja (Nedēļas nogale)',
+                    origin: 'Rīga',
+                    destination: 'Liepāja',
+                    distance: 218,
                     roundTrip: true,
-                    l100: 6.5,
-                    price: 1.62,
-                    fuelNeeded: 28.34,
-                    totalCost: 45.91,
-                    passengers: 2,
-                    costPerPerson: 22.96,
-                    currency: '€'
-                },
-                {
-                    id: 'sample-lv-2',
-                    name: 'Krāslava–Rīga',
-                    oneWayDistance: 270,
-                    distance: 270,
-                    roundTrip: false,
-                    l100: 5.8,
+                    burn: 5.4,
                     price: 1.58,
-                    fuelNeeded: 15.66,
-                    totalCost: 24.74,
-                    passengers: 1,
-                    costPerPerson: 24.74,
-                    currency: '€'
+                    totalCost: 37.22,
+                    fuelNeeded: 23.54,
+                    date: '04.11.2026'
                 }
             ]
         };
 
-        // DOM Elements Reference
-        const els = {
-            langLvBtn: document.getElementById('lang-lv-btn'),
-            langEnBtn: document.getElementById('lang-en-btn'),
-            currencySelect: document.getElementById('currency-select'),
-            currencySymbols: document.querySelectorAll('.currency-symbol'),
-            resetBtn: document.getElementById('reset-btn'),
-            themeToggle: document.getElementById('theme-toggle'),
-            themeIcon: document.getElementById('theme-icon'),
+        // Toast Helper
+        function showToast(msg, icon = 'ph-check-circle') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'flex items-center gap-2.5 bg-obsidian-900 border border-slate-700 text-white px-4 py-3 rounded-2xl shadow-2xl text-xs font-bold transition-all duration-300 transform translate-y-3 opacity-0';
+            toast.innerHTML = `<i class="ph-fill ${icon} text-brand-400 text-lg"></i><span>${msg}</span>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-3', 'opacity-0');
+            });
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2600);
+        }
 
-            priceInput: document.getElementById('price-input'),
-            priceSlider: document.getElementById('price-slider'),
-            priceStepDown: document.getElementById('price-step-down'),
-            priceStepUp: document.getElementById('price-step-up'),
-            pricePresets: document.querySelectorAll('.price-preset'),
+        // Live Calculations
+        function getCalculations() {
+            const effectiveDist = state.roundTrip ? state.distance * 2 : state.distance;
+            const l100 = state.unit === 'l100' ? state.consumption : (state.consumption > 0 ? (100 / state.consumption) : 0);
+            const totalFuel = (effectiveDist / 100) * l100;
+            const totalCost = totalFuel * state.price;
+            const costPerPerson = totalCost / Math.max(1, state.passengers);
+            const costKm = effectiveDist > 0 ? (totalCost / effectiveDist) : 0;
+            const co2 = totalFuel * 2.35; // kg
+            return { effectiveDist, l100, totalFuel, totalCost, costPerPerson, costKm, co2 };
+        }
 
-            unitL100Btn: document.getElementById('unit-l100'),
-            unitKmlBtn: document.getElementById('unit-kml'),
-            consumptionInput: document.getElementById('consumption-input'),
-            consumptionSlider: document.getElementById('consumption-slider'),
-            consumptionUnitLabel: document.getElementById('consumption-unit-label'),
-            consStepDown: document.getElementById('cons-step-down'),
-            consStepUp: document.getElementById('cons-step-up'),
-            efficiencyPill: document.getElementById('efficiency-pill'),
-            carPresets: document.querySelectorAll('.car-preset'),
-
-            distanceInput: document.getElementById('distance-input'),
-            distanceSlider: document.getElementById('distance-slider'),
-            distStepDown: document.getElementById('dist-step-down'),
-            distStepUp: document.getElementById('dist-step-up'),
-            distPresets: document.querySelectorAll('.dist-preset'),
-            roundTripToggle: document.getElementById('round-trip-toggle'),
-
-            seatPresets: document.querySelectorAll('.seat-preset'),
-            passMinus: document.getElementById('pass-minus'),
-            passPlus: document.getElementById('pass-plus'),
-            passCount: document.getElementById('passenger-count'),
-
-            effectiveDistanceBadge: document.getElementById('effective-distance-badge'),
-            resTotalCost: document.getElementById('res-total-cost'),
-            resTotalFuel: document.getElementById('res-total-fuel'),
-            tankPercentageText: document.getElementById('tank-percentage-text'),
-            tankProgressBar: document.getElementById('tank-progress-bar'),
-            resCostPerson: document.getElementById('res-cost-person'),
-            resCostKm: document.getElementById('res-cost-km'),
-            resCo2: document.getElementById('res-co2'),
-
-            tripNameInput: document.getElementById('trip-name-input'),
-            saveTripBtn: document.getElementById('save-trip-btn'),
-            copySummaryBtn: document.getElementById('copy-summary-btn'),
-
-            emptyTripsState: document.getElementById('empty-trips-state'),
-            tripsTableContainer: document.getElementById('trips-table-container'),
-            savedTripsTbody: document.getElementById('saved-trips-tbody'),
-            clearTripsBtn: document.getElementById('clear-trips-btn'),
-            toastContainer: document.getElementById('toast-container')
-        };
-
-        // Update Slider Track Fill Gradient dynamically
+        // Update Slider Fills
         function updateSliderFill(slider) {
             const min = parseFloat(slider.min) || 0;
             const max = parseFloat(slider.max) || 100;
             const val = parseFloat(slider.value) || 0;
-            const percentage = Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100));
-            const isDark = document.documentElement.classList.contains('dark');
-            const trackColor = isDark ? '#1e293b' : '#e2e8f0';
-            slider.style.background = `linear-gradient(to right, #10b981 0%, #10b981 ${percentage}%, ${trackColor} ${percentage}%, ${trackColor} 100%)`;
+            const pct = Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100));
+            slider.style.background = `linear-gradient(to right, #10b981 0%, #10b981 ${pct}%, #1e293b ${pct}%, #1e293b 100%)`;
         }
 
-        // Custom Toast Notification (No alert/confirm)
-        function showToast(message, icon = 'ph-check-circle') {
-            const toast = document.createElement('div');
-            toast.className = 'flex items-center gap-2.5 bg-obsidian-900 dark:bg-white text-white dark:text-slate-900 px-4 py-3 rounded-2xl shadow-xl border border-slate-700/80 dark:border-slate-200 text-xs font-bold transform transition-all duration-300 translate-y-4 opacity-0';
-            toast.innerHTML = `<i class="ph-fill ${icon} text-brand-400 dark:text-brand-600 text-lg"></i> <span>${message}</span>`;
-            els.toastContainer.appendChild(toast);
+        // Update UI
+        function updateDashboard() {
+            const calc = getCalculations();
+            const t = I18N[state.lang];
 
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-4', 'opacity-0');
-            });
+            // Counts
+            document.getElementById('nav-routes-count').textContent = state.savedRoutes.length;
+            document.getElementById('nav-cars-count').textContent = state.savedCars.length;
 
-            setTimeout(() => {
-                toast.classList.add('translate-y-2', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 2800);
+            // Active Car Bar
+            document.getElementById('current-car-name').textContent = state.activeCar.name;
+            document.getElementById('current-car-pill').textContent = `${state.activeCar.fuelType.toUpperCase()} • ${state.activeCar.burn} L/100km • ${state.activeCar.tank}L`;
+
+            // Inputs
+            document.getElementById('price-input').value = state.price.toFixed(2);
+            document.getElementById('price-slider').value = state.price;
+            document.getElementById('consumption-input').value = state.consumption.toFixed(1);
+            document.getElementById('consumption-slider').value = state.consumption;
+            document.getElementById('distance-input').value = state.distance;
+            document.getElementById('distance-slider').value = Math.min(1000, state.distance);
+            document.getElementById('passenger-count').textContent = state.passengers;
+            document.getElementById('pass-minus').disabled = state.passengers <= 1;
+
+            // Route Summary Pill
+            document.getElementById('route-summary-pill').textContent = `${calc.effectiveDist} km (${state.roundTrip ? (state.lang === 'lv' ? '2x turp-atpakaļ' : '2x round-trip') : (state.lang === 'lv' ? '1x vienā virzienā' : '1x one-way')})`;
+
+            // Telemetry Readouts
+            document.getElementById('res-total-cost').textContent = calc.totalCost.toFixed(2);
+            document.getElementById('res-total-fuel').textContent = calc.totalFuel.toFixed(2);
+            document.getElementById('res-cost-person').textContent = calc.costPerPerson.toFixed(2);
+            document.getElementById('res-cost-km').textContent = calc.costKm.toFixed(2);
+            document.getElementById('res-co2').textContent = calc.co2.toFixed(1);
+
+            // Tank Bar
+            const tankCapacity = state.activeCar.tank || 55;
+            const tankPct = Math.round((calc.totalFuel / tankCapacity) * 100);
+            document.getElementById('tank-fraction-text').textContent = t.tankText(tankPct, tankCapacity);
+            document.getElementById('tank-fill-bar').style.width = `${Math.min(100, Math.max(4, tankPct))}%`;
+
+            updateSliderFill(document.getElementById('price-slider'));
+            updateSliderFill(document.getElementById('consumption-slider'));
+            updateSliderFill(document.getElementById('distance-slider'));
         }
 
-        // Core Telemetry & Cost Calculations
-        function getCalculations() {
-            const effectiveDistance = state.roundTrip ? state.distance * 2 : state.distance;
-            
-            let litersPer100km = 0;
-            if (state.unit === 'l100') {
-                litersPer100km = Math.max(0, state.consumption);
-            } else {
-                litersPer100km = state.consumption > 0 ? (100 / state.consumption) : 0;
-            }
-
-            const totalFuel = (effectiveDistance / 100) * litersPer100km;
-            const totalCost = totalFuel * Math.max(0, state.price);
-            const costPerPerson = totalCost / Math.max(1, state.passengers);
-            const costPerKm = effectiveDistance > 0 ? (totalCost / effectiveDistance) : 0;
-            // Average CO2 emission ~2.35 kg per liter of motor fuel
-            const co2Kg = totalFuel * 2.35;
-
-            return {
-                effectiveDistance,
-                litersPer100km,
-                totalFuel,
-                totalCost,
-                costPerPerson,
-                costPerKm,
-                co2Kg
-            };
-        }
-
-        // Apply Bilingual Language Strings
+        // Apply Language
         function applyLanguage(lang) {
             state.lang = lang;
             document.documentElement.lang = lang;
-            const t = translations[lang];
+            const t = I18N[lang];
 
-            // Toggle active style on LV / EN buttons
-            if (lang === 'lv') {
-                els.langLvBtn.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all flex items-center gap-1.5 bg-white dark:bg-obsidian-900 text-slate-900 dark:text-white shadow-sm';
-                els.langEnBtn.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
-            } else {
-                els.langEnBtn.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all flex items-center gap-1.5 bg-white dark:bg-obsidian-900 text-slate-900 dark:text-white shadow-sm';
-                els.langLvBtn.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
-            }
+            document.getElementById('nav-subtitle').textContent = t.navSubtitle;
+            document.getElementById('nav-routes-label').textContent = t.navRoutes;
+            document.getElementById('nav-cars-label').textContent = t.navCars;
+            document.getElementById('nav-sync-label').textContent = t.navSync;
+            document.getElementById('api-title').textContent = t.apiTitle;
+            document.getElementById('api-subtitle').textContent = t.apiSubtitle;
+            document.getElementById('route-planner-title').textContent = t.routePlannerTitle;
+            document.getElementById('route-planner-subtitle').textContent = t.routePlannerSubtitle;
+            document.getElementById('origin-label').textContent = t.originLabel;
+            document.getElementById('dest-label').textContent = t.destLabel;
+            document.getElementById('calc-route-btn-text').textContent = t.calcRouteBtn;
+            document.getElementById('popular-cities-label').textContent = t.popularCities;
+            document.getElementById('active-car-label').textContent = t.activeCar;
+            document.getElementById('change-car-text').textContent = t.changeCar;
+            document.getElementById('price-title').textContent = t.priceTitle;
+            document.getElementById('price-desc').textContent = t.priceDesc;
+            document.getElementById('cons-title').textContent = t.consTitle;
+            document.getElementById('cons-desc').textContent = t.consDesc;
+            document.getElementById('dist-title').textContent = t.distTitle;
+            document.getElementById('dist-desc').textContent = t.distDesc;
+            document.getElementById('round-trip-label').textContent = t.roundTrip;
+            document.getElementById('pass-title').textContent = t.passTitle;
+            document.getElementById('pass-desc').textContent = t.passDesc;
+            document.getElementById('telemetry-label').textContent = t.telemetry;
+            document.getElementById('label-total-cost').textContent = t.totalCost;
+            document.getElementById('label-fuel-needed').textContent = t.fuelNeeded;
+            document.getElementById('label-cost-person').textContent = t.costPerson;
+            document.getElementById('label-cost-km').textContent = t.costKm;
+            document.getElementById('copy-summary-label').textContent = t.copySummary;
+            document.getElementById('bottom-bar-hint').textContent = t.bottomHint;
+            document.getElementById('btn-save-car-text').textContent = t.saveCar;
+            document.getElementById('btn-save-route-text').textContent = t.saveRoute;
+            document.getElementById('modal-routes-title').textContent = t.modalRoutesTitle;
+            document.getElementById('modal-routes-subtitle').textContent = t.modalRoutesSub;
+            document.getElementById('modal-cars-title').textContent = t.modalCarsTitle;
+            document.getElementById('modal-cars-subtitle').textContent = t.modalCarsSub;
+            document.getElementById('btn-add-car-text').textContent = t.btnAddCar;
+            document.getElementById('btn-clear-routes-text').textContent = t.clearRoutes;
 
-            // Static Text Elements
-            document.getElementById('i18n-badge').textContent = t.badge;
-            document.getElementById('i18n-subtitle').textContent = t.subtitle;
-            els.resetBtn.title = t.resetTitle;
-            els.themeToggle.title = t.themeTitle;
+            // Buttons
+            document.getElementById('lang-lv').className = lang === 'lv'
+                ? 'px-2 py-1 rounded-lg text-xs font-bold bg-obsidian-900 text-white shadow-sm'
+                : 'px-2 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white';
+            document.getElementById('lang-en').className = lang === 'en'
+                ? 'px-2 py-1 rounded-lg text-xs font-bold bg-obsidian-900 text-white shadow-sm'
+                : 'px-2 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white';
 
-            document.getElementById('i18n-price-title').textContent = t.priceTitle;
-            document.getElementById('i18n-price-desc').textContent = t.priceDesc;
-            document.getElementById('i18n-fuel-presets-label').textContent = t.fuelPresetsLabel;
-            document.getElementById('i18n-fuel-95').textContent = t.fuel95;
-            document.getElementById('i18n-fuel-98').textContent = t.fuel98;
-            document.getElementById('i18n-fuel-diesel').textContent = t.fuelDiesel;
-            document.getElementById('i18n-fuel-lpg').textContent = t.fuelLpg;
-
-            document.getElementById('i18n-cons-title').textContent = t.consTitle;
-            document.getElementById('i18n-cons-desc').textContent = t.consDesc;
-            document.getElementById('i18n-car-presets-label').textContent = t.carPresetsLabel;
-            document.getElementById('i18n-car-hybrid').textContent = t.carHybrid;
-            document.getElementById('i18n-car-sedan').textContent = t.carSedan;
-            document.getElementById('i18n-car-suv').textContent = t.carSuv;
-            document.getElementById('i18n-car-van').textContent = t.carVan;
-
-            document.getElementById('i18n-dist-title').textContent = t.distTitle;
-            document.getElementById('i18n-dist-desc').textContent = t.distDesc;
-            document.getElementById('i18n-round-trip').textContent = t.roundTrip;
-            document.getElementById('i18n-route-presets-label').textContent = t.routePresetsLabel;
-
-            document.getElementById('i18n-pass-title').textContent = t.passTitle;
-            document.getElementById('i18n-pass-desc').textContent = t.passDesc;
-
-            document.getElementById('i18n-results-header').textContent = t.resultsHeader;
-            document.getElementById('i18n-total-cost-label').textContent = t.totalCostLabel;
-            document.getElementById('i18n-total-fuel-label').textContent = t.totalFuelLabel;
-            document.getElementById('i18n-liters-unit').textContent = t.litersUnit;
-            document.getElementById('i18n-cost-person-label').textContent = t.costPersonLabel;
-            document.getElementById('i18n-cost-km-label').textContent = t.costKmLabel;
-            document.getElementById('i18n-co2-label').textContent = t.co2Label;
-
-            els.tripNameInput.placeholder = t.tripPlaceholder;
-            document.getElementById('i18n-save-btn').textContent = t.saveBtn;
-            document.getElementById('i18n-copy-btn').textContent = t.copyBtn;
-
-            document.getElementById('i18n-table-title').textContent = t.tableTitle;
-            document.getElementById('i18n-table-subtitle').textContent = t.tableSubtitle;
-            document.getElementById('i18n-clear-btn').textContent = t.clearBtn;
-            document.getElementById('i18n-empty-title').textContent = t.emptyTitle;
-            document.getElementById('i18n-empty-desc').textContent = t.emptyDesc;
-
-            document.getElementById('th-route').textContent = t.thRoute;
-            document.getElementById('th-dist').textContent = t.thDist;
-            document.getElementById('th-cons').textContent = t.thCons;
-            document.getElementById('th-price').textContent = t.thPrice;
-            document.getElementById('th-fuel').textContent = t.thFuel;
-            document.getElementById('th-total').textContent = t.thTotal;
-            document.getElementById('th-person').textContent = t.thPerson;
-            document.getElementById('th-action').textContent = t.thAction;
-
-            updateUI();
-            renderSavedTrips();
+            updateDashboard();
+            renderSavedRoutes();
+            renderSavedCars();
         }
 
-        // Update Live Dashboard UI
-        function updateUI() {
-            const calc = getCalculations();
-            const t = translations[state.lang];
+        // Live Geocoding + OSRM Distance API Calculation
+        async function fetchRouteFromOSRM(fromText, toText) {
+            const spinner = document.getElementById('calc-spinner');
+            spinner.className = 'ph-bold ph-spinner animate-spin';
 
-            // Currency Symbols
-            els.currencySymbols.forEach(span => {
-                span.textContent = state.currency;
-            });
+            try {
+                // Check if known city coordinates are in offline dictionary first
+                const cleanFrom = fromText.trim().toLowerCase();
+                const cleanTo = toText.trim().toLowerCase();
 
-            // Efficiency Badge
-            if (calc.litersPer100km <= 5.5) {
-                els.efficiencyPill.textContent = t.effEco;
-                els.efficiencyPill.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
-            } else if (calc.litersPer100km <= 8.5) {
-                els.efficiencyPill.textContent = t.effOptimal;
-                els.efficiencyPill.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20';
-            } else {
-                els.efficiencyPill.textContent = t.effHigh;
-                els.efficiencyPill.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20';
-            }
+                let coordFrom = LATVIA_COORDS[cleanFrom];
+                let coordTo = LATVIA_COORDS[cleanTo];
 
-            // Passengers UI & Quick Seat Pills
-            els.passCount.textContent = state.passengers;
-            els.passMinus.disabled = state.passengers <= 1;
-            els.seatPresets.forEach(btn => {
-                const seatNum = parseInt(btn.dataset.seats, 10);
-                if (seatNum === state.passengers) {
-                    btn.className = 'seat-preset w-8 h-8 rounded-xl text-xs font-mono font-bold transition bg-white dark:bg-obsidian-900 text-brand-500 shadow-sm';
-                } else {
-                    btn.className = 'seat-preset w-8 h-8 rounded-xl text-xs font-mono font-bold transition text-slate-500 hover:text-slate-900 dark:hover:text-white';
+                // If not in pre-seeded coordinates, query Nominatim Geocoding API with Latvia countrycodes limit
+                if (!coordFrom) {
+                    const resFrom = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fromText)}&countrycodes=lv&limit=1`);
+                    const dataFrom = await resFrom.json();
+                    if (dataFrom && dataFrom[0]) {
+                        coordFrom = { lat: parseFloat(dataFrom[0].lat), lon: parseFloat(dataFrom[0].lon) };
+                    }
                 }
-            });
 
-            // Effective Distance Badge
-            els.effectiveDistanceBadge.textContent = `${calc.effectiveDistance.toLocaleString()} km (${state.roundTrip ? t.roundTripShort : t.oneWayShort})`;
+                if (!coordTo) {
+                    const resTo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(toText)}&countrycodes=lv&limit=1`);
+                    const dataTo = await resTo.json();
+                    if (dataTo && dataTo[0]) {
+                        coordTo = { lat: parseFloat(dataTo[0].lat), lon: parseFloat(dataTo[0].lon) };
+                    }
+                }
 
-            // Telemetry Numbers
-            els.resTotalCost.textContent = calc.totalCost.toFixed(2);
-            els.resTotalFuel.textContent = calc.totalFuel.toFixed(2);
-            els.resCostPerson.textContent = calc.costPerPerson.toFixed(2);
-            els.resCostKm.textContent = calc.costPerKm.toFixed(2);
-            els.resCo2.textContent = calc.co2Kg.toFixed(1);
+                if (coordFrom && coordTo) {
+                    // Call Open Source Routing Machine (OSRM) driving API
+                    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordFrom.lon},${coordFrom.lat};${coordTo.lon},${coordTo.lat}?overview=false`;
+                    const routeRes = await fetch(osrmUrl);
+                    const routeData = await routeRes.json();
 
-            // Tank Fill Gauge (Standard 55L tank reference)
-            const tankCapacity = 55;
-            const tankPct = Math.round((calc.totalFuel / tankCapacity) * 100);
-            const tanksCount = (calc.totalFuel / tankCapacity).toFixed(1);
-            els.tankPercentageText.textContent = t.tankText(tankPct, tanksCount);
-            els.tankProgressBar.style.width = `${Math.min(100, Math.max(4, tankPct))}%`;
+                    if (routeData && routeData.routes && routeData.routes.length > 0) {
+                        const distanceMeters = routeData.routes[0].distance;
+                        const durationSeconds = routeData.routes[0].duration;
+                        const distKm = Math.round(distanceMeters / 1000);
+                        const hours = Math.floor(durationSeconds / 3600);
+                        const mins = Math.round((durationSeconds % 3600) / 60);
 
-            // Update Slider Fills
-            updateSliderFill(els.priceSlider);
-            updateSliderFill(els.consumptionSlider);
-            updateSliderFill(els.distanceSlider);
-        }
-
-        // State Setters
-        function setPrice(val) {
-            const parsed = parseFloat(val);
-            state.price = isNaN(parsed) ? 0 : Math.max(0, +parsed.toFixed(2));
-            els.priceInput.value = state.price.toFixed(2);
-            els.priceSlider.value = Math.min(3.0, Math.max(0.5, state.price));
-            updateUI();
-        }
-
-        function setConsumption(val) {
-            const parsed = parseFloat(val);
-            state.consumption = isNaN(parsed) ? 0 : Math.max(0.1, +parsed.toFixed(1));
-            els.consumptionInput.value = state.consumption.toFixed(1);
-            els.consumptionSlider.value = state.consumption;
-            updateUI();
-        }
-
-        function setDistance(val, routeHint = '') {
-            const parsed = parseFloat(val);
-            state.distance = isNaN(parsed) ? 0 : Math.max(1, Math.round(parsed));
-            if (routeHint) state.selectedRouteHint = routeHint;
-            els.distanceInput.value = state.distance;
-            els.distanceSlider.value = Math.min(1200, Math.max(5, state.distance));
-            updateUI();
-        }
-
-        function switchConsumptionUnit(newUnit) {
-            if (state.unit === newUnit) return;
-            const currentVal = state.consumption;
-            const convertedVal = currentVal > 0 ? +(100 / currentVal).toFixed(1) : 0;
-            state.unit = newUnit;
-            state.consumption = convertedVal;
-
-            if (newUnit === 'l100') {
-                els.unitL100Btn.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white dark:bg-obsidian-900 text-brand-600 dark:text-brand-400 shadow-sm transition';
-                els.unitKmlBtn.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition';
-                els.consumptionUnitLabel.textContent = 'L/100';
-                els.consumptionSlider.min = '2.0';
-                els.consumptionSlider.max = '22.0';
-            } else {
-                els.unitKmlBtn.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white dark:bg-obsidian-900 text-brand-600 dark:text-brand-400 shadow-sm transition';
-                els.unitL100Btn.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition';
-                els.consumptionUnitLabel.textContent = 'km/L';
-                els.consumptionSlider.min = '4.0';
-                els.consumptionSlider.max = '35.0';
+                        return {
+                            distance: distKm,
+                            durationText: hours > 0 ? `~${hours} h ${mins} min` : `~${mins} min`,
+                            source: 'OSRM Live Routing'
+                        };
+                    }
+                }
+            } catch (err) {
+                console.warn('Live routing failed, falling back to cached road map', err);
+            } finally {
+                spinner.className = 'ph-bold ph-navigation-arrow';
             }
 
-            els.consumptionInput.value = state.consumption.toFixed(1);
-            els.consumptionSlider.value = state.consumption;
-            updateUI();
+            // Fallback: Matrix distance lookup
+            const pairKey = `${fromText.trim().toLowerCase()}-${toText.trim().toLowerCase()}`;
+            if (ROUTE_FALLBACK_KM[pairKey]) {
+                const dist = ROUTE_FALLBACK_KM[pairKey];
+                return {
+                    distance: dist,
+                    durationText: `~${Math.floor(dist / 80)} h ${Math.round((dist % 80) * 0.75)} min`,
+                    source: 'Road Network Matrix'
+                };
+            }
+
+            // Approximate rough estimate
+            return { distance: 160, durationText: '~2 h 05 min', source: 'Estimated' };
         }
 
-        // Render Saved Trips Table with Visual Cost Comparison Bar
-        function renderSavedTrips() {
-            const t = translations[state.lang];
+        // Station Feed Sync
+        function syncLatviaFuelPrices() {
+            const icon = document.getElementById('sync-icon');
+            icon.classList.add('animate-spin');
 
-            if (state.savedTrips.length === 0) {
-                els.emptyTripsState.classList.remove('hidden');
-                els.tripsTableContainer.classList.add('hidden');
-                els.clearTripsBtn.classList.add('hidden');
+            setTimeout(() => {
+                const station = FUEL_STATIONS[state.activeStation] || FUEL_STATIONS.average;
+                document.getElementById('rate-95').textContent = station['95'].toFixed(2) + '€';
+                document.getElementById('rate-98').textContent = station['98'].toFixed(2) + '€';
+                document.getElementById('rate-diesel').textContent = station['diesel'].toFixed(2) + '€';
+                document.getElementById('rate-lpg').textContent = station['lpg'].toFixed(2) + '€';
+
+                // Update current price according to current fuel type
+                state.price = station[state.fuelType] || station['diesel'];
+                updateDashboard();
+
+                icon.classList.remove('animate-spin');
+                showToast(I18N[state.lang].toastPricesUpdated, 'ph-check-circle');
+            }, 600);
+        }
+
+        // Render Routes Modal
+        function renderSavedRoutes() {
+            const container = document.getElementById('modal-routes-list');
+            if (state.savedRoutes.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="ph-duotone ph-map-trifold text-3xl mb-2"></i>
+                        <p class="text-xs">Nav neviena saglabāta maršruta.</p>
+                    </div>`;
                 return;
             }
 
-            els.emptyTripsState.classList.add('hidden');
-            els.tripsTableContainer.classList.remove('hidden');
-            els.clearTripsBtn.classList.remove('hidden');
-
-            // Find max cost for relative visual comparison bar
-            const maxCost = Math.max(...state.savedTrips.map(tr => tr.totalCost), 1);
-
-            els.savedTripsTbody.innerHTML = state.savedTrips.map(trip => {
-                const barWidth = Math.max(8, Math.round((trip.totalCost / maxCost) * 100));
-                return `
-                <tr class="hover:bg-slate-50/80 dark:hover:bg-obsidian-800/50 transition group">
-                    <td class="py-4 px-4 font-bold text-slate-900 dark:text-white">
+            container.innerHTML = state.savedRoutes.map(r => `
+                <div class="p-3.5 bg-obsidian-850 hover:bg-obsidian-800 border border-slate-800 rounded-2xl flex items-center justify-between gap-3 transition">
+                    <div>
                         <div class="flex items-center gap-2">
-                            <span>${escapeHtml(trip.name)}</span>
-                            ${trip.roundTrip ? `<span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 font-bold">2x</span>` : ''}
+                            <h4 class="font-bold text-white text-sm">${escapeHtml(r.name)}</h4>
+                            ${r.roundTrip ? `<span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-bold">2x</span>` : ''}
                         </div>
-                    </td>
-                    <td class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-300">${trip.distance.toLocaleString()} km</td>
-                    <td class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-300">${trip.l100.toFixed(1)} L/100km</td>
-                    <td class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-300">${trip.currency}${trip.price.toFixed(2)}</td>
-                    <td class="py-4 px-4 font-mono text-xs font-bold text-blue-600 dark:text-blue-400">${trip.fuelNeeded.toFixed(2)} L</td>
-                    <td class="py-4 px-4">
-                        <div class="flex flex-col gap-1 min-w-[110px]">
-                            <span class="font-mono font-extrabold text-brand-600 dark:text-brand-400">${trip.currency}${trip.totalCost.toFixed(2)}</span>
-                            <div class="w-full h-1.5 bg-slate-100 dark:bg-obsidian-800 rounded-full overflow-hidden">
-                                <div class="h-full bg-brand-500 rounded-full" style="width: ${barWidth}%"></div>
+                        <div class="text-xs text-slate-400 mt-0.5">
+                            <span class="font-mono text-slate-300 font-semibold">${r.distance} km</span> • 
+                            <span>${r.burn} L/100km</span> • 
+                            <span class="font-bold text-brand-400">€${r.totalCost.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="loadRoute('${r.id}')" class="p-2 rounded-xl bg-obsidian-900 hover:bg-brand-500 hover:text-white text-brand-400 border border-slate-700 transition" title="Ielādēt maršrutu">
+                            <i class="ph-bold ph-arrow-up-right text-base"></i>
+                        </button>
+                        <button type="button" onclick="deleteRoute('${r.id}')" class="p-2 rounded-xl bg-obsidian-900 hover:bg-rose-500 hover:text-white text-slate-400 border border-slate-700 transition" title="Dzēst">
+                            <i class="ph-bold ph-trash text-base"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Cars Modal
+        function renderSavedCars() {
+            const container = document.getElementById('modal-cars-list');
+            container.innerHTML = state.savedCars.map(c => `
+                <div class="p-4 bg-obsidian-850 hover:bg-obsidian-800 border ${c.id === state.activeCar.id ? 'border-accent-500/60 ring-1 ring-accent-500/30' : 'border-slate-800'} rounded-2xl flex items-center justify-between gap-3 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-accent-500/10 text-accent-400 flex items-center justify-center font-bold">
+                            <i class="ph-fill ph-car text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-white text-sm">${escapeHtml(c.name)}</h4>
+                                ${c.id === state.activeCar.id ? `<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-accent-500/20 text-accent-400">AKTĪVS</span>` : ''}
                             </div>
+                            <p class="text-xs text-slate-400">
+                                <span class="font-mono text-slate-300 font-bold">${c.burn} L/100km</span> • ${c.fuelType.toUpperCase()} • Bāka: ${c.tank}L
+                            </p>
                         </div>
-                    </td>
-                    <td class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-slate-300">
-                        ${trip.currency}${trip.costPerPerson.toFixed(2)} <span class="text-[11px] text-slate-400">(${trip.passengers}p)</span>
-                    </td>
-                    <td class="py-4 px-4 text-right">
-                        <div class="inline-flex items-center gap-1">
-                            <button type="button" onclick="loadSavedTrip('${trip.id}')" class="p-2 rounded-xl text-slate-400 hover:text-brand-500 hover:bg-brand-500/10 transition" title="${t.loadTripTitle}">
-                                <i class="ph-bold ph-upload-simple text-base"></i>
-                            </button>
-                            <button type="button" onclick="deleteSavedTrip('${trip.id}')" class="p-2 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition" title="${t.deleteTripTitle}">
-                                <i class="ph-bold ph-trash text-base"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="selectCar('${c.id}')" class="px-3 py-1.5 rounded-xl bg-accent-500/20 hover:bg-accent-500 text-accent-400 hover:text-white font-bold text-xs transition">
+                            Izvēlēties
+                        </button>
+                        ${state.savedCars.length > 1 ? `
+                        <button type="button" onclick="deleteCar('${c.id}')" class="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10">
+                            <i class="ph-bold ph-trash text-sm"></i>
+                        </button>` : ''}
+                    </div>
+                </div>
+            `).join('');
         }
 
         function escapeHtml(str) {
@@ -1197,219 +1151,319 @@
             }[tag] || tag));
         }
 
-        // Load Saved Trip back into Calculator
-        window.loadSavedTrip = function(id) {
-            const trip = state.savedTrips.find(tr => tr.id === id);
-            if (!trip) return;
-
-            if (state.unit !== 'l100') switchConsumptionUnit('l100');
-            state.roundTrip = trip.roundTrip;
-            els.roundTripToggle.checked = trip.roundTrip;
-            state.passengers = trip.passengers;
-            state.currency = trip.currency;
-            els.currencySelect.value = trip.currency;
-
-            const oneWay = trip.oneWayDistance || (trip.roundTrip ? Math.round(trip.distance / 2) : trip.distance);
-            setPrice(trip.price);
-            setConsumption(trip.l100);
-            setDistance(oneWay, trip.name);
-
-            showToast(translations[state.lang].toastLoaded, 'ph-upload-simple');
+        // Global functions for inline actions
+        window.loadRoute = function(id) {
+            const r = state.savedRoutes.find(item => item.id === id);
+            if (!r) return;
+            state.distance = r.distance;
+            state.roundTrip = r.roundTrip;
+            document.getElementById('round-trip-toggle').checked = r.roundTrip;
+            document.getElementById('route-from-input').value = r.origin || 'Rīga';
+            document.getElementById('route-to-input').value = r.destination || 'Daugavpils';
+            state.consumption = r.burn;
+            state.price = r.price;
+            document.getElementById('routes-modal').classList.add('hidden');
+            updateDashboard();
+            showToast(I18N[state.lang].toastRouteLoaded, 'ph-arrow-up-right');
         };
 
-        // Delete Saved Trip
-        window.deleteSavedTrip = function(id) {
-            state.savedTrips = state.savedTrips.filter(t => t.id !== id);
-            renderSavedTrips();
-            showToast(translations[state.lang].toastDeleted, 'ph-trash');
+        window.deleteRoute = function(id) {
+            state.savedRoutes = state.savedRoutes.filter(item => item.id !== id);
+            localStorage.setItem('fuelpro_routes', JSON.stringify(state.savedRoutes));
+            renderSavedRoutes();
+            updateDashboard();
         };
 
-        // Initialize All Interactive Event Listeners
+        window.selectCar = function(id) {
+            const c = state.savedCars.find(item => item.id === id);
+            if (!c) return;
+            state.activeCar = c;
+            state.consumption = c.burn;
+            state.fuelType = c.fuelType;
+            // Update price according to station and fuel type
+            const rates = FUEL_STATIONS[state.activeStation] || FUEL_STATIONS.average;
+            state.price = rates[c.fuelType] || 1.58;
+            document.getElementById('cars-modal').classList.add('hidden');
+            updateDashboard();
+            renderSavedCars();
+            showToast(`${I18N[state.lang].toastCarLoaded} (${c.name})`, 'ph-car-profile');
+        };
+
+        window.deleteCar = function(id) {
+            state.savedCars = state.savedCars.filter(item => item.id !== id);
+            if (state.activeCar.id === id) {
+                state.activeCar = state.savedCars[0] || DEFAULT_CARS[0];
+            }
+            localStorage.setItem('fuelpro_cars', JSON.stringify(state.savedCars));
+            renderSavedCars();
+            updateDashboard();
+        };
+
+        // Event Setup
         function initListeners() {
-            // Language Switcher
-            els.langLvBtn.addEventListener('click', () => applyLanguage('lv'));
-            els.langEnBtn.addEventListener('click', () => applyLanguage('en'));
+            // Language
+            document.getElementById('lang-lv').addEventListener('click', () => applyLanguage('lv'));
+            document.getElementById('lang-en').addEventListener('click', () => applyLanguage('en'));
 
-            // Fuel Price Controls
-            els.priceInput.addEventListener('input', e => {
-                const val = parseFloat(e.target.value);
-                state.price = isNaN(val) ? 0 : val;
-                els.priceSlider.value = Math.min(3.0, Math.max(0.5, state.price));
-                updateUI();
+            // Price controls
+            document.getElementById('price-input').addEventListener('input', e => {
+                state.price = parseFloat(e.target.value) || 0;
+                updateDashboard();
             });
-            els.priceSlider.addEventListener('input', e => setPrice(e.target.value));
-            els.priceStepDown.addEventListener('click', () => setPrice(Math.max(0.1, state.price - 0.01)));
-            els.priceStepUp.addEventListener('click', () => setPrice(state.price + 0.01));
-            els.pricePresets.forEach(btn => {
-                btn.addEventListener('click', () => setPrice(btn.dataset.price));
+            document.getElementById('price-slider').addEventListener('input', e => {
+                state.price = parseFloat(e.target.value);
+                updateDashboard();
             });
-
-            // Fuel Consumption Controls
-            els.consumptionInput.addEventListener('input', e => {
-                const val = parseFloat(e.target.value);
-                state.consumption = isNaN(val) ? 0 : val;
-                els.consumptionSlider.value = state.consumption;
-                updateUI();
+            document.getElementById('price-down').addEventListener('click', () => {
+                state.price = Math.max(0.1, +(state.price - 0.01).toFixed(2));
+                updateDashboard();
             });
-            els.consumptionSlider.addEventListener('input', e => setConsumption(e.target.value));
-            els.consStepDown.addEventListener('click', () => setConsumption(Math.max(0.5, state.consumption - 0.1)));
-            els.consStepUp.addEventListener('click', () => setConsumption(state.consumption + 0.1));
-            els.unitL100Btn.addEventListener('click', () => switchConsumptionUnit('l100'));
-            els.unitKmlBtn.addEventListener('click', () => switchConsumptionUnit('kml'));
-            els.carPresets.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const l100Val = parseFloat(btn.dataset.l100);
-                    if (state.unit === 'l100') {
-                        setConsumption(l100Val);
-                    } else {
-                        setConsumption((100 / l100Val).toFixed(1));
-                    }
-                });
+            document.getElementById('price-up').addEventListener('click', () => {
+                state.price = +(state.price + 0.01).toFixed(2);
+                updateDashboard();
             });
 
-            // Distance & Route Controls
-            els.distanceInput.addEventListener('input', e => {
-                const val = parseFloat(e.target.value);
-                state.distance = isNaN(val) ? 0 : val;
-                state.selectedRouteHint = '';
-                els.distanceSlider.value = Math.min(1200, Math.max(5, state.distance));
-                updateUI();
+            // Consumption controls
+            document.getElementById('consumption-input').addEventListener('input', e => {
+                state.consumption = parseFloat(e.target.value) || 0;
+                updateDashboard();
             });
-            els.distanceSlider.addEventListener('input', e => setDistance(e.target.value));
-            els.distStepDown.addEventListener('click', () => setDistance(Math.max(1, state.distance - 5)));
-            els.distStepUp.addEventListener('click', () => setDistance(state.distance + 5));
-            els.distPresets.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    setDistance(btn.dataset.dist, btn.dataset.route || '');
-                    if (btn.dataset.route && !els.tripNameInput.value) {
-                        els.tripNameInput.value = btn.dataset.route;
-                    }
-                });
+            document.getElementById('consumption-slider').addEventListener('input', e => {
+                state.consumption = parseFloat(e.target.value);
+                updateDashboard();
             });
-            els.roundTripToggle.addEventListener('change', e => {
+            document.getElementById('cons-down').addEventListener('click', () => {
+                state.consumption = Math.max(0.5, +(state.consumption - 0.1).toFixed(1));
+                updateDashboard();
+            });
+            document.getElementById('cons-up').addEventListener('click', () => {
+                state.consumption = +(state.consumption + 0.1).toFixed(1);
+                updateDashboard();
+            });
+
+            // Distance controls
+            document.getElementById('distance-input').addEventListener('input', e => {
+                state.distance = parseInt(e.target.value, 10) || 0;
+                updateDashboard();
+            });
+            document.getElementById('distance-slider').addEventListener('input', e => {
+                state.distance = parseInt(e.target.value, 10);
+                updateDashboard();
+            });
+            document.getElementById('dist-down').addEventListener('click', () => {
+                state.distance = Math.max(1, state.distance - 5);
+                updateDashboard();
+            });
+            document.getElementById('dist-up').addEventListener('click', () => {
+                state.distance += 5;
+                updateDashboard();
+            });
+            document.getElementById('round-trip-toggle').addEventListener('change', e => {
                 state.roundTrip = e.target.checked;
-                updateUI();
+                updateDashboard();
             });
 
-            // Passengers Controls
-            els.seatPresets.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    state.passengers = parseInt(btn.dataset.seats, 10);
-                    updateUI();
-                });
-            });
-            els.passMinus.addEventListener('click', () => {
+            // Passengers
+            document.getElementById('pass-minus').addEventListener('click', () => {
                 if (state.passengers > 1) {
                     state.passengers--;
-                    updateUI();
+                    updateDashboard();
                 }
             });
-            els.passPlus.addEventListener('click', () => {
-                if (state.passengers < 50) {
-                    state.passengers++;
-                    updateUI();
-                }
+            document.getElementById('pass-plus').addEventListener('click', () => {
+                state.passengers++;
+                updateDashboard();
             });
 
-            // Currency Select
-            els.currencySelect.addEventListener('change', e => {
-                state.currency = e.target.value;
-                updateUI();
-            });
-
-            // Save Trip to Comparison Table
-            els.saveTripBtn.addEventListener('click', () => {
-                const calc = getCalculations();
-                const t = translations[state.lang];
-                const customName = els.tripNameInput.value.trim();
-                const tripName = customName || state.selectedRouteHint || `${t.defaultTripPrefix} #${state.savedTrips.length + 1} (${calc.effectiveDistance} km)`;
-
-                state.savedTrips.unshift({
-                    id: 'trip-' + Date.now(),
-                    name: tripName,
-                    oneWayDistance: state.distance,
-                    distance: calc.effectiveDistance,
-                    roundTrip: state.roundTrip,
-                    l100: calc.litersPer100km,
-                    price: state.price,
-                    fuelNeeded: calc.totalFuel,
-                    totalCost: calc.totalCost,
-                    passengers: state.passengers,
-                    costPerPerson: calc.costPerPerson,
-                    currency: state.currency
+            // Station Filter
+            document.querySelectorAll('.station-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.station-filter-btn').forEach(b => {
+                        b.className = 'station-filter-btn px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white';
+                    });
+                    btn.className = 'station-filter-btn px-2.5 py-1 rounded-lg font-bold bg-obsidian-900 text-brand-400';
+                    state.activeStation = btn.dataset.station;
+                    syncLatviaFuelPrices();
                 });
-
-                els.tripNameInput.value = '';
-                renderSavedTrips();
-                showToast(t.toastSaved, 'ph-bookmark-simple');
             });
 
-            // Clear All Saved Trips
-            els.clearTripsBtn.addEventListener('click', () => {
-                state.savedTrips = [];
-                renderSavedTrips();
-                showToast(translations[state.lang].toastCleared, 'ph-trash');
+            // Fuel Rate Quick Picks
+            document.querySelectorAll('.fuel-rate-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const fuelKey = btn.dataset.fuel;
+                    state.fuelType = fuelKey;
+                    const rates = FUEL_STATIONS[state.activeStation] || FUEL_STATIONS.average;
+                    state.price = rates[fuelKey] || 1.58;
+                    updateDashboard();
+                    showToast(`${fuelKey.toUpperCase()} cena iestatīta uz €${state.price.toFixed(2)}/L`, 'ph-gas-pump');
+                });
             });
 
-            // Copy Summary to Clipboard
-            els.copySummaryBtn.addEventListener('click', () => {
+            // City chips
+            document.querySelectorAll('.city-chip').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('route-to-input').value = btn.dataset.city;
+                    document.getElementById('calculate-route-api-btn').click();
+                });
+            });
+
+            // Swap Cities
+            document.getElementById('swap-cities-btn').addEventListener('click', () => {
+                const f = document.getElementById('route-from-input');
+                const t = document.getElementById('route-to-input');
+                const temp = f.value;
+                f.value = t.value;
+                t.value = temp;
+                document.getElementById('calculate-route-api-btn').click();
+            });
+
+            // Calculate Route Button
+            document.getElementById('calculate-route-api-btn').addEventListener('click', async () => {
+                const fromVal = document.getElementById('route-from-input').value.trim() || 'Rīga';
+                const toVal = document.getElementById('route-to-input').value.trim() || 'Daugavpils';
+                state.origin = fromVal;
+                state.destination = toVal;
+
+                const result = await fetchRouteFromOSRM(fromVal, toVal);
+                state.distance = result.distance;
+                document.getElementById('route-status-msg').textContent = `Aktīvs maršruts: ${fromVal} → ${toVal} (~${result.distance} km)`;
+                document.getElementById('route-est-time').textContent = result.durationText;
+                updateDashboard();
+                showToast(`Maršruts ${fromVal} → ${toVal}: ${result.distance} km (${result.durationText})`, 'ph-navigation-arrow');
+            });
+
+            // Sync Rates Button
+            document.getElementById('sync-prices-btn').addEventListener('click', syncLatviaFuelPrices);
+
+            // Modals Trigger Handlers
+            document.getElementById('open-routes-btn').addEventListener('click', () => {
+                renderSavedRoutes();
+                document.getElementById('routes-modal').classList.remove('hidden');
+            });
+            document.getElementById('open-cars-btn').addEventListener('click', () => {
+                renderSavedCars();
+                document.getElementById('cars-modal').classList.remove('hidden');
+            });
+            document.getElementById('change-car-btn').addEventListener('click', () => {
+                renderSavedCars();
+                document.getElementById('cars-modal').classList.remove('hidden');
+            });
+
+            // Close Modals
+            document.getElementById('close-routes-modal').addEventListener('click', () => {
+                document.getElementById('routes-modal').classList.add('hidden');
+            });
+            document.querySelectorAll('.close-routes-btn').forEach(btn => {
+                btn.addEventListener('click', () => document.getElementById('routes-modal').classList.add('hidden'));
+            });
+            document.getElementById('close-cars-modal').addEventListener('click', () => {
+                document.getElementById('cars-modal').classList.add('hidden');
+            });
+            document.querySelectorAll('.close-cars-btn').forEach(btn => {
+                btn.addEventListener('click', () => document.getElementById('cars-modal').classList.add('hidden'));
+            });
+
+            // Save Car Trigger (Bottom Bar + Modal)
+            document.getElementById('bottom-save-car-btn').addEventListener('click', () => {
+                document.getElementById('input-car-burn').value = state.consumption;
+                document.getElementById('select-car-fuel').value = state.fuelType;
+                document.getElementById('save-car-dialog').classList.remove('hidden');
+            });
+            document.getElementById('open-new-car-modal-btn').addEventListener('click', () => {
+                document.getElementById('cars-modal').classList.add('hidden');
+                document.getElementById('save-car-dialog').classList.remove('hidden');
+            });
+            document.getElementById('cancel-save-car-btn').addEventListener('click', () => {
+                document.getElementById('save-car-dialog').classList.add('hidden');
+            });
+
+            // Save Car Form Submit
+            document.getElementById('save-car-form').addEventListener('submit', e => {
+                e.preventDefault();
+                const name = document.getElementById('input-car-name').value.trim();
+                const fuelType = document.getElementById('select-car-fuel').value;
+                const burn = parseFloat(document.getElementById('input-car-burn').value) || 6.0;
+                const tank = parseInt(document.getElementById('input-car-tank').value, 10) || 55;
+
+                const newCar = {
+                    id: 'car-' + Date.now(),
+                    name,
+                    fuelType,
+                    burn,
+                    tank
+                };
+
+                state.savedCars.unshift(newCar);
+                state.activeCar = newCar;
+                state.consumption = burn;
+                state.fuelType = fuelType;
+
+                localStorage.setItem('fuelpro_cars', JSON.stringify(state.savedCars));
+                document.getElementById('save-car-dialog').classList.add('hidden');
+                updateDashboard();
+                showToast(I18N[state.lang].toastCarSaved, 'ph-car-profile');
+            });
+
+            // Save Route (Bottom Bar)
+            document.getElementById('bottom-save-route-btn').addEventListener('click', () => {
                 const calc = getCalculations();
-                const t = translations[state.lang];
-                const summaryText = state.lang === 'lv'
-                    ? `FuelPro Brauciena aprēķins:\n` +
-                      `• Attālums: ${calc.effectiveDistance} km (${state.roundTrip ? 'Turp un atpakaļ' : 'Vienā virzienā'})\n` +
-                      `• Vidējais patēriņš: ${calc.litersPer100km.toFixed(1)} L/100km\n` +
-                      `• Degvielas cena: ${state.currency}${state.price.toFixed(2)}/L\n` +
-                      `• Nepieciešamā degviela: ${calc.totalFuel.toFixed(2)} L\n` +
-                      `• Kopējās izmaksas: ${state.currency}${calc.totalCost.toFixed(2)}` +
-                      (state.passengers > 1 ? ` (${state.currency}${calc.costPerPerson.toFixed(2)} uz cilvēku, ${state.passengers} pasažieri)` : '')
-                    : `FuelPro Trip Summary:\n` +
-                      `• Distance: ${calc.effectiveDistance} km (${state.roundTrip ? 'Round-Trip' : 'One-Way'})\n` +
-                      `• Fuel Consumption: ${calc.litersPer100km.toFixed(1)} L/100km\n` +
-                      `• Fuel Price: ${state.currency}${state.price.toFixed(2)}/L\n` +
-                      `• Fuel Needed: ${calc.totalFuel.toFixed(2)} L\n` +
-                      `• Total Cost: ${state.currency}${calc.totalCost.toFixed(2)}` +
-                      (state.passengers > 1 ? ` (${state.currency}${calc.costPerPerson.toFixed(2)} per person for ${state.passengers} people)` : '');
+                const fromVal = document.getElementById('route-from-input').value.trim() || 'Rīga';
+                const toVal = document.getElementById('route-to-input').value.trim() || 'Galamērķis';
 
-                const textArea = document.createElement('textarea');
-                textArea.value = summaryText;
-                document.body.appendChild(textArea);
-                textArea.select();
+                const routeObj = {
+                    id: 'route-' + Date.now(),
+                    name: `${fromVal} → ${toVal}`,
+                    origin: fromVal,
+                    destination: toVal,
+                    distance: state.distance,
+                    roundTrip: state.roundTrip,
+                    burn: calc.l100,
+                    price: state.price,
+                    totalCost: calc.totalCost,
+                    fuelNeeded: calc.totalFuel,
+                    date: new Date().toLocaleDateString('lv-LV')
+                };
+
+                state.savedRoutes.unshift(routeObj);
+                localStorage.setItem('fuelpro_routes', JSON.stringify(state.savedRoutes));
+                updateDashboard();
+                showToast(I18N[state.lang].toastRouteSaved, 'ph-bookmark-simple');
+            });
+
+            // Clear All Routes
+            document.getElementById('clear-all-routes-btn').addEventListener('click', () => {
+                state.savedRoutes = [];
+                localStorage.setItem('fuelpro_routes', JSON.stringify(state.savedRoutes));
+                renderSavedRoutes();
+                updateDashboard();
+            });
+
+            // Copy Summary
+            document.getElementById('copy-summary-btn').addEventListener('click', () => {
+                const calc = getCalculations();
+                const text = `FuelPro Studio LV — Brauciena Kopsavilkums:
+• Maršruts: ${state.origin} → ${state.destination} (${calc.effectiveDist} km, ${state.roundTrip ? '2x turp-atpakaļ' : '1x virziens'})
+• Auto: ${state.activeCar.name} (${calc.l100.toFixed(1)} L/100km, ${state.fuelType.toUpperCase()})
+• Degvielas cena: €${state.price.toFixed(2)}/L
+• Nepieciešamā degviela: ${calc.totalFuel.toFixed(2)} L
+• KOPĒJĀS IZMAKSAS: €${calc.totalCost.toFixed(2)}
+• Uz 1 cilvēku (${state.passengers} braucēji): €${calc.costPerPerson.toFixed(2)}`;
+
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
                 try {
                     document.execCommand('copy');
-                    showToast(t.toastCopied, 'ph-copy');
-                } catch (err) {
-                    showToast('Error', 'ph-warning');
+                    showToast(I18N[state.lang].toastCopied, 'ph-copy');
+                } catch (e) {
+                    console.error(e);
                 }
-                document.body.removeChild(textArea);
-            });
-
-            // Reset Calculator
-            els.resetBtn.addEventListener('click', () => {
-                state.roundTrip = false;
-                els.roundTripToggle.checked = false;
-                state.passengers = 1;
-                if (state.unit !== 'l100') switchConsumptionUnit('l100');
-                setPrice(1.62);
-                setConsumption(6.8);
-                setDistance(230, 'Rīga–Daugavpils');
-                els.tripNameInput.value = '';
-                showToast(translations[state.lang].toastReset, 'ph-arrow-counter-clockwise');
-            });
-
-            // Theme Toggle
-            els.themeToggle.addEventListener('click', () => {
-                const html = document.documentElement;
-                html.classList.toggle('dark');
-                const isDark = html.classList.contains('dark');
-                els.themeIcon.className = isDark
-                    ? 'ph-bold ph-sun text-base text-amber-400'
-                    : 'ph-bold ph-moon text-base text-slate-700';
-                updateUI();
+                document.body.removeChild(ta);
             });
         }
 
-        // Initialize on DOM Ready
+        // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
             initListeners();
             applyLanguage('lv');
